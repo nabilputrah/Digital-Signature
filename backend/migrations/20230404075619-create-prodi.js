@@ -13,10 +13,15 @@ module.exports = {
         references:{
           model:'Dosen',
           key:'NIP'
-        }
+        },
+        unique:true,
+        onDelete:'cascade',
+        onUpdate:'cascade',
+        allowNull:false
       },
       nama_prodi: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull:false
       },
     });
   },

@@ -4,6 +4,7 @@ var router = express.Router();
 const userController = require('../controllers').user;
 const dosenController = require('../controllers').dosen;
 const jurusanController = require('../controllers').jurusan;
+const prodiController = require('../controllers').prodi;
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -31,6 +32,13 @@ router.get('/api/jurusan/:id', jurusanController.getJurusanById)
 router.post('/api/jurusan', jurusanController.addJurusan)
 router.put('/api/jurusan/:id',jurusanController.updateJurusan)
 router.delete('/api/jurusan/:id', jurusanController.deleteJurusan)
+
+/* Endpoint Prodi Controller*/
+router.get('/api/prodi', prodiController.getAllProdi)
+router.get('/api/prodi/:id', prodiController.getProdiById)
+router.post('/api/prodi', prodiController.addProdi)
+router.put('/api/prodi/:id',prodiController.updateProdi)
+router.delete('/api/prodi/:id', prodiController.deleteProdi)
 
 // router.get('/api/classroom/:id', classroomController.getById);
 // router.post('/api/classroom', classroomController.add);
