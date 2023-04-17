@@ -28,6 +28,9 @@ router.delete('/api/dosen/:id', dosenController.deleteDosen);
 /* Endpoint Jurusan Controller*/
 router.get('/api/jurusan', jurusanController.getAllJurusan)
 router.get('/api/jurusan/:id', jurusanController.getJurusanById)
+router.post('/api/jurusan', jurusanController.addJurusan)
+router.put('/api/jurusan/:id',jurusanController.updateJurusan)
+router.delete('/api/jurusan/:id', jurusanController.deleteJurusan)
 
 // router.get('/api/classroom/:id', classroomController.getById);
 // router.post('/api/classroom', classroomController.add);
