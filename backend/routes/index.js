@@ -5,6 +5,7 @@ const userController = require('../controllers').user;
 const dosenController = require('../controllers').dosen;
 const jurusanController = require('../controllers').jurusan;
 const prodiController = require('../controllers').prodi;
+const koordinatorController = require('../controllers').koordinator;
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -39,6 +40,13 @@ router.get('/api/prodi/:id', prodiController.getProdiById)
 router.post('/api/prodi', prodiController.addProdi)
 router.put('/api/prodi/:id',prodiController.updateProdi)
 router.delete('/api/prodi/:id', prodiController.deleteProdi)
+
+/* Endpoint Koordinator Controller*/
+router.get('/api/koordinator', koordinatorController.getAllKoordinator)
+router.get('/api/koordinator/:id', koordinatorController.getKoordinatorById)
+router.post('/api/koordinator', koordinatorController.addKoordinator)
+router.put('/api/koordinator/:id',koordinatorController.updateKoordinator)
+router.delete('/api/koordinator/:id', koordinatorController.deleteKoordinator)
 
 // router.get('/api/classroom/:id', classroomController.getById);
 // router.post('/api/classroom', classroomController.add);
