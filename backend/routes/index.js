@@ -6,6 +6,8 @@ const dosenController = require('../controllers').dosen;
 const jurusanController = require('../controllers').jurusan;
 const prodiController = require('../controllers').prodi;
 const koordinatorController = require('../controllers').koordinator;
+const koTAController = require('../controllers').kota;
+const mahasiswaController = require('../controllers').mahasiswa;
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -47,6 +49,20 @@ router.get('/api/koordinator/:id', koordinatorController.getKoordinatorById)
 router.post('/api/koordinator', koordinatorController.addKoordinator)
 router.put('/api/koordinator/:id',koordinatorController.updateKoordinator)
 router.delete('/api/koordinator/:id', koordinatorController.deleteKoordinator)
+
+/* Endpoint KoTA Controller*/
+router.get('/api/KoTA', koTAController.getAllKoTA)
+router.get('/api/KoTA/:id', koTAController.getKoTAById)
+router.post('/api/KoTA', koTAController.addKoTA)
+router.put('/api/KoTA/:id',koTAController.updateKoTA)
+router.delete('/api/KoTA/:id', koTAController.deleteKoTA)
+
+/* Endpoint Mahasiswa Controller*/
+router.get('/api/mahasiswa', mahasiswaController.getAllMahasiswa)
+router.get('/api/mahasiswa/:id', mahasiswaController.getMahasiswaById)
+router.post('/api/mahasiswa', mahasiswaController.addMahasiswa)
+router.put('/api/mahasiswa/:id',mahasiswaController.updateMahasiswa)
+router.delete('/api/mahasiswa/:id', mahasiswaController.deleteMahasiswa)
 
 // router.get('/api/classroom/:id', classroomController.getById);
 // router.post('/api/classroom', classroomController.add);

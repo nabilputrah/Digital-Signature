@@ -14,10 +14,48 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Mahasiswa.init({
-    NIM: DataTypes.STRING,
+    NIM: {
+      type: DataTypes.STRING,
+      primaryKey:true,
+      allowNull:false,
+      validate: {
+        async isDuplicatePK(value) {
+          const mahasiswa = await Mahasiswa.findOne({
+            where: {
+              NIM: value
+            },
+            attributes:{
+              exclude:['id']
+            }
+          });
+        if (mahasiswa) {
+          throw new Error('NIM must be unique');
+        }
+        }
+      }
+    },
     id_KoTA: DataTypes.STRING,
     nama: DataTypes.STRING,
-    email: DataTypes.STRING,
+    email: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isUnique: async function (value) {
+          const mahasiswa = await Mahasiswa.findOne({
+             where: {
+               email: value 
+              },
+              attributes: {
+                exclude:['id']
+              } 
+            });
+          if (mahasiswa) {
+            throw new Error('email must be unique');
+          }
+        },
+      },
+    },
     isKetua: DataTypes.BOOLEAN
   }, {
     sequelize,

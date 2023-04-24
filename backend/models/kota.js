@@ -14,9 +14,47 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   KoTA.init({
-    id_KoTA: DataTypes.STRING,
+    id_KoTA: {
+      type: DataTypes.STRING,
+      primaryKey:true,
+      allowNull:false,
+      validate: {
+        async isDuplicatePK(value) {
+          const kota = await KoTA.findOne({
+            where: {
+              id_KoTA: value
+            },
+            attributes:{
+              exclude:['id']
+            }
+          });
+        if (kota) {
+          throw new Error('ID KoTA must be unique');
+        }
+        }
+      }
+    },
     id_prodi: DataTypes.STRING,
-    id_user: DataTypes.INTEGER,
+    id_user: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isUnique: async function (value) {
+          const kota = await KoTA.findOne({
+             where: {
+               id_user: value 
+              },
+              attributes: {
+                exclude:['id']
+              } 
+            });
+          if (kota) {
+            throw new Error('id_user must be unique');
+          }
+        },
+      },
+    },
     tahun_ajaran: DataTypes.STRING,
     nama_KoTA: DataTypes.STRING,
     jumlah_pembimbing: DataTypes.INTEGER,
