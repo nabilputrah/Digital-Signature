@@ -14,12 +14,30 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Relasi_KoTA.init({
-    id_relasi: DataTypes.INTEGER,
+        id_relasi: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER
+      },
     id_KoTA: DataTypes.STRING,
     NIP: DataTypes.STRING,
-    role: DataTypes.STRING,
+    role: {
+      type: DataTypes.STRING,
+      allowNull:false,
+      validate:{
+        isIn: {
+          args: [['Koordinator','KoTA','Dosen']],
+          msg: 'Role yang tersedia hanya Koordinator,KoTA dan Dosen',
+        }
+      
+      }
+    },
     urutan: DataTypes.INTEGER,
-    status: DataTypes.BOOLEAN,
+    status: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
     img_ttd: DataTypes.STRING,
     tgl_ttd: DataTypes.DATE
   }, {

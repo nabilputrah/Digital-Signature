@@ -13,7 +13,10 @@ module.exports = {
         references:{
           model:'Dosen',
           key:'NIP'
-        }
+        },
+        onDelete:'cascade',
+        onUpdate:'cascade',
+        allowNull:false
       },
       nama_jurusan: {
         type: Sequelize.STRING,

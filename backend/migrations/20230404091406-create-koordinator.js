@@ -14,6 +14,7 @@ module.exports = {
           model:'User',
           key:'id_user'
         },
+        unique:true,
         onUpdate:'cascade',
         onDelete:'cascade'
       },
@@ -23,6 +24,7 @@ module.exports = {
           model:'Prodi',
           key:'id_prodi'
         },
+        unique:true,
         onDelete:'cascade',
         onUpdate:'cascade'
       },

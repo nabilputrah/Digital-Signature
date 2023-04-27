@@ -1,28 +1,28 @@
 const db = require('../db/index')
-const Jurusan = require('../models').Jurusan;
+const Mahasiswa = require('../models').Mahasiswa;
 
 
 module.exports = {
-  async getAllJurusan(req, res) {
+  async getAllMahasiswa(req, res) {
     try {
-        const jurusan = await Jurusan.findAll({
+        const mahasiswa = await Mahasiswa.findAll({
             attributes: {
                 exclude: ['createdAt', 'updatedAt','id']
             },
             order: [
-                ['id_jurusan', 'ASC']
+                ['NIM', 'ASC']
             ]
         })
         
-        if (jurusan.length == 0) {
+        if (mahasiswa.length == 0) {
             return res.status(400).send({
-                message:'Data jurusan tidak ada'
+                message:'Data mahasiswa tidak ada'
             })
         }
 
         return res.status(200).send({
-            message:'Get all data jurusan berhasil',
-            data: jurusan
+            message:'Get all data mahasiswa berhasil',
+            data: mahasiswa
         })
     } catch (error) {
         return res.status(400).send({
@@ -33,28 +33,28 @@ module.exports = {
 
   },
   
-  async getJurusanById(req, res) {
+  async getMahasiswaById(req, res) {
     const { id } = req.params
 
     try {
-      const jurusan = await Jurusan.findOne({
+      const mahasiswa = await Mahasiswa.findOne({
         where: {
-          id_jurusan: id
+          NIM: id
         },
         attributes: {
           exclude:['id']
         }
       })
 
-      if (!jurusan) {
+      if (!mahasiswa) {
         return res.status(404).send({
-          message:'Data jurusan tidak ditemukan'
+          message:'Data mahasiswa tidak ditemukan'
         })
       }
 
       return res.status(200).send({
-        message:`Get data jurusan dengan id ${id} berhasil`,
-        data: jurusan
+        message:`Get data mahasiswa dengan id ${id} berhasil`,
+        data: mahasiswa
       })
     } catch (error) {
       return res.status(400).send({
@@ -63,25 +63,26 @@ module.exports = {
     }
   },
  
-  async addJurusan(req, res) {
+ 
+  async addMahasiswa(req, res) {
     const data = req.body
     const options = {
-        fields: ['id_jurusan','NIP','nama_jurusan'],
+        fields: ['NIM','id_KoTA','nama','email','isKetua'],
         returning:false
     }
     try {
-        await Jurusan.create(data,options)
-        const selectJurusan = await Jurusan.findOne({
+        await Mahasiswa.create(data,options)
+        const selectMahasiswa = await Mahasiswa.findOne({
             where: {
-                id_jurusan: req.body.id_jurusan,
+                NIM: req.body.NIM,
             },
             attributes: {
                 exclude: ['id']
             }
         })
         return res.status(200).send({
-            message:'add new Dosen berhasil',
-            data: selectJurusan
+            message:'add new Mahasiswa berhasil',
+            data: selectMahasiswa
         })
     } catch (error) {
         return res.status(400).send({
@@ -90,36 +91,37 @@ module.exports = {
     }
   },
 
-  async updateJurusan(req, res) {
+  async updateMahasiswa(req, res) {
     const { id } = req.params
-    const { id_jurusan, NIP, nama_jurusan, } = req.body
+    const { NIM, id_KoTA, nama, email, isKetua} = req.body
 
     try {
-      const jurusan = await Jurusan.findOne({
+      const mahasiswa = await Mahasiswa.findOne({
         where: {
-          id_jurusan: id
+          NIM: id
         },
         attributes: {
           exclude:['id']
         }
       })
 
-      if (!jurusan) {
+      if (!mahasiswa) {
         return res.status(404).send({
-          message:'Data jurusan tidak ditemukan'
+          message:'Data mahasiswa tidak ditemukan'
         })
       }
 
-      const updateQuery = `UPDATE "Jurusan" SET "id_jurusan" = $1, "NIP" = $2, "nama_jurusan"=$3
-                           WHERE "id_jurusan"= $4 RETURNING *`
+      const updateQuery = `UPDATE "Mahasiswa" SET "NIM" = $1, "id_KoTA" = $2, "nama"=$3,
+                           "email"=$4, "isKetua"=$5 
+                           WHERE "NIM"= $6 RETURNING *`
 
-      const paramsQuery = [ id_jurusan, NIP, nama_jurusan, id]
+      const paramsQuery = [ NIM, id_KoTA, nama, email, isKetua, id]
 
       const result = await db.query(updateQuery, paramsQuery)
 
       if (Object.keys(result).length > 0) {
         return res.status(200).send({
-          message: `Update data jurusan dengan id jurusan berhasil`,
+          message: `Update data mahasiswa dengan id mahasiswa ${id} berhasil`,
           data: result.rows
         })
       } 
@@ -129,36 +131,34 @@ module.exports = {
       })
     }
   },
-
- 
-  async deleteJurusan(req, res) {
+  
+  async deleteMahasiswa(req, res) {
     const { id } = req.params
-
+   
     try {
-      const jurusan = await Jurusan.findOne({
+      const mahasiswa = await Mahasiswa.findOne({
         where: {
-          id_jurusan: id
+          NIM: id
         },
         attributes: {
           exclude:['id']
         }
       })
 
-      if (!jurusan) {
+      if (!mahasiswa) {
         return res.status(404).send({
-          message:'Data jurusan tidak ditemukan'
+          message:'Data mahasiswa tidak ditemukan'
         })
       }
 
-      await Jurusan.destroy({
+      await Mahasiswa.destroy({
         where: {
-          id_jurusan:id
+          id_mahasiswa:id
         }
       })
    
       return res.status(200).send({
-        message:`Data jurusan dengan id ${id} berhasil dihapus`,
-        data: jurusan
+        message:`Data mahasiswa dengan id ${id} berhasil dihapus`
       })
     } catch (error) {
       return res.status(400).send({

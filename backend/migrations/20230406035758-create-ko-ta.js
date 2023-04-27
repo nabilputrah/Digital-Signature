@@ -22,7 +22,10 @@ module.exports = {
         references:{
           model:'User',
           key:'id_user'
-        }
+        },
+        onDelete:'cascade',
+        onUpdate:'cascade',
+        unique:true
       },
       tahun_ajaran: {
         type: Sequelize.STRING
