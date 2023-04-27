@@ -1,12 +1,11 @@
 <template>
-  <v-app>
     <!-- Header Component -->
-    <v-app-bar app color="primary">
+    <!-- <v-app-bar app color="primary">
       <v-toolbar-title>My Website</v-toolbar-title>
-    </v-app-bar>
+    </v-app-bar> -->
 
     <!-- Sidebar Component -->
-    <v-navigation-drawer app color="white" width="240">
+    <!-- <v-navigation-drawer app color="white" width="240">
       <v-list>
         <v-list-item v-for="(item, i) in items" :key="i">
           <v-list-item-icon>
@@ -17,7 +16,7 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
-    </v-navigation-drawer>
+    </v-navigation-drawer> -->
 
     <!-- Main Content Area -->
     <v-main>
@@ -26,7 +25,6 @@
         <p>Here is some content for the main area of the page.</p>
       </v-container>
     </v-main>
-  </v-app>
 </template>
 
 <script>
