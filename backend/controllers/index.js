@@ -5,6 +5,7 @@ const prodi = require('./prodi');
 const koordinator = require('./koordinator');
 const kota = require('./kota');
 const mahasiswa = require('./mahasiswa');
+const relasi_kota = require('./relasikota');
 
 module.exports = {
   user,
@@ -13,5 +14,6 @@ module.exports = {
   prodi,
   koordinator,
   kota,
-  mahasiswa
+  mahasiswa,
+  relasi_kota
 };

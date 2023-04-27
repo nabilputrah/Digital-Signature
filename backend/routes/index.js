@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const path = require('path');
 
 const userController = require('../controllers').user;
 const dosenController = require('../controllers').dosen;
@@ -9,10 +10,37 @@ const koordinatorController = require('../controllers').koordinator;
 const koTAController = require('../controllers').kota;
 const mahasiswaController = require('../controllers').mahasiswa;
 
+// waktu indonesia 
+
+
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
+
+/* Exercise upload file. */
+router.post('/api/upload', (req, res) => {
+  // Log the files to the console
+  try {
+    const { image } = req.files
+    console.log(image)
+    // image.mv(__dirname + '/upload/' + image.name)
+    image.mv(path.resolve('./uploads/', Date.now() + '-' + image.name))
+
+    return res.status(200).send({
+      data: image.name
+    })
+  
+  } catch (error) {
+    return res.status(400).send({
+      message : 'upload image file failed'
+    })
+  }
+
+  
+});
+
 
 /* Endpoint User Controller */ 
 router.get('/api/user', userController.getAllUser)
