@@ -5,8 +5,9 @@
       app
       v-model="drawer"
       :mini-variant.sync="mini"
+      permanent
     >
-      <v-list-item class="px-2" style="padding-top: 5px;">
+      <v-list-item class="px-2" style="padding-top: 5px;width: 100%;margin-left: auto;margin-right: auto;">
 
         <v-img class="sidebar-logo" src="../assets/Logo_DSign.png" contain></v-img>
 
@@ -39,13 +40,14 @@
           v-for="item in items"
           :key="item.title"
           :to="item.link"
+          :active-class="'active-item'" :class="{'custom-item': item.customClass}"
+          style="width: 90%;margin-left: auto;margin-right: auto;"
         >
-          <v-list-item-icon >
-            <v-icon color="text_main">{{ item.icon }}</v-icon>
+          <v-list-item-icon class="navbar-text-color" >
+            <v-icon style="margin-left: -15%;margin-right: auto;">{{ item.icon }}</v-icon>
           </v-list-item-icon>
-
-          <v-list-item-content >
-            <v-list-item-title class="costum-color">{{ item.title }}</v-list-item-title>
+          <v-list-item-content style="margin-left: -10%;">
+            <v-list-item-title class="navbar-text-color">{{ item.title }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -62,9 +64,9 @@
         drawer: true,
         items: [
           { title: 'Beranda', icon: 'mdi-home-outline', link:'/about'},
-          { title: 'Data KoTA', icon: 'mdi-account-multiple-outline' },
+          { title: 'Data KoTA', icon: 'mdi-account-multiple-outline', link:'/dashboard'},
           { title: 'Data Mahasiswa', icon: 'mdi-account-outline' },
-          { title: 'Data Dosen', icon: 'mdi-account-outline' },
+          { title: 'Data Dosen', icon: 'mdi-account-outline'},
         ],
         mini: true,
       }
@@ -82,6 +84,16 @@
 .costum-color{
   color:#1a5f7a
 }
+.v-list-item__title{
+  font-size: 1rem !important;
+  color:#1a5f7a
+}
+
+.active-item .v-list-item__title {
+  color: #FFFFFF;
+}
+
+
 .sidebar-logo {
   width: 40px;
   height: 40px;
@@ -93,7 +105,20 @@
   line-height: 26px;
   letter-spacing: -0.428571px;
   margin-left: 1.5vh;
-
   color: #1A5F7A;  
+}
+
+.v-list .v-list-item--active{
+  background-color:#1A5F7A;
+  border-radius: 6px;
+}
+
+
+.active-item .v-list-item__icon{
+  color: #FFFFFF;
+}
+
+.theme--light.v-icon{
+  color: #1A5F7A;
 }
 </style>
