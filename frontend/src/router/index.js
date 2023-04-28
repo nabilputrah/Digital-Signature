@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import DashboardKoor from '../views/DashboardKoor.vue'
+import DataMahasiswa from '../views/DataMahasiswa.vue'
 
 Vue.use(VueRouter)
 
@@ -15,6 +16,11 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: DashboardKoor
+  },
+  {
+    path: '/mahasiswa',
+    name: 'mahasiswa',
+    component: DataMahasiswa
   },
   {
     path: '/about',

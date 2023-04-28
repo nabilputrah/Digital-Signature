@@ -2,6 +2,7 @@
   <nav>
   
     <v-navigation-drawer
+      v-if="status_sidebar"
       app
       v-model="drawer"
       :mini-variant.sync="mini"
@@ -34,7 +35,8 @@
         </v-btn>
       </v-list-item>
 
-      <v-list dense >
+      <v-list
+        dense >
         <v-list-item
           @click.stop="mini = !mini"
           v-for="item in items"
@@ -51,6 +53,7 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+      
     </v-navigation-drawer>
   </nav>
 
@@ -65,10 +68,15 @@
         items: [
           { title: 'Beranda', icon: 'mdi-home-outline', link:'/about'},
           { title: 'Data KoTA', icon: 'mdi-account-multiple-outline', link:'/dashboard'},
-          { title: 'Data Mahasiswa', icon: 'mdi-account-outline' },
+          { title: 'Data Mahasiswa', icon: 'mdi-account-outline', link:'/mahasiswa' },
           { title: 'Data Dosen', icon: 'mdi-account-outline'},
         ],
         mini: true,
+        status_sidebar:false,
+        // if route = '/portal':
+        //   status_sidebar = false
+        // koordinator:false,
+        kota:false,
       }
     },
     methods: {
@@ -77,6 +85,14 @@
       this.drawer = false;
     },
   },
+    created() {
+      if (this.$route.path === '/portal' || this.$route.path === '/login') {
+        this.status_sidebar = false
+      }
+      else{
+        this.status_sidebar = true
+      }
+    }
   }
 </script>
 

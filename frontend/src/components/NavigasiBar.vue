@@ -1,6 +1,9 @@
 <template>
   <nav>
-    <v-toolbar class="custom-toolbar" style="border-radius: 5px;">
+    <v-toolbar 
+    v-if="status_navbar"
+    class="custom-toolbar" 
+    style="border-radius: 5px;">
       <v-spacer></v-spacer>
       <v-toolbar-title class="text_main--text text-end">
 
@@ -41,8 +44,18 @@
       items: [
         { title: 'Profil Saya' , link:'/about'},
         { title: 'Keluar' , link:'/dashboard'},
+        
       ],
+      status_navbar:false,
     }),
+    created() {
+      if (this.$route.path === '/portal' || this.$route.path === '/login') {
+        this.status_sidebar = false
+      }
+      else{
+        this.status_navbar = true
+      }
+    }
   }
 </script>
 
