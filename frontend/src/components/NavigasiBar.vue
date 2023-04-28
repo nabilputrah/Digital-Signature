@@ -7,12 +7,13 @@
       <v-spacer></v-spacer>
       <v-toolbar-title class="text_main--text text-end">
 
-        <v-row no-gutters style="justify-content: end; height: 3.5vh;">
+        <v-row no-gutters style="justify-content: end; ">
           <v-menu offset-y>
             <template v-slot:activator="{ on, attrs }">
               <span               
               v-bind="attrs"
               v-on="on"
+              style="margin-bottom: -3%;"
               >
               Koordinator D4-2023</span>
             </template>
@@ -27,8 +28,8 @@
             </v-list>
           </v-menu>
         </v-row>
-        <v-row no-gutters style="justify-content: end;">
-          <span class="font-weight-light">Koordinator</span>
+        <v-row no-gutters style="justify-content: end; ">
+          <span class="font-weight-light" style="margin-top: -3%;">Koordinator</span>
         </v-row>
 
       </v-toolbar-title>
