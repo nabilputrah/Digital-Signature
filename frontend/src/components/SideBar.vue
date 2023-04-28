@@ -43,11 +43,11 @@
           :active-class="'active-item'" :class="{'custom-item': item.customClass}"
           style="width: 90%;margin-left: auto;margin-right: auto;"
         >
-          <v-list-item-icon class="navbar-text-color" >
+          <v-list-item-icon >
             <v-icon style="margin-left: -15%;margin-right: auto;">{{ item.icon }}</v-icon>
           </v-list-item-icon>
           <v-list-item-content style="margin-left: -10%;">
-            <v-list-item-title class="navbar-text-color">{{ item.title }}</v-list-item-title>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -89,10 +89,13 @@
   color:#1a5f7a
 }
 
-.active-item .v-list-item__title {
+.active-item .v-list-item__title{
   color: #FFFFFF;
 }
 
+.active-item .v-list-item__icon{
+  color: #FFFFFF;
+}
 
 .sidebar-logo {
   width: 40px;
@@ -107,15 +110,9 @@
   margin-left: 1.5vh;
   color: #1A5F7A;  
 }
-
 .v-list .v-list-item--active{
   background-color:#1A5F7A;
   border-radius: 6px;
-}
-
-
-.active-item .v-list-item__icon{
-  color: #FFFFFF;
 }
 
 .theme--light.v-icon{
