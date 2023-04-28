@@ -14,18 +14,6 @@
 
 
         <v-list-item-title class="logo-style font-weight-bold">D-Sign<br>JTK POLBAN</v-list-item-title>
-        <!-- <v-row >
-          <v-col cols="20">
-            <v-list-item-title>D-Sign</v-list-item-title>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="20">
-            <v-list-item-title>JTK POLBAN</v-list-item-title>            
-          </v-col>
-        </v-row> -->
-
-
         <v-btn
           icon
           @click.stop="mini = !mini"
@@ -96,7 +84,7 @@
   }
 </script>
 
-<style>
+<style scoped>
 .costum-color{
   color:#1a5f7a
 }
@@ -109,7 +97,11 @@
   color: #FFFFFF;
 }
 
-.active-item .v-list-item__icon{
+.theme--light.v-icon{
+  color:#1a5f7a
+}
+
+.active-item .theme--light.v-icon{
   color: #FFFFFF;
 }
 
@@ -131,7 +123,4 @@
   border-radius: 6px;
 }
 
-.theme--light.v-icon{
-  color: #1A5F7A;
-}
 </style>
