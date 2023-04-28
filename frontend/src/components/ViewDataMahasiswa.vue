@@ -1,36 +1,40 @@
 <template>
   <div >
     <!-- Start Breadcrumbs -->
-    <v-breadcrumbs >
-    <h4 style="color: #1a5f7a;">Data Mahasiswa</h4>
-    <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
-    <v-breadcrumbs-item :disabled="false" to="/">
-      <v-icon >mdi-home-outline</v-icon>
-    </v-breadcrumbs-item>
-    <v-breadcrumbs-item :disabled="true">
-      /
-    </v-breadcrumbs-item>
-    <v-breadcrumbs-item style="color: #b71c1c;" :disabled="true" to="/mahasiswa">
-      Data Mahasiswa
-    </v-breadcrumbs-item>
+    <v-breadcrumbs style="margin-left: 0.5%;">
+      <h4 style="color: #1a5f7a;">Data Mahasiswa</h4>
+      <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
+      <v-breadcrumbs-item 
+      :disabled="false" 
+      to="/">
+        <v-icon >mdi-home-outline</v-icon>
+      </v-breadcrumbs-item>
+      <v-breadcrumbs-item 
+      :disabled="true">
+        /
+      </v-breadcrumbs-item>
+      <v-breadcrumbs-item 
+      :disabled="true"
+      to="/mahasiswa">
+        <span>Data Mahasiswa</span>
+      </v-breadcrumbs-item>
     </v-breadcrumbs>
     <!-- End Breadcrumbs -->
-    <!-- <v-card style="background-color: #fff; " class="custom-card">
-      <h1>Welcome to my website!</h1>
-      <p>Here is some content for the main area of the page.</p>
-    </v-card> -->
 
     <!-- Start Datatables -->
     <v-card class="custom-card">
       <v-data-table
         :search="search"
         :headers="headers"
-        :items="desserts"
+        :items="mahasiswa"
+        :header-props="headerClass"
         sort-by="calories"
         class="elevation-1"
+        style="padding-top: 0.5%;"
       >
         <template v-slot:top>
           <v-toolbar
+            dense
             flat
           >
             <v-toolbar-title>Data Mahasiswa</v-toolbar-title>
@@ -44,18 +48,21 @@
               v-model="dialog"
               max-width="500px"
             >
-              <template v-slot:activator="{ on, attrs }">
+              <!-- Start Button Add Mahasiswa -->
+              <template v-slot:activator="{ on, attrs } " >
                 <v-btn
                   color="primary"
                   dark
-                  class="mb-2"
                   v-bind="attrs"
                   v-on="on"
+                  style="margin-top: auto;margin-bottom: auto;" 
                 >
                   + Add Mahasiswa
                 </v-btn>
               </template>
-              <v-card>
+              <!-- End Button Add Mahasiswa -->
+              <!-- Start Card Pop up Add/Edit Data Mahasiswa -->
+              <v-card >
                 <v-card-title>
                   <span class="text-h5">{{ formTitle }}</span>
                 </v-card-title>
@@ -69,8 +76,8 @@
                         md="4"
                       >
                         <v-text-field
-                          v-model="editedItem.name"
-                          label="Dessert name"
+                          v-model="editedItem.NIM"
+                          label="NIM"
                         ></v-text-field>
                       </v-col>
                       <v-col
@@ -79,8 +86,8 @@
                         md="4"
                       >
                         <v-text-field
-                          v-model="editedItem.calories"
-                          label="Calories"
+                          v-model="editedItem.nama"
+                          label="Nama"
                         ></v-text-field>
                       </v-col>
                       <v-col
@@ -89,8 +96,8 @@
                         md="4"
                       >
                         <v-text-field
-                          v-model="editedItem.fat"
-                          label="Fat (g)"
+                          v-model="editedItem.email"
+                          label="Email"
                         ></v-text-field>
                       </v-col>
                       <v-col
@@ -99,18 +106,8 @@
                         md="4"
                       >
                         <v-text-field
-                          v-model="editedItem.carbs"
-                          label="Carbs (g)"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.protein"
-                          label="Protein (g)"
+                          v-model="editedItem.KoTA"
+                          label="KoTA"
                         ></v-text-field>
                       </v-col>
                     </v-row>
@@ -120,14 +117,14 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn
-                    color="blue darken-1"
+                    color="#1a5f7a"
                     text
                     @click="close"
                   >
                     Cancel
                   </v-btn>
                   <v-btn
-                    color="blue darken-1"
+                    color="#1a5f7a"
                     text
                     @click="save"
                   >
@@ -135,29 +132,37 @@
                   </v-btn>
                 </v-card-actions>
               </v-card>
+              <!-- End Card Pop up Add/Edit Data Mahasiswa -->
             </v-dialog>
+            <!-- Start Card Pop up Delete Data Mahasiswa -->
             <v-dialog v-model="dialogDelete" max-width="500px">
               <v-card>
                 <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                  <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+                  <v-btn color="#1a5f7a" text @click="closeDelete">Cancel</v-btn>
+                  <v-btn color="#1a5f7a" text @click="deleteItemConfirm">OK</v-btn>
                   <v-spacer></v-spacer>
                 </v-card-actions>
               </v-card>
             </v-dialog>
+            <!-- End Card Pop up Delete Data Mahasiswa -->
           </v-toolbar>
+
+          <!-- Start Input Search -->
           <v-text-field
+            dense
             v-model="search"
             append-icon="mdi-magnify"
             label="Search"
             single-line
             hide-details
-            style="width: 30%;margin-right: 1%;"
+            style="width: 15%;margin-right: 1%; margin-bottom: 0.5%; "
             class="custom-card"
           ></v-text-field>
+          <!-- End Input Search -->
         </template>
+        <!-- Start Kolom Action -->
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon
             small
@@ -173,6 +178,7 @@
             mdi-delete
           </v-icon>
         </template>
+        <!-- End Kolom Action -->
         <template v-slot:no-data>
           <v-btn
             color="primary"
@@ -196,32 +202,28 @@
       dialogDelete: false,
       headers: [
         {
-          text: 'Dessert (100g serving)',
+          text: 'NIM',
           align: 'start',
-          sortable: false,
-          value: 'name',
+          value: 'NIM',
         },
-        { text: 'Calories', value: 'calories' },
-        { text: 'Fat (g)', value: 'fat' },
-        { text: 'Carbs (g)', value: 'carbs' },
-        { text: 'Protein (g)', value: 'protein' },
+        { text: 'Nama', value: 'nama' },
+        { text: 'Email', value: 'email' },
+        { text: 'KoTA', value: 'KoTA' },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
-      desserts: [],
+      mahasiswa: [],
       editedIndex: -1,
       editedItem: {
-        name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,
-        protein: 0,
+        NIM: '',
+        nama: '',
+        email: '',
+        KoTA: '',
       },
       defaultItem: {
-        name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,
-        protein: 0,
+        NIM: '',
+        nama: '',
+        email: '',
+        KoTA: '',
       },
     }),
 
@@ -246,38 +248,36 @@
 
     methods: {
       initialize () {
-        this.desserts = [
+        this.mahasiswa = [
           {
-            name: 'Frozen Yogurt',
-            calories: 159,
-            fat: 6.0,
-            carbs: 24,
-            protein: 4.0,
+            NIM: 'Frozen Yogurt',
+            nama: 159,
+            email: 6.0,
+            KoTA: 24,
           },
           {
-            name: 'TAIII',
-            calories: 32,
-            fat: 6.3,
-            carbs: 22,
-            protein: 9,
+            NIM: 'TAIII',
+            nama: 32,
+            email: 6.3,
+            KoTA: 22,
           },
         ]
       },
 
       editItem (item) {
-        this.editedIndex = this.desserts.indexOf(item)
+        this.editedIndex = this.mahasiswa.indexOf(item)
         this.editedItem = Object.assign({}, item)
         this.dialog = true
       },
 
       deleteItem (item) {
-        this.editedIndex = this.desserts.indexOf(item)
+        this.editedIndex = this.mahasiswa.indexOf(item)
         this.editedItem = Object.assign({}, item)
         this.dialogDelete = true
       },
 
       deleteItemConfirm () {
-        this.desserts.splice(this.editedIndex, 1)
+        this.mahasiswa.splice(this.editedIndex, 1)
         this.closeDelete()
       },
 
@@ -299,9 +299,9 @@
 
       save () {
         if (this.editedIndex > -1) {
-          Object.assign(this.desserts[this.editedIndex], this.editedItem)
+          Object.assign(this.mahasiswa[this.editedIndex], this.editedItem)
         } else {
-          this.desserts.push(this.editedItem)
+          this.mahasiswa.push(this.editedItem)
         }
         this.close()
       },
@@ -312,9 +312,6 @@
 
 
 <style scoped>
-.theme--light.v-breadcrumbs .v-breadcrumbs__item--disabled{
-  color: #1a5f7a;
-}
 
 .theme--light.v-sheet{
   color: #1a5f7a;
@@ -323,6 +320,31 @@
   width: 97%;
   margin-left: auto;
   margin-right: auto;
+  border-radius: 5px;
+}
+
+.theme--light.v-icon{
+  color:#1A5F7A;
+}
+
+.header_bg{
+  background-color: #91BBCB
+  ;
+}
+
+::v-deep .v-data-table-header{
+  background-color: rgba(145, 187, 203, 0.35);
+}
+::v-deep .v-data-table-header span{
+  color: #1A5F7A;
+}
+
+::v-deep .theme--light.v-data-table .v-data-table-header th.sortable.active .v-data-table-header__icon {
+  color: #1A5F7A;
+}
+
+::v-deep .theme--light.v-data-table .v-data-table-header th.sortable .v-data-table-header__icon {
+    color: rgba(145, 187, 203, 0.35);
 }
 
 </style>
