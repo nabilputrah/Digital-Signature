@@ -169,7 +169,7 @@
             class="mr-2"
             @click="editItem(item)"
           >
-            mdi-pencil
+            mdi-pencil-outline
           </v-icon>
           <v-icon
             small
