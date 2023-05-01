@@ -4,6 +4,7 @@ import HomeView from '../views/HomeView.vue'
 import DashboardKoor from '../views/DashboardKoor.vue'
 import DataMahasiswa from '../views/DataMahasiswa.vue'
 import DataDosen from '../views/DataDosen.vue' 
+import DataProfil from '../views/DataProfil.vue'
 
 Vue.use(VueRouter)
 
@@ -27,6 +28,11 @@ const routes = [
     path: '/dosen',
     name: 'dosen',
     component: DataDosen
+  },
+  {
+    path: '/profil',
+    name: 'profil',
+    component: DataProfil
   },
   {
     path: '/about',

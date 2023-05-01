@@ -42,7 +42,7 @@
   export default {
     data: () => ({
       items: [
-        { title: 'Profil Saya' , link:'/about'},
+        { title: 'Profil Saya' , link:'/profil'},
         { title: 'Keluar' , link:'/dashboard'},
         
       ],
