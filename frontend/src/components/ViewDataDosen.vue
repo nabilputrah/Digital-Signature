@@ -44,6 +44,13 @@
               vertical
             ></v-divider>
             <v-spacer></v-spacer>
+            <v-btn
+              color="primary"
+              @click="sendAllEmail(item)"
+              style="margin-top: auto;margin-bottom: auto; margin-right: 1%;" 
+            >
+              Email All
+            </v-btn>
             <v-dialog
               v-model="dialog"
               max-width="500px"
@@ -137,6 +144,32 @@
               </v-card>
             </v-dialog>
             <!-- End Card Pop up Delete Data Dosen -->
+            <!-- Start Card Pop up Email Data Dosen -->
+            <v-dialog v-model="dialogEmail" max-width="32.5%">
+              <v-card>
+                <v-card-title class="text-h5">Are you sure you want to send email to this account?</v-card-title>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="#1a5f7a" text @click="closeEmail">Cancel</v-btn>
+                  <v-btn color="#1a5f7a" text @click="sendEmailConfirm">Yes</v-btn>
+                  <v-spacer></v-spacer>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <!-- End Card Pop up Email Data Dosen -->
+            <!-- Start Card Pop up Email Data Dosen -->
+            <v-dialog v-model="dialogAllEmail" max-width="32.5%">
+              <v-card>
+                <v-card-title class="text-h5">Are you sure you want to send email to all account?</v-card-title>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="#1a5f7a" text @click="closeAllEmail">Cancel</v-btn>
+                  <v-btn color="#1a5f7a" text @click="sendAllEmailConfirm">Yes</v-btn>
+                  <v-spacer></v-spacer>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <!-- End Card Pop up Email Data Dosen -->
           </v-toolbar>
 
           <!-- Start Input Search -->
@@ -162,10 +195,17 @@
             mdi-pencil-outline
           </v-icon>
           <v-icon
+            class="mr-2"
             small
             @click="deleteItem(item)"
           >
             mdi-delete
+          </v-icon>
+          <v-icon
+            small
+            @click="sendEmail(item)"
+          >
+            mdi-email-outline
           </v-icon>
         </template>
         <!-- End Kolom Action -->
@@ -190,6 +230,8 @@
       search : '',
       dialog: false,
       dialogDelete: false,
+      dialogEmail: false,
+      dialogAllEmail : false,
       headers: [
         {
           text: 'NIP',
@@ -261,9 +303,25 @@
         this.dialogDelete = true
       },
 
+      sendEmail () {
+        this.dialogEmail = true
+      },
+
+      sendAllEmail () {
+        this.dialogAllEmail = true
+      },
+      
       deleteItemConfirm () {
         this.dosen.splice(this.editedIndex, 1)
         this.closeDelete()
+      },
+
+      sendEmailConfirm () {
+        this.closeEmail()
+      },
+
+      sendAllEmailConfirm () {
+        this.closeAllEmail()
       },
 
       close () {
@@ -280,6 +338,14 @@
           this.editedItem = Object.assign({}, this.defaultItem)
           this.editedIndex = -1
         })
+      },
+
+      closeEmail () {
+        this.dialogEmail = false
+      },
+
+      closeAllEmail () {
+        this.dialogAllEmail = false
       },
 
       save () {
