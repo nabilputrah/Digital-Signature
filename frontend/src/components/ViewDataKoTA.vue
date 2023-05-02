@@ -53,7 +53,7 @@
             </v-btn>
             <v-btn
               color="primary"
-              :to="`/tambah_KoTA`"
+              :to="`/KoTA/tambah_KoTA`"
               style="margin-top: auto;margin-bottom: auto;" 
             >
               + Add KoTA
