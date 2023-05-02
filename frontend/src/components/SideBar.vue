@@ -55,7 +55,7 @@
         drawer: true,
         items: [
           { title: 'Beranda', icon: 'mdi-home-outline', link:'/about'},
-          { title: 'Data KoTA', icon: 'mdi-account-multiple-outline', link:'/dashboard'},
+          { title: 'Data KoTA', icon: 'mdi-account-multiple-outline', link:'/KoTA'},
           { title: 'Data Mahasiswa', icon: 'mdi-account-outline', link:'/mahasiswa' },
           { title: 'Data Dosen', icon: 'mdi-account-outline', link:'/dosen'},
         ],

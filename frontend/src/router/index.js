@@ -5,6 +5,7 @@ import DashboardKoor from '../views/DashboardKoor.vue'
 import DataMahasiswa from '../views/DataMahasiswa.vue'
 import DataDosen from '../views/DataDosen.vue' 
 import DataProfil from '../views/DataProfil.vue'
+import DataKoTA from '../views/DataKoTA.vue'
 
 Vue.use(VueRouter)
 
@@ -23,6 +24,11 @@ const routes = [
     path: '/mahasiswa',
     name: 'mahasiswa',
     component: DataMahasiswa
+  },
+  {
+    path: '/KoTA',
+    name: 'KoTA',
+    component: DataKoTA
   },
   {
     path: '/dosen',
