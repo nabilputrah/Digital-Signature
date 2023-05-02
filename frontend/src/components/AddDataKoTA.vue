@@ -106,6 +106,7 @@
                           outlined
                           hide-details
                           dense
+                          :menu-props="{ offsetY: true}"
                           :placeholder="'Pilih Anggota ' + (index + 1)"
                         >
                           <template v-slot:prepend-item>
@@ -162,6 +163,7 @@
                           outlined
                           hide-details
                           dense
+                          :menu-props="{ offsetY: true}"
                           :placeholder="'Pilih Pembimbing ' + (index + 1)"
                         >
                           <template v-slot:prepend-item>
@@ -213,6 +215,7 @@
                           outlined
                           hide-details
                           dense
+                          :menu-props="{ offsetY: true}"
                           :placeholder="'Pilih Penguji ' + (index + 1)"
                         >
                           <template v-slot:prepend-item>
