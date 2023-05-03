@@ -2,19 +2,19 @@
   <div>
     <SideBar />
     <NavigasiBar />
-    <DataProfil />
+    <EditKoTA />
   </div>
   </template>
   
   <script>
     import NavigasiBar from '../components/NavigasiBar'
     import SideBar from '../components/SideBar'
-    import DataProfil from '../components/ViewDataProfil.vue'
+    import EditKoTA from '../components/EditKoTA.vue'
     export default {
-      name: 'PofilData',
+      name: 'KoTAEdit',
   
       components: {
-        DataProfil,
+        EditKoTA,
         NavigasiBar,
         SideBar
       },

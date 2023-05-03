@@ -9,6 +9,7 @@ import DataProfil from '../views/DataProfil.vue'
 import DataKoTA from '../views/DataKoTA.vue'
 import AddKoTA from '../views/AddKoTA.vue'
 import DetailKoTA from '../views/DetailKoTA.vue'
+import EditKoTA from '../views/EditKoTA.vue'
 
 Vue.use(VueRouter)
 
@@ -44,6 +45,11 @@ const routes = [
     component: DetailKoTA
   },
   {
+    path: '/KoTA/edit_KoTA',
+    name: 'EditKoTA',
+    component: EditKoTA
+  },
+  {
     path: '/KoTA',
     name: 'KoTA',
     component: DataKoTA
@@ -57,14 +63,6 @@ const routes = [
     path: '/profil',
     name: 'profil',
     component: DataProfil
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
   }
 ]
 

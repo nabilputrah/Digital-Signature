@@ -1,7 +1,6 @@
 <template>
   <nav>
     <v-toolbar 
-    v-if="status_navbar"
     class="custom-toolbar" 
     style="border-radius: 5px;">
       <v-spacer></v-spacer>
@@ -43,19 +42,11 @@
     data: () => ({
       items: [
         { title: 'Profil Saya' , link:'/profil'},
-        { title: 'Keluar' , link:'/dashboard'},
+        { title: 'Keluar' , link:'/login'},
         
       ],
       status_navbar:false,
     }),
-    created() {
-      if (this.$route.path === '/portal' || this.$route.path === '/login') {
-        this.status_sidebar = false
-      }
-      else{
-        this.status_navbar = true
-      }
-    }
   }
 </script>
 
