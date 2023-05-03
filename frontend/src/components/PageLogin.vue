@@ -20,11 +20,11 @@
                 @click:append="showPassword = !showPassword"
                 v-model="password"
               ></v-text-field>
-              <!-- <v-checkbox
+              <v-checkbox
                 label="Ingatkan Saya"
                 v-model="rememberMe"
                 color="primary"
-              ></v-checkbox> -->
+              ></v-checkbox>
               <v-btn color="primary" block @click="login">Login</v-btn>
             </v-form>
           </v-card-text>
@@ -73,33 +73,51 @@ export default {
   //     }
   //   }
   // },
+  mounted() {
+    const credentials = this.getCredentialsFromCookie()
+    if (credentials) {
+      this.username = credentials.username
+      this.password = atob(credentials.password)
+      this.rememberMe = true
+    }
+  },
   methods: {
     login() {
       // cek username dan password
-      if (this.username === 'KoTA402' && this.password === 'password') {
-        // login sukses, pindah ke halaman about
-        // if (this.rememberMe) {
-        //   localStorage.setItem('rememberMe', 'true');
-        //   localStorage.setItem('username', this.username);
-        //   const encryptedPassword = CryptoJS.AES.encrypt(this.password, 'my-secretkey').toString();
-        //   localStorage.setItem('password', encryptedPassword);
-        // }
-        // // if (this.rememberMe) {
-        // //   localStorage.setItem('rememberMe', true);
-        // //   localStorage.setItem('username', this.username);
-        // //   localStorage.setItem('password', this.password);
-        // // } 
-        // else {
-        //   localStorage.removeItem('rememberMe');
-        //   localStorage.removeItem('username');
-        //   localStorage.removeItem('password');
-        // }
+      if (this.username === 'KoTA402' && this.password === '12345') {
+        if (this.rememberMe) {
+          this.saveCredentialsToCookie()
+        } else {
+          this.deleteCredentialsFromCookie()
+        }
         this.$router.push('/about');
       } else {
         // login gagal, tampilkan dialog
         this.dialog = true;
       }
     },
+    saveCredentialsToCookie() {
+      const encodedPassword = btoa(this.password)
+      const credentials = {
+        username: this.username,
+        password: encodedPassword
+      }
+      document.cookie = `credentials=${JSON.stringify(credentials)};path=/`
+    },
+    getCredentialsFromCookie() {
+      const cookies = document.cookie.split(';')
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim()
+        if (cookie.startsWith('credentials=')) {
+          const credentialsJson = cookie.substring('credentials='.length)
+          return JSON.parse(credentialsJson)
+        }
+      }
+      return null
+    },
+    deleteCredentialsFromCookie() {
+      document.cookie = 'credentials=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/'
+    }
   },
 };
 </script>
