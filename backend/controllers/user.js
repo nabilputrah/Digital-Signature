@@ -1,7 +1,109 @@
 const User = require('../models').User;
 const { Op } = require("sequelize");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const secret ='secret'
+
+
 
 module.exports = {
+
+  verifyTokenAndRole(req, res, next) {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+  
+    jwt.verify(token, secret, function(err, decoded) {
+      if (err) {
+        return res.status(500).send({ auth: false, message: err.message });
+      }
+
+      if (decoded.user.role !=='Dosen') {
+
+        return res.status(403).send({ message: 'Anda tidak memiliki akses ke endpoint ini.' });
+      }
+      // req.userId = decoded.id;
+      next();
+    })
+  },
+  async signUpUser(req, res) {
+    const { username, password, role } = req.body
+    const hashPassword = await bcrypt.hash(password, 10)
+
+    const options = {
+      fields: ['username', 'password','role'],
+      returning:false
+    }
+    try {
+      await User.create({
+        username: username,
+        password: hashPassword,
+        role: role
+      }, options)
+
+      const user = await User.findOne({
+        where: {
+          username: username
+        },
+        attributes: {
+          exclude: ['id','createdAt','updatedAt']
+        }
+      })
+
+      if (user) {
+        return res.status(200).send({
+          message: 'signUp new user success',
+          data: user
+        })
+      }
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
+
+  async loginUser(req, res) {
+    const { username, password } = req.body
+    
+    try {
+      const user = await User.findOne({
+        where:{
+          username
+        },
+        attributes:{
+          exclude:['id','createdAt','updatedAt']
+        }
+      })
+
+      if (!user) {
+        return res.status(404).send({
+          message:'Invalid username or password'
+        })
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password)
+
+      if (!isPasswordValid) {
+        return res.status(400).send({
+          message: 'Invalid Password'
+        })
+      }
+
+      const token = jwt.sign({ user }, secret)
+
+      return res.status(200).send({
+        message:'Login berhasil',
+        token: token
+      })
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
   getAllUser(req, res) {
     return User
       .findAll({

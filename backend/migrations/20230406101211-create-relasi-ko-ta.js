@@ -36,7 +36,8 @@ module.exports = {
         allowNull: false
       },
       status: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        defaultValue:false,
       },
       img_ttd: {
         type: Sequelize.STRING

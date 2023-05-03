@@ -10,6 +10,7 @@ module.exports = {
       },
       id_laporan: {
         type: Sequelize.STRING,
+        allowNull: false,
         references:{
           model:"Laporan",
           key:"id_laporan"
@@ -19,6 +20,7 @@ module.exports = {
       },
       NIP: {
         type: Sequelize.STRING,
+        allowNull: false,
         references:{
           model:"Dosen",
           key:"NIP"
@@ -27,7 +29,8 @@ module.exports = {
         onUpdate:"cascade"
       },
       secret_key: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
 
     });
