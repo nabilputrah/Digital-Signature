@@ -9,6 +9,7 @@ import DataProfil from '../views/DataProfil.vue'
 import DataKoTA from '../views/DataKoTA.vue'
 import AddKoTA from '../views/AddKoTA.vue'
 import DetailKoTA from '../views/DetailKoTA.vue'
+import EditKoTA from '../views/EditKoTA.vue'
 
 Vue.use(VueRouter)
 
@@ -42,6 +43,11 @@ const routes = [
     path: '/KoTA/detail_KoTA',
     name: 'DetailKoTA',
     component: DetailKoTA
+  },
+  {
+    path: '/KoTA/edit_KoTA',
+    name: 'EditKoTA',
+    component: EditKoTA
   },
   {
     path: '/KoTA',
