@@ -51,6 +51,7 @@
                 v-model="ID_KoTA"
                 :rules="rules"
                 placeholder="Id KoTA"
+                disabled
                 dense
                 outlined
                 ></v-text-field>
@@ -68,6 +69,7 @@
                   placeholder="-/-"
                   item-text="tahunAjaran"
                   item-value="tahunAjaran"
+                  disabled
                   dense
                   outlined
                   :menu-props="{ offsetY: true, maxHeight: '200px' }"
@@ -75,26 +77,8 @@
                 <!-- End Form Tahun Ajaran -->
                 <!-- Start form anggota KoTA -->
                 <v-row>
-                  <v-col cols="6">
+                  <v-col cols="12">
                     <span style="font-size:1rem;">Anggota KoTA</span>
-                  </v-col>
-                  <v-col cols="6" class="d-flex align-center justify-end">
-                    <v-btn
-                      v-if="form.length > MahasiswaMinItems"
-                      color="error"
-                      icon
-                      @click="removeForm(form.length - 1)"
-                    >
-                      <v-icon>mdi-minus</v-icon>
-                    </v-btn>
-                    <v-btn
-                      v-if="form.length < MahasiswaMaxItems"
-                      color="primary"
-                      icon
-                      @click="addForm"
-                    >
-                      <v-icon>mdi-plus</v-icon>
-                    </v-btn>
                   </v-col>
                   <v-col cols="12" >
                     <v-row v-for="(item, index) in form" :key="index">
@@ -104,6 +88,7 @@
                           :items="filteredItems(index)"
                           clearable
                           outlined
+                          disabled
                           hide-details
                           dense
                           :menu-props="{ offsetY: true}"
@@ -132,26 +117,8 @@
               <v-col cols="6" >
                 <!-- Start form Pembimbing -->
                 <v-row>
-                  <v-col cols="6">
+                  <v-col cols="12">
                     <span style="font-size:1rem;">Dosen Pembimbing</span>
-                  </v-col>
-                  <v-col cols="6" class="d-flex align-center justify-end">
-                    <v-btn
-                      v-if="formPembimbing.length > PembimbingMinItems"
-                      color="error"
-                      icon
-                      @click="removeFormPembimbing(formPembimbing.length - 1)"
-                    >
-                      <v-icon>mdi-minus</v-icon>
-                    </v-btn>
-                    <v-btn
-                      v-if="formPembimbing.length < PembimbingMaxItems"
-                      color="primary"
-                      icon
-                      @click="addFormPembimbing"
-                    >
-                      <v-icon>mdi-plus</v-icon>
-                    </v-btn>
                   </v-col>
                   <v-col cols="12" >
                     <v-row v-for="(item, index) in formPembimbing" :key="index">
@@ -162,6 +129,7 @@
                           clearable
                           outlined
                           hide-details
+                          disabled
                           dense
                           :menu-props="{ offsetY: true}"
                           :placeholder="'Pilih Pembimbing ' + (index + 1)"
@@ -184,26 +152,8 @@
 
                 <!-- Start form Penguji -->
                 <v-row>
-                  <v-col cols="6">
+                  <v-col cols="12">
                     <span style="font-size:1rem;">Dosen Penguji</span>
-                  </v-col>
-                  <v-col cols="6" class="d-flex align-center justify-end">
-                    <v-btn
-                      v-if="formPenguji.length > PengujiMinItems"
-                      color="error"
-                      icon
-                      @click="removeFormPenguji(formPenguji.length - 1)"
-                    >
-                      <v-icon>mdi-minus</v-icon>
-                    </v-btn>
-                    <v-btn
-                      v-if="formPenguji.length < PengujiMaxItems"
-                      color="primary"
-                      icon
-                      @click="addFormPenguji"
-                    >
-                      <v-icon>mdi-plus</v-icon>
-                    </v-btn>
                   </v-col>
                   <v-col cols="12" >
                     <v-row v-for="(item, index) in formPenguji" :key="index">
@@ -214,6 +164,7 @@
                           clearable
                           outlined
                           hide-details
+                          disabled
                           dense
                           :menu-props="{ offsetY: true}"
                           :placeholder="'Pilih Penguji ' + (index + 1)"
@@ -260,38 +211,37 @@ export default {
   data() {
     return {
       // Data Form Nama
-      ID_KoTA : '',
+      ID_KoTA : 402,
       rules: [
         value => !!value || 'Required.',
         // value => (value && value.length >= 3) || 'Min 3 characters',
       ],
 
       // Data Tahun Ajaran
-      tahunAjaran: '',
+      tahunAjaran: '2022/2023',
       listTahunAjaran: [],
 
       //Maksimal dan minimal pilihan form
-      MahasiswaMinItems: 1,
-      MahasiswaMaxItems: 3,
+      MahasiswaMinItems: 2,
+      MahasiswaMaxItems: 4,
       PembimbingMinItems: 2,
       PembimbingMaxItems: 3,
-      PengujiMinItems: 2,
-      PengujiMaxItems: 3,
+
 
       //Data List Dropdown
       form: [
-        { selectedItem: null, items: ['Andika Yudha', 'Nabil Putra H', 'Fachri Dia', 'Titis Sampurno'], search: '' },
-        { selectedItem: null, items: ['Andika Yudha', 'Nabil Putra H', 'Fachri Dia', 'Titis Sampurno'], search: '' },
+        { selectedItem: 'Andika Yudha', items: ['Andika Yudha', 'Nabil Putra H', 'Fachri Dia', 'Titis Sampurno'], search: '' },
+        { selectedItem: 'Nabil Putra H', items: ['Andika Yudha', 'Nabil Putra H', 'Fachri Dia', 'Titis Sampurno'], search: '' },
       ],
 
       formPembimbing: [
-        { selectedItem: null, items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
-        { selectedItem: null, items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
+        { selectedItem: 'Aprianti Nanda Sari, S.T., M.Kom.', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
+        { selectedItem: 'Ghifari Munawar, S.Kom., M.T', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
       ],
 
       formPenguji: [
-        { selectedItem: null, items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
-        { selectedItem: null, items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
+        { selectedItem: 'Iwan Awaludin, S.T., M.T. ', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
+        { selectedItem: 'Urip Teguh Setijohatmo, BSCS., M.Kom.', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
       ],
 
     }

@@ -227,7 +227,7 @@
       },
 
       redirectToEdit(ID_KoTA) {
-        this.$router.push(`/edit_KoTA/${ID_KoTA}`);
+        this.$router.push(`/KoTA/detail_KoTA/${ID_KoTA}`);
       },
 
       sendEmail () {

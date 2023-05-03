@@ -1,12 +1,14 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import Login from '../views/LoginPage.vue'
 import DashboardKoor from '../views/DashboardKoor.vue'
 import DataMahasiswa from '../views/DataMahasiswa.vue'
 import DataDosen from '../views/DataDosen.vue' 
 import DataProfil from '../views/DataProfil.vue'
 import DataKoTA from '../views/DataKoTA.vue'
 import AddKoTA from '../views/AddKoTA.vue'
+import DetailKoTA from '../views/DetailKoTA.vue'
 
 Vue.use(VueRouter)
 
@@ -15,6 +17,11 @@ const routes = [
     path: '/',
     name: 'home',
     component: HomeView
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: Login
   },
   {
     path: '/dashboard',
@@ -30,6 +37,11 @@ const routes = [
     path: '/KoTA/tambah_KoTA',
     name: 'AddKoTA',
     component: AddKoTA
+  },
+  {
+    path: '/KoTA/detail_KoTA',
+    name: 'DetailKoTA',
+    component: DetailKoTA
   },
   {
     path: '/KoTA',
