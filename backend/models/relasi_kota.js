@@ -14,35 +14,37 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Relasi_KoTA.init({
-        id_relasi: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: DataTypes.INTEGER
-      },
+      id_relasi: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER
+    },
     id_KoTA: DataTypes.STRING,
     NIP: DataTypes.STRING,
     role: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING, 
       allowNull:false,
       validate:{
         isIn: {
-          args: [['Koordinator','KoTA','Dosen']],
-          msg: 'Role yang tersedia hanya Koordinator,KoTA dan Dosen',
+          args: [['Penguji','Pembimbing','Kaprodi','Kajur']],
+          msg: 'Role yang tersedia hanya Penguji,Pembimbing,Kaprodi,Kajur',
         }
       
       }
     },
     urutan: DataTypes.INTEGER,
     status: {
+      defaultValue: false,
       type: DataTypes.BOOLEAN,
-      defaultValue: false
+     
     },
     img_ttd: DataTypes.STRING,
     tgl_ttd: DataTypes.DATE
   }, {
     sequelize,
     freezeTableName:true,
+    timestamps:false,
     modelName: 'Relasi_KoTA',
   });
   return Relasi_KoTA;

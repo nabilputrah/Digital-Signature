@@ -9,6 +9,11 @@ const prodiController = require('../controllers').prodi;
 const koordinatorController = require('../controllers').koordinator;
 const koTAController = require('../controllers').kota;
 const mahasiswaController = require('../controllers').mahasiswa;
+const relasiController = require('../controllers').relasi_kota;
+const laporanController = require('../controllers').laporan;
+const secretController = require('../controllers').secret_key;
+
+const { verifyTokenAndRole } = require('../controllers/user')
 
 // waktu indonesia 
 
@@ -43,7 +48,10 @@ router.post('/api/upload', (req, res) => {
 
 
 /* Endpoint User Controller */ 
-router.get('/api/user', userController.getAllUser)
+router.post('/api/signup', userController.signUpUser)
+router.post('/api/login', userController.loginUser)
+
+router.get('/api/user',verifyTokenAndRole, userController.getAllUser)
 router.get('/api/user/:id', userController.getUserById)
 router.post('/api/user', userController.addUser)
 router.put('/api/user/:id',userController.updateUser)
@@ -92,9 +100,27 @@ router.post('/api/mahasiswa', mahasiswaController.addMahasiswa)
 router.put('/api/mahasiswa/:id',mahasiswaController.updateMahasiswa)
 router.delete('/api/mahasiswa/:id', mahasiswaController.deleteMahasiswa)
 
-// router.get('/api/classroom/:id', classroomController.getById);
-// router.post('/api/classroom', classroomController.add);
+/* Endpoint Relasi Controller*/
+router.get('/api/relasi', relasiController.getAllRelasiKoTA)
+router.get('/api/relasi/:id', relasiController.getRelasiKoTAById)
+router.post('/api/relasi', relasiController.addRelasiKoTA)
+router.put('/api/relasi/:id',relasiController.updateRelasiKoTA)
+router.delete('/api/relasi/:id', relasiController.deleteRelasiKoTA)
+router.put('/api/relasi/doSignature/:id', relasiController.doSignature)
 
-// router.delete('/api/classroom/:id', classroomController.delete);
+/* Endpoint Laporan Controller*/
+router.get('/api/laporan', laporanController.getAllLaporan)
+router.get('/api/laporan/:id', laporanController.getLaporanById)
+router.post('/api/laporan', laporanController.addLaporan)
+// router.put('/api/laporan/:id',laporanController.updateLaporan)
+router.delete('/api/laporan/:id', laporanController.deleteLaporan)
+// router.put('/api/laporan/doSignature/:id', laporanController.doSignature)
+
+/* Endpoint Prodi Controller*/
+router.get('/api/secret', secretController.getAllSecretKey)
+router.get('/api/secret/:id', secretController.getSecretKeyById)
+router.post('/api/secret', secretController.addSecretKey)
+router.put('/api/secret/:id',secretController.updateSecretKey)
+router.delete('/api/secret/:id', secretController.deleteSecretKey)
 
 module.exports = router;

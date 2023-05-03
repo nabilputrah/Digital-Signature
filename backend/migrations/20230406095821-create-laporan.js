@@ -21,13 +21,16 @@ module.exports = {
         type: Sequelize.STRING
       },
       dokumen_laporan: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique:true
       },
       lembar_pengesahan: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique:true
       },
       digital_signature: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true
       },
       tgl_disetujui: {
         type: Sequelize.DATE
@@ -39,12 +42,14 @@ module.exports = {
         type: Sequelize.STRING
       },
       private_key: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true
       },
       public_key: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true
       },
-      createdAt: {
+      tgl_unggah: {
         allowNull: false,
         type: Sequelize.DATE
       },

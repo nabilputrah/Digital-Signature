@@ -22,7 +22,7 @@ module.exports = {
 
         return res.status(200).send({
             message:'Get all data KoTA berhasil',
-            data: KoTA
+            data: kota
         })
     } catch (error) {
         return res.status(400).send({
