@@ -2,7 +2,6 @@
   <nav>
   
     <v-navigation-drawer
-      v-if="status_sidebar"
       app
       v-model="drawer"
       :mini-variant.sync="mini"
@@ -54,7 +53,7 @@
       return {
         drawer: true,
         items: [
-          { title: 'Beranda', icon: 'mdi-home-outline', link:'/about'},
+          { title: 'Beranda', icon: 'mdi-home-outline', link:'/dashboard'},
           { title: 'Data KoTA', icon: 'mdi-account-multiple-outline', link:'/KoTA'},
           { title: 'Data Mahasiswa', icon: 'mdi-account-outline', link:'/mahasiswa' },
           { title: 'Data Dosen', icon: 'mdi-account-outline', link:'/dosen'},
@@ -73,14 +72,6 @@
       this.drawer = false;
     },
   },
-    created() {
-      if (this.$route.path === '/portal' || this.$route.path === '/login') {
-        this.status_sidebar = false
-      }
-      else{
-        this.status_sidebar = true
-      }
-    }
   }
 </script>
 

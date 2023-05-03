@@ -49,8 +49,6 @@
 
 <script>
 
-// import CryptoJS from 'crypto-js';
-
 export default {
   data() {
     return {
@@ -61,18 +59,6 @@ export default {
       password:''
     };
   },
-  // created() {
-  //   const rememberMe = localStorage.getItem('rememberMe');
-  //   if (rememberMe) {
-  //     this.rememberMe = true;
-  //     this.username = localStorage.getItem('username');
-  //     const encryptedPassword = localStorage.getItem('password');
-  //     if (encryptedPassword) {
-  //       const password = CryptoJS.AES.decrypt(encryptedPassword, 'my-secret-key').toString(CryptoJS.enc.Utf8);
-  //       this.password = password;
-  //     }
-  //   }
-  // },
   mounted() {
     const credentials = this.getCredentialsFromCookie()
     if (credentials) {
@@ -90,7 +76,7 @@ export default {
         } else {
           this.deleteCredentialsFromCookie()
         }
-        this.$router.push('/about');
+        this.$router.push('/KoTA');
       } else {
         // login gagal, tampilkan dialog
         this.dialog = true;
