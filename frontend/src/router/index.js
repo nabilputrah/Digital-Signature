@@ -7,6 +7,7 @@ import DataDosen from '../views/DataDosen.vue'
 import DataProfil from '../views/DataProfil.vue'
 import DataKoTA from '../views/DataKoTA.vue'
 import AddKoTA from '../views/AddKoTA.vue'
+import DetailKoTA from '../views/DetailKoTA.vue'
 
 Vue.use(VueRouter)
 
@@ -30,6 +31,11 @@ const routes = [
     path: '/KoTA/tambah_KoTA',
     name: 'AddKoTA',
     component: AddKoTA
+  },
+  {
+    path: '/KoTA/detail_KoTA',
+    name: 'DetailKoTA',
+    component: DetailKoTA
   },
   {
     path: '/KoTA',
