@@ -70,7 +70,10 @@ const routes = [
   {
     path: '/koordinator/mahasiswa',
     name: 'mahasiswa',
-    component: DataMahasiswa
+    component: DataMahasiswa,
+    meta: {
+      requiresAuthKoordinator: true,
+    },
   },
   {
     path: '/koordinator/KoTA/tambah_KoTA',
@@ -90,7 +93,10 @@ const routes = [
   {
     path: '/koordinator/KoTA',
     name: 'KoTA',
-    component: DataKoTA
+    component: DataKoTA,
+    meta: {
+      requiresAuthKoordinator: true,
+    },
   },
   {
     path: '/koordinator/dosen',

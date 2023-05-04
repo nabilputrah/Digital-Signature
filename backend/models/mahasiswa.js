@@ -34,7 +34,14 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    id_KoTA: DataTypes.STRING,
+    id_prodi: {
+      type: DataTypes.STRING,
+      allowNull:false
+    },
+    id_KoTA: {
+      type: DataTypes.STRING,
+      
+    },
     nama: DataTypes.STRING,
     email: {
       type: DataTypes.INTEGER,
