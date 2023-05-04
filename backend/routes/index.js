@@ -50,7 +50,7 @@ router.post('/api/upload', (req, res) => {
 /* Endpoint User Controller */ 
 router.post('/api/signup', userController.signUpUser)
 router.post('/api/login', userController.loginUser)
-
+router.get('/api/getkoordata/:id',verifyTokenAndRole, userController.getKoordinatorWithProdi)
 router.get('/api/user',verifyTokenAndRole, userController.getAllUser)
 router.get('/api/user/:id', userController.getUserById)
 router.post('/api/user', userController.addUser)

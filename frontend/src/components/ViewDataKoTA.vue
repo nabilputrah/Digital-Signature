@@ -27,7 +27,6 @@
         :search="search"
         :headers="headers"
         :items="KoTA"
-        :header-props="headerClass"
         sort-by="calories"
         class="elevation-1"
         style="padding-top: 0.5%;"
@@ -204,7 +203,7 @@
       },
     }),
 
-    created () {
+    mounted () {
       this.initialize()
     },
 

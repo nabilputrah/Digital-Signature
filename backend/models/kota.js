@@ -34,7 +34,6 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    id_prodi: DataTypes.STRING,
     id_user: {
       type: DataTypes.INTEGER,
       allowNull: false,

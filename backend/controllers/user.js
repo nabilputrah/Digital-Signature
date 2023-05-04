@@ -2,7 +2,7 @@ const User = require('../models').User;
 const { Op } = require("sequelize");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const db = require('../db/index')
 const secret ='secret'
 
 
@@ -20,7 +20,7 @@ module.exports = {
         return res.status(500).send({ auth: false, message: err.message });
       }
 
-      if (decoded.user.role !=='Dosen') {
+      if (decoded.user.role !=='Koordinator') {
 
         return res.status(403).send({ message: 'Anda tidak memiliki akses ke endpoint ini.' });
       }
@@ -104,6 +104,76 @@ module.exports = {
       })
     }
   },
+
+  async getKoordinatorWithProdi(req, res) {
+    const { id } = req.params
+
+    try {
+      const selectQuery = `SELECT u."id_user", k."nama_koordinator", k."tahun_ajaran", p."nama_prodi"
+                           FROM "User" as u
+                           JOIN "Koordinator" as k 
+                              ON k."id_user" = u."id_user"
+                           JOIN "Prodi" as p
+                              ON p."id_prodi" = k."id_prodi"
+                           WHERE u."id_user" = $1`
+      const paramsQuery = [id]
+      const result = await db.query(selectQuery, paramsQuery)
+
+      if (Object.keys(result).length > 0) {
+        return res.status(200).send({
+          message: `Get data success`,
+          data: result.rows
+        })
+      }   
+      
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
+
+
+  // async updateMahasiswa(req, res) {
+  //   const { id } = req.params
+  //   const { NIM, id_KoTA, nama, email, isKetua} = req.body
+
+  //   try {
+  //     const mahasiswa = await Mahasiswa.findOne({
+  //       where: {
+  //         NIM: id
+  //       },
+  //       attributes: {
+  //         exclude:['id']
+  //       }
+  //     })
+
+  //     if (!mahasiswa) {
+  //       return res.status(404).send({
+  //         message:'Data mahasiswa tidak ditemukan'
+  //       })
+  //     }
+
+  //     const updateQuery = `UPDATE "Mahasiswa" SET "NIM" = $1, "id_KoTA" = $2, "nama"=$3,
+  //                          "email"=$4, "isKetua"=$5 
+  //                          WHERE "NIM"= $6 RETURNING *`
+
+  //     const paramsQuery = [ NIM, id_KoTA, nama, email, isKetua, id]
+
+  //     const result = await db.query(updateQuery, paramsQuery)
+
+  //     if (Object.keys(result).length > 0) {
+  //       return res.status(200).send({
+  //         message: `Update data mahasiswa dengan id mahasiswa ${id} berhasil`,
+  //         data: result.rows
+  //       })
+  //     } 
+  //   } catch (error) {
+  //     return res.status(400).send({
+  //       message: error.message
+  //     })
+  //   }
+  // },
   getAllUser(req, res) {
     return User
       .findAll({

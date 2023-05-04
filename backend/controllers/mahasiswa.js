@@ -67,7 +67,7 @@ module.exports = {
   async addMahasiswa(req, res) {
     const data = req.body
     const options = {
-        fields: ['NIM','id_KoTA','nama','email','isKetua'],
+        fields: ['NIM','id_KoTA','id_prodi','nama','email','isKetua'],
         returning:false
     }
     try {
@@ -153,7 +153,7 @@ module.exports = {
 
       await Mahasiswa.destroy({
         where: {
-          id_mahasiswa:id
+          NIM:id
         }
       })
    

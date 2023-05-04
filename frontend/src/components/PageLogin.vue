@@ -48,7 +48,7 @@
 </template>
 
 <script>
-
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -68,19 +68,32 @@ export default {
     }
   },
   methods: {
-    login() {
-      // cek username dan password
-      if (this.username === 'KoTA402' && this.password === '12345') {
-        if (this.rememberMe) {
+    async login() {
+
+      await axios({
+        method: 'post',
+        url: 'http://localhost:3000/api/login',
+        data: {
+          username: this.username,
+          password: this.password,
+        },
+      })
+        .then((response) => {
+          if (this.rememberMe) {
           this.saveCredentialsToCookie()
         } else {
           this.deleteCredentialsFromCookie()
         }
-        this.$router.push('/KoTA');
-      } else {
-        // login gagal, tampilkan dialog
-        this.dialog = true;
-      }
+          console.log('login berhasil');
+          localStorage.setItem('token', response.data.token);
+          this.$router.push('/KoTA');
+          console.log(localStorage.token);
+        })
+        .catch((error) => {
+          this.dialog = true;
+          console.log(error.response);
+          console.log('gagal login');
+        });
     },
     saveCredentialsToCookie() {
       const encodedPassword = btoa(this.password)
