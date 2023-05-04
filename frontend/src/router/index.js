@@ -5,13 +5,36 @@ import Login from '../views/LoginPage.vue'
 import DashboardKoor from '../views/DashboardKoor.vue'
 import DataMahasiswa from '../views/DataMahasiswa.vue'
 import DataDosen from '../views/DataDosen.vue' 
-import DataProfil from '../views/DataProfil.vue'
+import DataProfilKoor from '../views/DataProfilKoor.vue'
 import DataKoTA from '../views/DataKoTA.vue'
 import AddKoTA from '../views/AddKoTA.vue'
 import DetailKoTA from '../views/DetailKoTA.vue'
 import EditKoTA from '../views/EditKoTA.vue'
 
+// Role Dosen
+import DaftarDokumen from '../views/DaftarDokumen.vue'
+import DataProfilDosen from '../views/DataProfilDosen.vue'
+
 Vue.use(VueRouter)
+
+const checkAuthKoordinator = (to, from, next) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    console.log(decodedToken);
+    const userRole = decodedToken.user.role;
+    if (userRole === 'Koordinator') {
+      // Jika "role" dari token sesuai dengan "dosen", maka lanjutkan ke halaman yang diminta
+      next();
+    } else {
+      // Jika "role" dari token tidak sesuai, maka arahkan pengguna kembali ke halaman login
+      next( {name:'login'} );
+    }
+  } else {
+    // Jika pengguna tidak memiliki token, maka arahkan pengguna kembali ke halaman login
+    next( {name:'login'} );
+  }
+};
 
 const routes = [
   {
@@ -24,45 +47,60 @@ const routes = [
     name: 'login',
     component: Login
   },
+
+// Role Dosen 
   {
-    path: '/dashboard',
+    path: '/dosen/daftar_dokumen',
+    name: 'daftar_dokumen',
+    component: DaftarDokumen
+  },
+  {
+    path: '/dosen/profil',
+    name: 'profil',
+    component: DataProfilDosen
+  },
+
+
+// Role Koordinator
+  {
+    path: '/koordinator/dashboard',
     name: 'dashboard',
     component: DashboardKoor
   },
   {
-    path: '/mahasiswa',
+    path: '/koordinator/mahasiswa',
     name: 'mahasiswa',
     component: DataMahasiswa
   },
   {
-    path: '/KoTA/tambah_KoTA',
+    path: '/koordinator/KoTA/tambah_KoTA',
     name: 'AddKoTA',
     component: AddKoTA
   },
   {
-    path: '/KoTA/detail_KoTA',
+    path: '/koordinator/KoTA/detail_KoTA/:id',
     name: 'DetailKoTA',
     component: DetailKoTA
   },
   {
-    path: '/KoTA/edit_KoTA',
+    path: '/koordinator/KoTA/edit_KoTA/:id',
     name: 'EditKoTA',
     component: EditKoTA
   },
   {
-    path: '/KoTA',
+    path: '/koordinator/KoTA',
     name: 'KoTA',
     component: DataKoTA
   },
   {
-    path: '/dosen',
+    path: '/koordinator/dosen',
     name: 'dosen',
     component: DataDosen
   },
   {
-    path: '/profil',
+    path: '/koordinator/profil',
     name: 'profil',
-    component: DataProfil
+    component: DataProfilKoor
   }
 ]
 
@@ -72,4 +110,11 @@ const router = new VueRouter({
   routes
 })
 
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuthKoordinator)) {
+    checkAuthKoordinator(to, from, next);
+  } else {
+    next();
+  }
+});
 export default router

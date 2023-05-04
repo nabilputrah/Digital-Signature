@@ -6,7 +6,7 @@
       <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
       <v-breadcrumbs-item 
       :disabled="false" 
-      to="/">
+      to="/koordinator/dashboard">
         <v-icon >mdi-home-outline</v-icon>
       </v-breadcrumbs-item>
       <v-breadcrumbs-item 
@@ -15,7 +15,7 @@
       </v-breadcrumbs-item>
       <v-breadcrumbs-item 
       :disabled="true"
-      to="/KoTA">
+      to="/koordinator/KoTA">
         <span>Data KoTA</span>
       </v-breadcrumbs-item>
     </v-breadcrumbs>
@@ -53,7 +53,7 @@
             </v-btn>
             <v-btn
               color="primary"
-              :to="`/KoTA/tambah_KoTA`"
+              :to="`/koordinator/KoTA/tambah_KoTA`"
               style="margin-top: auto;margin-bottom: auto;" 
             >
               + Add KoTA
@@ -223,11 +223,11 @@
       },
 
       redirectToDetail(ID_KoTA) {
-        this.$router.push(`/dokumen_detail/${ID_KoTA}`);
+        this.$router.push(`/koordinator/dokumen_detail/${ID_KoTA}`);
       },
 
       redirectToEdit(ID_KoTA) {
-        this.$router.push(`/KoTA/detail_KoTA/${ID_KoTA}`);
+        this.$router.push(`/koordinator/KoTA/detail_KoTA/${ID_KoTA}`);
       },
 
       sendEmail () {

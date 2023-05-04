@@ -76,7 +76,7 @@ export default {
         } else {
           this.deleteCredentialsFromCookie()
         }
-        this.$router.push('/KoTA');
+        this.$router.push('/koordinator/KoTA');
       } else {
         // login gagal, tampilkan dialog
         this.dialog = true;

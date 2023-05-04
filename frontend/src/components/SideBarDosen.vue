@@ -53,16 +53,10 @@
       return {
         drawer: true,
         items: [
-          { title: 'Beranda', icon: 'mdi-home-outline', link:'/dashboard'},
-          { title: 'Data KoTA', icon: 'mdi-account-multiple-outline', link:'/KoTA'},
-          { title: 'Data Mahasiswa', icon: 'mdi-account-outline', link:'/mahasiswa' },
-          { title: 'Data Dosen', icon: 'mdi-account-outline', link:'/dosen'},
+          { title: 'Beranda', icon: 'mdi-draw', link:'/dosen/daftar_dokumen'},
         ],
         mini: true,
         status_sidebar:false,
-        // if route = '/portal':
-        //   status_sidebar = false
-        // koordinator:false,
         kota:false,
       }
     },
