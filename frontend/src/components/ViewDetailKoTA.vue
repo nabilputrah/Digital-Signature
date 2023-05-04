@@ -6,7 +6,7 @@
       <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
       <v-breadcrumbs-item 
       :disabled="false" 
-      to="/">
+      to="/koordinator/dashboard">
         <v-icon >mdi-home-outline</v-icon>
       </v-breadcrumbs-item>
       <v-breadcrumbs-item 
@@ -15,7 +15,7 @@
       </v-breadcrumbs-item>
       <v-breadcrumbs-item 
       :exact="true"
-      to="/KoTA">
+      to="/koordinator/KoTA">
         Data Kota
       </v-breadcrumbs-item>
       <v-breadcrumbs-item 
@@ -24,7 +24,7 @@
       </v-breadcrumbs-item>
       <v-breadcrumbs-item 
       :disabled="false"
-      to="/KoTA/detail_KoTA">
+      to="/koordinator/KoTA/detail_KoTA">
         <span>Detail KoTA</span>
       </v-breadcrumbs-item>
     </v-breadcrumbs>
@@ -197,7 +197,7 @@
                   <v-icon style="color: #FFFFFF;" left>mdi-trash-can-outline</v-icon>
                   Delete
                 </v-btn>
-                <v-btn color="primary" @click="edit_data" left>
+                <v-btn color="primary" @click="edit_data(ID_KoTA)" left>
                   <v-icon style="color: #FFFFFF;" left>mdi-file-edit-outline</v-icon>
                   Ubah Data
                 </v-btn>
@@ -330,15 +330,15 @@ export default {
   },
 
   methods: {
-    edit_data(){
-      this.$router.push('/KoTA/edit_KoTA');
+    edit_data(ID_KoTA){
+      this.$router.push(`/koordinator/KoTA/edit_KoTA/${ID_KoTA}`);
     },
     delete_data(){
       this.dialogDelete = true
     },
 
     deleteItemConfirm () {
-        this.$router.push('/KoTA');
+        this.$router.push('/koordinator/KoTA');
         this.closeDelete()
       },
 

@@ -5,11 +5,15 @@ import Login from '../views/LoginPage.vue'
 import DashboardKoor from '../views/DashboardKoor.vue'
 import DataMahasiswa from '../views/DataMahasiswa.vue'
 import DataDosen from '../views/DataDosen.vue' 
-import DataProfil from '../views/DataProfil.vue'
+import DataProfilKoor from '../views/DataProfilKoor.vue'
 import DataKoTA from '../views/DataKoTA.vue'
 import AddKoTA from '../views/AddKoTA.vue'
 import DetailKoTA from '../views/DetailKoTA.vue'
 import EditKoTA from '../views/EditKoTA.vue'
+
+// Role Dosen
+import DaftarDokumen from '../views/DaftarDokumen.vue'
+import DataProfilDosen from '../views/DataProfilDosen.vue'
 
 Vue.use(VueRouter)
 
@@ -43,13 +47,28 @@ const routes = [
     name: 'login',
     component: Login
   },
+
+// Role Dosen 
   {
-    path: '/dashboard',
+    path: '/dosen/daftar_dokumen',
+    name: 'daftar_dokumen',
+    component: DaftarDokumen
+  },
+  {
+    path: '/dosen/profil',
+    name: 'profil',
+    component: DataProfilDosen
+  },
+
+
+// Role Koordinator
+  {
+    path: '/koordinator/dashboard',
     name: 'dashboard',
     component: DashboardKoor
   },
   {
-    path: '/mahasiswa',
+    path: '/koordinator/mahasiswa',
     name: 'mahasiswa',
     component: DataMahasiswa,
     meta: {
@@ -57,22 +76,22 @@ const routes = [
     },
   },
   {
-    path: '/KoTA/tambah_KoTA',
+    path: '/koordinator/KoTA/tambah_KoTA',
     name: 'AddKoTA',
     component: AddKoTA
   },
   {
-    path: '/KoTA/detail_KoTA',
+    path: '/koordinator/KoTA/detail_KoTA/:id',
     name: 'DetailKoTA',
     component: DetailKoTA
   },
   {
-    path: '/KoTA/edit_KoTA',
+    path: '/koordinator/KoTA/edit_KoTA/:id',
     name: 'EditKoTA',
     component: EditKoTA
   },
   {
-    path: '/KoTA',
+    path: '/koordinator/KoTA',
     name: 'KoTA',
     component: DataKoTA,
     meta: {
@@ -80,14 +99,14 @@ const routes = [
     },
   },
   {
-    path: '/dosen',
+    path: '/koordinator/dosen',
     name: 'dosen',
     component: DataDosen
   },
   {
-    path: '/profil',
+    path: '/koordinator/profil',
     name: 'profil',
-    component: DataProfil
+    component: DataProfilKoor
   }
 ]
 

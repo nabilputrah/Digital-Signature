@@ -86,7 +86,7 @@ export default {
         }
           console.log('login berhasil');
           localStorage.setItem('token', response.data.token);
-          this.$router.push('/KoTA');
+          this.$router.push('/koordinator/KoTA');
           console.log(localStorage.token);
         })
         .catch((error) => {

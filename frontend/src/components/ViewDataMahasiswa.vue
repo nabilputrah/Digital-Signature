@@ -27,7 +27,6 @@
         :search="search"
         :headers="headers"
         :items="mahasiswa"
-
         sort-by="calories"
         class="elevation-1"
         style="padding-top: 0.5%;"
