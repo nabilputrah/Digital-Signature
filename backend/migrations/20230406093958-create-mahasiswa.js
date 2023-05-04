@@ -8,6 +8,16 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.STRING
       },
+      id_prodi: {
+        type: Sequelize.STRING,
+        references:{
+          model:"Prodi",
+          key:"id_prodi"
+        },
+        onDelete:'cascade',
+        onUpdate:'cascade',
+        allowNull:false
+      },
       id_KoTA: {
         type: Sequelize.STRING,
         references:{

@@ -1,12 +1,12 @@
 <template>
   <div >
-    <!-- Start Breadcrumbs -->
+<!-- Start Breadcrumbs -->
     <v-breadcrumbs style="margin-left: 0.5%;">
       <h4 style="color: #1a5f7a;">Data Mahasiswa</h4>
       <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
       <v-breadcrumbs-item 
       :disabled="false" 
-      to="/">
+      to="/koordinator/dashboard">
         <v-icon >mdi-home-outline</v-icon>
       </v-breadcrumbs-item>
       <v-breadcrumbs-item 
@@ -15,7 +15,7 @@
       </v-breadcrumbs-item>
       <v-breadcrumbs-item 
       :disabled="true"
-      to="/mahasiswa">
+      to="/koordinator/mahasiswa">
         <span>Data Mahasiswa</span>
       </v-breadcrumbs-item>
     </v-breadcrumbs>
@@ -27,7 +27,7 @@
         :search="search"
         :headers="headers"
         :items="mahasiswa"
-        :header-props="headerClass"
+
         sort-by="calories"
         class="elevation-1"
         style="padding-top: 0.5%;"
@@ -78,6 +78,7 @@
                         <v-text-field
                           v-model="editedItem.NIM"
                           label="NIM"
+                          :disabled="editedIndex > -1"
                         ></v-text-field>
                       </v-col>
                       <v-col
@@ -105,10 +106,6 @@
                         sm="6"
                         md="4"
                       >
-                        <v-text-field
-                          v-model="editedItem.KoTA"
-                          label="KoTA"
-                        ></v-text-field>
                       </v-col>
                     </v-row>
                   </v-container>
@@ -126,7 +123,7 @@
                   <v-btn
                     color="#1a5f7a"
                     text
-                    @click="save"
+                    @click="save()"
                   >
                     Save
                   </v-btn>
@@ -211,6 +208,7 @@
 </template>
 
 <script>
+import axios from 'axios'
   export default {
     data: () => ({
       search : '',
@@ -224,7 +222,7 @@
         },
         { text: 'Nama', value: 'nama' },
         { text: 'Email', value: 'email' },
-        { text: 'KoTA', value: 'KoTA' },
+        { text: 'KoTA', value: 'id_KoTA' },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
       mahasiswa: [],
@@ -233,7 +231,6 @@
         NIM: '',
         nama: '',
         email: '',
-        KoTA: '',
       },
       defaultItem: {
         NIM: '',
@@ -258,26 +255,18 @@
       },
     },
 
-    created () {
+    mounted () {
       this.initialize()
     },
 
     methods: {
-      initialize () {
-        this.mahasiswa = [
-          {
-            NIM: 'Frozen Yogurt',
-            nama: 159,
-            email: 6.0,
-            KoTA: 24,
-          },
-          {
-            NIM: 'TAIII',
-            nama: 32,
-            email: 6.3,
-            KoTA: 22,
-          },
-        ]
+      async initialize () {
+        try {
+          const response = await axios.get(`http://localhost:3000/api/mahasiswa`);
+          this.mahasiswa = response.data.data
+        } catch (error) {
+          console.error(error.message);
+        }
       },
 
       editItem (item) {
@@ -292,8 +281,21 @@
         this.dialogDelete = true
       },
 
-      deleteItemConfirm () {
-        this.mahasiswa.splice(this.editedIndex, 1)
+        deleteItemConfirm () {
+          axios({
+              method:'delete',
+              url: 'http://localhost:3000/api/mahasiswa/'+ this.editedItem.NIM
+              
+            })
+            .then(response => {
+            
+              console.log(response.data)
+              this.initialize()
+      
+            })
+            .catch(error => {
+                console.log(error.request.response)
+            })
         this.closeDelete()
       },
 
@@ -315,9 +317,43 @@
 
       save () {
         if (this.editedIndex > -1) {
-          Object.assign(this.mahasiswa[this.editedIndex], this.editedItem)
+       
+          axios({
+            method:'put',
+            url: 'http://localhost:3000/api/mahasiswa/'+ this.editedItem.NIM,
+            data: this.editedItem
+          })
+          .then(response => {
+          
+            console.log(response.data)
+            this.initialize()
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
         } else {
-          this.mahasiswa.push(this.editedItem)
+
+           axios({
+            method:'post',
+            url: 'http://localhost:3000/api/mahasiswa/',
+            data: {
+              NIM : this.editedItem.NIM,
+              nama : this.editedItem.nama,
+              email : this.editedItem.email,
+              id_prodi:'PRD001',
+              isKetua: false
+            } 
+          })
+          .then(response => {
+          
+            console.log(response.data)
+            this.initialize()
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
         }
         this.close()
       },

@@ -13,7 +13,7 @@
               v-bind="attrs"
               v-on="on"
               >
-              Koordinator D4-2023</span>
+              {{ loggedIn.nama_koordinator }} {{ loggedIn.nama_prodi }} {{ loggedIn.tahun_ajaran }}</span>
             </template>
             <v-list >
               <v-list-item
@@ -27,7 +27,7 @@
           </v-menu>
         </v-row>
         <v-row no-gutters style="justify-content: end; ">
-          <span class="font-weight-light" >Koordinator</span>
+          <span class="font-weight-light" >{{ navbar.role }}</span>
         </v-row>
 
       </v-toolbar-title>
@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import axios from 'axios'
   export default {
     data: () => ({
       items: [
@@ -46,7 +47,35 @@
         
       ],
       status_navbar:false,
+      loggedIn:'',
+      navbar:''
     }),
+
+    mounted() {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.navbar= payload.user;
+      }
+
+      this.initializeNavbarLoggedIn()
+
+    },
+    methods:{
+      async initializeNavbarLoggedIn (){
+        const token = localStorage.getItem('token'); 
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        try {
+          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
+          this.loggedIn = response.data.data[0]
+         
+        } catch (error) {
+          console.error(error.message);
+        }
+      }
+    },
+
   }
 </script>
 
