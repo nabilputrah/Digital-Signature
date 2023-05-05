@@ -53,7 +53,7 @@
       return {
         drawer: true,
         items: [
-          { title: 'Dokumen Laporan TA', icon: 'mdi-draw', link:'/dosen/daftar_dokumen'},
+          { title: 'Dokumen Laporan TA', icon: 'mdi-file-document-outline', link:'/KoTA/dokumen_laporan'},
         ],
         mini: true,
         status_sidebar:false,

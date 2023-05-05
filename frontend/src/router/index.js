@@ -15,6 +15,9 @@ import EditKoTA from '../views/EditKoTA.vue'
 import DaftarDokumen from '../views/DaftarDokumen.vue'
 import DataProfilDosen from '../views/DataProfilDosen.vue'
 
+//Role KoTA
+import DataProfilKoTA from '../views/DataProfilKoTA.vue'
+
 Vue.use(VueRouter)
 
 const checkAuthKoordinator = (to, from, next) => {
@@ -66,6 +69,14 @@ const routes = [
     name: 'login',
     component: Login
   },
+
+// Role KoTA
+{
+  path: '/KoTA/profil',
+  name: 'profil',
+  component: DataProfilKoTA
+},
+
 
 // Role Dosen 
   {
