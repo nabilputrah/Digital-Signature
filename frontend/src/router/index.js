@@ -36,6 +36,25 @@ const checkAuthKoordinator = (to, from, next) => {
   }
 };
 
+const checkAuthDosen = (to, from, next) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    console.log(decodedToken);
+    const userRole = decodedToken.user.role;
+    if (userRole === 'Dosen') {
+      // Jika "role" dari token sesuai dengan "dosen", maka lanjutkan ke halaman yang diminta
+      next();
+    } else {
+      // Jika "role" dari token tidak sesuai, maka arahkan pengguna kembali ke halaman login
+      next( {name:'login'} );
+    }
+  } else {
+    // Jika pengguna tidak memiliki token, maka arahkan pengguna kembali ke halaman login
+    next( {name:'login'} );
+  }
+};
+
 const routes = [
   {
     path: '/',
@@ -52,12 +71,18 @@ const routes = [
   {
     path: '/dosen/daftar_dokumen',
     name: 'daftar_dokumen',
-    component: DaftarDokumen
+    component: DaftarDokumen,
+    meta: {
+      requiresAuthDosen: true,
+    },
   },
   {
     path: '/dosen/profil',
     name: 'profil',
-    component: DataProfilDosen
+    component: DataProfilDosen,
+    meta: {
+      requiresAuthDosen: true,
+    },
   },
 
 
@@ -78,17 +103,26 @@ const routes = [
   {
     path: '/koordinator/KoTA/tambah_KoTA',
     name: 'AddKoTA',
-    component: AddKoTA
+    component: AddKoTA,
+    meta: {
+      requiresAuthKoordinator: true,
+    },
   },
   {
     path: '/koordinator/KoTA/detail_KoTA/:id',
     name: 'DetailKoTA',
-    component: DetailKoTA
+    component: DetailKoTA,
+    meta: {
+      requiresAuthKoordinator: true,
+    },
   },
   {
     path: '/koordinator/KoTA/edit_KoTA/:id',
     name: 'EditKoTA',
-    component: EditKoTA
+    component: EditKoTA,
+    meta: {
+      requiresAuthKoordinator: true,
+    },
   },
   {
     path: '/koordinator/KoTA',
@@ -101,12 +135,18 @@ const routes = [
   {
     path: '/koordinator/dosen',
     name: 'dosen',
-    component: DataDosen
+    component: DataDosen,
+    meta: {
+      requiresAuthKoordinator: true,
+    },
   },
   {
     path: '/koordinator/profil',
     name: 'profil',
-    component: DataProfilKoor
+    component: DataProfilKoor,
+    meta: {
+      requiresAuthKoordinator: true,
+    },
   }
 ]
 
@@ -119,6 +159,12 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuthKoordinator)) {
     checkAuthKoordinator(to, from, next);
+  } else {
+    next();
+  }
+
+  if (to.matched.some((record) => record.meta.requiresAuthDosen)) {
+    checkAuthDosen(to, from, next);
   } else {
     next();
   }
