@@ -192,12 +192,7 @@
         </template>
         <!-- End Kolom Action -->
         <template v-slot:no-data>
-          <v-btn
-            color="primary"
-            @click="initialize"
-          >
-            Reset
-          </v-btn>
+          No Data
         </template>
       </v-data-table>
     </v-card>
@@ -280,21 +275,21 @@ import axios from 'axios'
         this.dialogDelete = true
       },
 
-        deleteItemConfirm () {
-          axios({
-              method:'delete',
-              url: 'http://localhost:3000/api/mahasiswa/'+ this.editedItem.NIM
-              
-            })
-            .then(response => {
+      deleteItemConfirm () {
+        axios({
+            method:'delete',
+            url: 'http://localhost:3000/api/mahasiswa/'+ this.editedItem.NIM
             
-              console.log(response.data)
-              this.initialize()
-      
-            })
-            .catch(error => {
-                console.log(error.request.response)
-            })
+          })
+          .then(response => {
+          
+            console.log(response.data)
+            this.initialize()
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
         this.closeDelete()
       },
 

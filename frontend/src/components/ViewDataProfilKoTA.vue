@@ -5,17 +5,8 @@
       <h4 style="color: #1a5f7a;">Profil</h4>
       <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
       <v-breadcrumbs-item 
-      :disabled="false" 
-      to="/koordinator/dashboard">
-        <v-icon >mdi-home-outline</v-icon>
-      </v-breadcrumbs-item>
-      <v-breadcrumbs-item 
-      :disabled="true">
-        /
-      </v-breadcrumbs-item>
-      <v-breadcrumbs-item 
       :disabled="true"
-      to="/koordinator/profil">
+      to="/dosen/profil">
         <span>Profil</span>
       </v-breadcrumbs-item>
     </v-breadcrumbs>
@@ -29,27 +20,27 @@
         <v-card-title>Edit Data Tahun Ajaran</v-card-title>
         <v-card-text >
           <v-form>
-            <!-- Start Form Nama Koordinator -->
+            <!-- Start Form ID KoTA -->
             <v-row>
               <v-col cols="4">
                 <div class="justify-center">
                   <span 
                   style="font-size:1rem;"
-                  >Nama Koordinator</span>
-                  <v-text-field__details></v-text-field__details>
+                  >ID KoTA</span>
                 </div>
               </v-col>
               <v-col cols="8" >
                 <v-text-field 
-                v-model="name"
+                v-model="ID_KoTA"
                 :rules="rules"
-                placeholder="Nama Koordinator"
+                placeholder="Id KoTA"
                 dense
                 outlined
+                disabled
                 ></v-text-field>
               </v-col>
             </v-row>
-            <!-- End Form Nama Koordinator -->
+            <!-- End Form ID KoTA -->
             <!-- Start Form Tahun Ajaran -->
             <v-row>
               <v-col cols="4">
@@ -60,27 +51,44 @@
                   <v-text-field__details></v-text-field__details>
                 </div>
               </v-col>
-              <v-col>
-                <v-select
-                  v-model="tahunAjaran"
-                  :items="listTahunAjaran"
-                  item-text="tahunAjaran"
-                  item-value="tahunAjaran"
-                  @change="onChangeTahunAjaran"
-                  dense
-                  outlined
-                  :menu-props="{ offsetY: true, maxHeight: '200px' }"
-                />
+              <v-col cols="8" >
+                <v-text-field 
+                v-model="tahun_ajaran"
+                :rules="rules"
+                placeholder="Tahun Ajaran"
+                dense
+                outlined
+                disabled
+                ></v-text-field>
               </v-col>
             </v-row>
             <!-- End Form Tahun Ajaran -->
-            <!-- Start Button Simpan Perubahan -->
-            <v-row >
-              <v-col class="text-right" >
-                <v-btn color="primary" @click="save">Simpan Perubahan</v-btn>
+            <!-- Start Form Anggota -->
+            <v-row>
+              <v-col cols="4">
+                <div class="justify-center">
+                  <span 
+                  style="font-size:1rem;"
+                  >Anggota</span>
+                  <v-text-field__details></v-text-field__details>
+                </div>
+              </v-col>
+              <v-col cols="8" >
+                <v-row v-for="(item, index) in listAnggota" :key="index">
+                  <v-col>
+                    <v-text-field 
+                    v-model="item.anggota"
+                    :rules="rules"
+                    placeholder="Anggota"
+                    dense
+                    outlined
+                    disabled
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
-            <!-- End Button Simpan Perubahan -->
+            <!-- End Form Anggota -->
             <!-- Start Form Password -->
             <v-row>
               <v-col cols="4">
@@ -165,17 +173,19 @@ export default {
   data() {
     return {
       // Data Form Nama
-      name : "Djoko Cahyo Utomo Lieharyani",
+      ID_KoTA : 402,
+      tahun_ajaran : "2022/2023",
+      listAnggota: [
+        { anggota: 'Andika Yudha'},
+        { anggota: 'Nabil Putra H'},
+      ],
       rules: [
         value => !!value || 'Required.',
         // value => (value && value.length >= 3) || 'Min 3 characters',
       ],
 
-      tahunAjaran: '2023/2024',
-      listTahunAjaran: [],
-
       // Data Form password
-      password: 'PasswordKoordinator',
+      password: 'PasswordKoTA',
       currentPassword: '',
       newPassword: '',
       confirmNewPassword: '',
@@ -183,32 +193,9 @@ export default {
       passwordFieldsVisible: false
     }
   },
-  mounted() {
-    this.generateListTahunAjaran();
-  },
-
   methods: {
     save() {
       // your save implementation here
-    },
-
-    generateListTahunAjaran() {
-      const currentYear = new Date().getFullYear();
-      const list = [];
-      for (let i = currentYear - 3; i < currentYear + 4; i++) {
-        const tahunAjaran = `${i}/${i + 1}`;
-        list.push({ tahunAjaran });
-      }
-      this.listTahunAjaran = list;
-    },
-
-    onChangeTahunAjaran() {
-      console.log(`Anda memilih tahun ajaran ${this.tahunAjaran}`);
-    },
-
-    updateValue(value) {
-      this.inputValue = value;
-      this.showYearsDropdown = false;
     },
 
     togglePasswordFields() {
