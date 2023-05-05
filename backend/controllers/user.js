@@ -1,4 +1,5 @@
 const User = require('../models').User;
+const Dosen = require('../models').Dosen;
 const { Op } = require("sequelize");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -58,6 +59,59 @@ module.exports = {
           data: user
         })
       }
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
+
+  async signUpUserDosen(req, res) {
+    const { username, nama, password, email} = req.body
+    const hashPassword = await bcrypt.hash(password, 10)
+
+    const optionsUser = {
+      fields: ['username', 'password', 'role'],
+      returning: false
+    }
+
+    try {
+      // insert user 
+      await User.create({
+        username: username,
+        password: hashPassword,
+        role: 'Dosen'
+      }, optionsUser)
+
+      // select id_user from table user
+
+      const user = await User.findOne({
+        where: {
+          username: username
+        },
+        attributes: {
+          exclude: ['id','createdAt','updatedAt']
+        }
+      })
+
+      // insert data dosen 
+
+      const optionsDosen = {
+        fields:['NIP', 'id_user', 'nama', 'email'],
+        returning: true
+      }
+
+      const dosen = await Dosen.create({
+        NIP: username,
+        id_user: user.id_user,
+        nama: nama,
+        email: email
+      }, optionsDosen)
+
+      return res.status(200).send({
+        message: 'add dosen with user success',
+        data: dosen
+      })
     } catch (error) {
       return res.status(400).send({
         message: error.message
@@ -134,46 +188,6 @@ module.exports = {
   },
 
 
-  // async updateMahasiswa(req, res) {
-  //   const { id } = req.params
-  //   const { NIM, id_KoTA, nama, email, isKetua} = req.body
-
-  //   try {
-  //     const mahasiswa = await Mahasiswa.findOne({
-  //       where: {
-  //         NIM: id
-  //       },
-  //       attributes: {
-  //         exclude:['id']
-  //       }
-  //     })
-
-  //     if (!mahasiswa) {
-  //       return res.status(404).send({
-  //         message:'Data mahasiswa tidak ditemukan'
-  //       })
-  //     }
-
-  //     const updateQuery = `UPDATE "Mahasiswa" SET "NIM" = $1, "id_KoTA" = $2, "nama"=$3,
-  //                          "email"=$4, "isKetua"=$5 
-  //                          WHERE "NIM"= $6 RETURNING *`
-
-  //     const paramsQuery = [ NIM, id_KoTA, nama, email, isKetua, id]
-
-  //     const result = await db.query(updateQuery, paramsQuery)
-
-  //     if (Object.keys(result).length > 0) {
-  //       return res.status(200).send({
-  //         message: `Update data mahasiswa dengan id mahasiswa ${id} berhasil`,
-  //         data: result.rows
-  //       })
-  //     } 
-  //   } catch (error) {
-  //     return res.status(400).send({
-  //       message: error.message
-  //     })
-  //   }
-  // },
   getAllUser(req, res) {
     return User
       .findAll({
