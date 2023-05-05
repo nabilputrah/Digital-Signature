@@ -7,8 +7,8 @@
   </template>
   
   <script>
-    import NavigasiBar from '../components/NavigasiBar'
-    import SideBar from '../components/SideBar'
+    import NavigasiBar from '../components/NavigasiBarKoor'
+    import SideBar from '../components/SideBarKoor'
     import DataDosen from '../components/ViewDataDosen.vue'
     export default {
       name: 'DosenData',

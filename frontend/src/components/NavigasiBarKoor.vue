@@ -42,7 +42,7 @@ import axios from 'axios'
   export default {
     data: () => ({
       items: [
-        { title: 'Profil Saya' , link:'/profil'},
+        { title: 'Profil Saya' , link:'/koordinator/profil'},
         { title: 'Keluar' , link:'/login'},
         
       ],

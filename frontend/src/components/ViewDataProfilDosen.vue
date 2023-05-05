@@ -5,17 +5,8 @@
       <h4 style="color: #1a5f7a;">Profil</h4>
       <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
       <v-breadcrumbs-item 
-      :disabled="false" 
-      to="/">
-        <v-icon >mdi-home-outline</v-icon>
-      </v-breadcrumbs-item>
-      <v-breadcrumbs-item 
-      :disabled="true">
-        /
-      </v-breadcrumbs-item>
-      <v-breadcrumbs-item 
       :disabled="true"
-      to="/profil">
+      to="/dosen/profil">
         <span>Profil</span>
       </v-breadcrumbs-item>
     </v-breadcrumbs>
@@ -29,13 +20,34 @@
         <v-card-title>Edit Data Tahun Ajaran</v-card-title>
         <v-card-text >
           <v-form>
-            <!-- Start Form Nama Koordinator -->
+            <!-- Start Form Nama NIP -->
             <v-row>
               <v-col cols="4">
                 <div class="justify-center">
                   <span 
                   style="font-size:1rem;"
-                  >Nama Koordinator</span>
+                  >Nama NIP</span>
+                </div>
+              </v-col>
+              <v-col cols="8" >
+                <v-text-field 
+                v-model="NIP"
+                :rules="rules"
+                placeholder="Nama NIP"
+                dense
+                outlined
+                disabled
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <!-- End Form Nama NIP -->
+            <!-- Start Form Nama Dosen -->
+            <v-row>
+              <v-col cols="4">
+                <div class="justify-center">
+                  <span 
+                  style="font-size:1rem;"
+                  >Nama Dosen</span>
                   <v-text-field__details></v-text-field__details>
                 </div>
               </v-col>
@@ -43,37 +55,34 @@
                 <v-text-field 
                 v-model="name"
                 :rules="rules"
-                placeholder="Nama Koordinator"
+                placeholder="Nama Dosen"
                 dense
                 outlined
                 ></v-text-field>
               </v-col>
             </v-row>
-            <!-- End Form Nama Koordinator -->
-            <!-- Start Form Tahun Ajaran -->
+            <!-- End Form Nama Dosen -->
+            <!-- Start Form Email -->
             <v-row>
               <v-col cols="4">
                 <div class="justify-center">
                   <span 
                   style="font-size:1rem;"
-                  >Tahun Ajaran</span>
+                  >Email</span>
                   <v-text-field__details></v-text-field__details>
                 </div>
               </v-col>
-              <v-col>
-                <v-select
-                  v-model="tahunAjaran"
-                  :items="listTahunAjaran"
-                  item-text="tahunAjaran"
-                  item-value="tahunAjaran"
-                  @change="onChangeTahunAjaran"
-                  dense
-                  outlined
-                  :menu-props="{ offsetY: true, maxHeight: '200px' }"
-                />
+              <v-col cols="8" >
+                <v-text-field 
+                v-model="email"
+                :rules="rules"
+                placeholder="Email"
+                dense
+                outlined
+                ></v-text-field>
               </v-col>
             </v-row>
-            <!-- End Form Tahun Ajaran -->
+            <!-- End Form Email -->
             <!-- Start Button Simpan Perubahan -->
             <v-row >
               <v-col class="text-right" >
@@ -165,17 +174,16 @@ export default {
   data() {
     return {
       // Data Form Nama
-      name : "Djoko Cahyo Utomo Lieharyani",
+      NIP : "199304262019032028",
+      name : "Aprianti Nanda Sari, S.T., M.Kom.",
+      email : "aprianti.nanda@polban.ac.id",
       rules: [
         value => !!value || 'Required.',
         // value => (value && value.length >= 3) || 'Min 3 characters',
       ],
 
-      tahunAjaran: '2023/2024',
-      listTahunAjaran: [],
-
       // Data Form password
-      password: 'PasswordKoordinator',
+      password: 'PasswordDosen',
       currentPassword: '',
       newPassword: '',
       confirmNewPassword: '',
@@ -183,32 +191,9 @@ export default {
       passwordFieldsVisible: false
     }
   },
-  mounted() {
-    this.generateListTahunAjaran();
-  },
-
   methods: {
     save() {
       // your save implementation here
-    },
-
-    generateListTahunAjaran() {
-      const currentYear = new Date().getFullYear();
-      const list = [];
-      for (let i = currentYear - 3; i < currentYear + 4; i++) {
-        const tahunAjaran = `${i}/${i + 1}`;
-        list.push({ tahunAjaran });
-      }
-      this.listTahunAjaran = list;
-    },
-
-    onChangeTahunAjaran() {
-      console.log(`Anda memilih tahun ajaran ${this.tahunAjaran}`);
-    },
-
-    updateValue(value) {
-      this.inputValue = value;
-      this.showYearsDropdown = false;
     },
 
     togglePasswordFields() {

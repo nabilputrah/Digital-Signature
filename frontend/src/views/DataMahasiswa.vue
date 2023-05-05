@@ -7,8 +7,8 @@
 </template>
   
   <script>
-    import NavigasiBar from '../components/NavigasiBar'
-    import SideBar from '../components/SideBar'
+    import NavigasiBar from '../components/NavigasiBarKoor'
+    import SideBar from '../components/SideBarKoor'
     import DataMahasiswa from '../components/ViewDataMahasiswa.vue'
     export default {
       name: 'MahasiswaData',

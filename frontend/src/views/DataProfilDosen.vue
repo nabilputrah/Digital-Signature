@@ -7,11 +7,11 @@
   </template>
   
   <script>
-    import NavigasiBar from '../components/NavigasiBar'
-    import SideBar from '../components/SideBar'
-    import DataProfil from '../components/ViewDataProfil.vue'
+    import NavigasiBar from '../components/NavigasiBarDosen'
+    import SideBar from '../components/SideBarDosen'
+    import DataProfil from '../components/ViewDataProfilDosen.vue'
     export default {
-      name: 'PofilData',
+      name: 'ProfilData',
   
       components: {
         DataProfil,
