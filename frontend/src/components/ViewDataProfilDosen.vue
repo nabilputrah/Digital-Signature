@@ -26,7 +26,7 @@
                 <div class="justify-center">
                   <span 
                   style="font-size:1rem;"
-                  >Nama NIP</span>
+                  >NIP</span>
                 </div>
               </v-col>
               <v-col cols="8" >
@@ -103,7 +103,7 @@
               <v-col cols="8" v-if="!passwordFieldsVisible">
                 <v-text-field 
                 v-model="password"
-                :type="showPassword ? 'text' : 'password'" 
+                :type="'password'"
                 placeholder="Password"
                 dense
                 outlined
@@ -198,6 +198,7 @@ export default {
 
     togglePasswordFields() {
       this.passwordFieldsVisible = !this.passwordFieldsVisible;
+      this.showPassword = false
     },
     changePassword() {
       if (this.currentPassword !== this.password) {
