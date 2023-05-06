@@ -164,6 +164,23 @@
     </div>
     </v-card>
     <!-- End Datatables -->
+    <v-snackbar 
+      v-model="snackbar.show" 
+      :color="snackbar.color" 
+      top 
+      right 
+      :timeout="3000"
+      style="margin-right: 1%;"
+    >
+      <span>
+        {{ snackbar.message }}
+      </span>
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 
 </template>
@@ -190,7 +207,15 @@ export default {
       newPassword: '',
       confirmNewPassword: '',
       showPassword: false,
-      passwordFieldsVisible: false
+      passwordFieldsVisible: false,
+
+      // Notifikasi Berhasil
+      snackbar: {
+        show: false,
+        message: "",
+        color: "",
+      },
+
     }
   },
   methods: {
@@ -204,15 +229,24 @@ export default {
     },
     changePassword() {
       if (this.currentPassword !== this.password) {
-        alert('Current password is incorrect!');
+        this.snackbar.show = true;
+        this.snackbar.color = "error";
+        this.snackbar.message = "Current password is incorrect!";
+        // alert('Current password is incorrect!');
         return;
       }
       if (this.newPassword !== this.confirmNewPassword) {
-        alert('New password and confirm password do not match!');
+        this.snackbar.show = true;
+        this.snackbar.color = "error";
+        this.snackbar.message = "New password and confirm password do not match!";
+        // alert('New password and confirm password do not match!');
         return;
       }
       this.password = this.newPassword;
-      alert('Password has been changed!');
+      this.snackbar.show = true;
+      this.snackbar.color = "primary";
+      this.snackbar.message = "Password baru berhasil disimpan!";
+      // alert('Password has been changed!');
       this.togglePasswordFields();
     }
   },

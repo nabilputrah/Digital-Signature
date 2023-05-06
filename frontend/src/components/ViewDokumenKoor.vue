@@ -238,6 +238,23 @@
       </v-data-table>
     </v-card>
     <!-- End Datatables -->
+    <v-snackbar 
+      v-model="snackbar.show" 
+      :color="snackbar.color" 
+      top 
+      right 
+      :timeout="3000"
+      style="margin-right: 1%;"
+    >
+      <span>
+        {{ snackbar.message }}
+      </span>
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 
 </template>
@@ -283,6 +300,14 @@ export default {
       ],
       Laporan: [],
       Pengampu : [],
+
+      // Notifikasi Berhasil
+      snackbar: {
+        show: false,
+        message: "",
+        color: "",
+      },
+
     }
   },
 
@@ -291,12 +316,6 @@ export default {
   },
 
   methods: {
-    save() {
-      // your save implementation here
-    },
-    add_Dokumen(){
-      // your save implementation here
-    },
     initialize () {
         this.Laporan = [
           {
@@ -338,7 +357,9 @@ export default {
     },
 
     unduhItem () {
-      
+      this.snackbar.show = true;
+      this.snackbar.color = "primary";
+      this.snackbar.message = "Dokumen Laporan TA berhasil diunduh";
     },
 
     shouldShowDownloadIcon(item) {

@@ -68,45 +68,22 @@
 
                 <v-card-text>
                   <v-container>
-                    <v-row>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.NIM"
-                          label="NIM"
-                          :disabled="editedIndex > -1"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.nama"
-                          label="Nama"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.email"
-                          label="Email"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                      </v-col>
-                    </v-row>
+                    <v-text-field
+                      v-model="editedItem.NIM"
+                      :rules="rules"
+                      label="NIM"
+                      :disabled="editedIndex > -1"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedItem.nama"
+                      :rules="rules"
+                      label="Nama"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedItem.email"
+                      :rules="rules"
+                      label="Email"
+                    ></v-text-field>
                   </v-container>
                 </v-card-text>
 
@@ -195,6 +172,23 @@
       </v-data-table>
     </v-card>
     <!-- End Datatables -->
+    <v-snackbar 
+      v-model="snackbar.show" 
+      :color="snackbar.color" 
+      top 
+      right 
+      :timeout="3000"
+      style="margin-right: 1%;"
+    >
+      <span>
+        {{ snackbar.message }}
+      </span>
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 
 </template>
@@ -217,6 +211,10 @@ import axios from 'axios'
         { text: 'KoTA', value: 'id_KoTA' },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
+      rules: [
+        value => !!value || 'Required.',
+        // value => (value && value.length >= 3) || 'Min 3 characters',
+      ],
       mahasiswa: [],
       editedIndex: -1,
       editedItem: {
@@ -230,11 +228,19 @@ import axios from 'axios'
         email: '',
         KoTA: '',
       },
+
+      // Notifikasi Berhasil
+      snackbar: {
+        show: false,
+        message: "",
+        color: "",
+      },
+
     }),
 
     computed: {
       formTitle () {
-        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+        return this.editedIndex === -1 ? 'Tambah Mahasiswa' : 'Sunting Data Mahasiswa'
       },
     },
 
@@ -282,6 +288,9 @@ import axios from 'axios'
           .then(response => {
           
             console.log(response.data)
+            this.snackbar.show = true;
+            this.snackbar.color = "primary";
+            this.snackbar.message = "Data mahasiswa berhasil dihapus!";
             this.initialize()
     
           })
@@ -340,6 +349,10 @@ import axios from 'axios'
           .then(response => {
           
             console.log(response.data)
+            // Show success notification
+            this.snackbar.show = true;
+            this.snackbar.color = "primary";
+            this.snackbar.message = "Data mahasiswa berhasil disimpan!";
             this.initialize()
     
           })

@@ -143,8 +143,14 @@
         </template>
         <!-- Start Kolom Action -->
         <template v-slot:[`item.actions`]="{ item }">
-          <v-btn v-if="shouldShowSignatureIcon(item, Laporan)" color="primary">
-            <v-icon color="white" left>mdi-draw</v-icon> Tanda Tangan
+          <v-btn 
+            v-if="shouldShowSignatureIcon(item, Laporan)" 
+            color="primary"
+            @click="SignDocument(item)"
+          >
+            <v-icon 
+              color="white" 
+              left>mdi-draw</v-icon> Tanda Tangan
           </v-btn>
           <v-icon 
             v-if="shouldShowDownloadIcon(item)" 
@@ -232,6 +238,23 @@
       </v-data-table>
     </v-card>
     <!-- End Datatables -->
+    <v-snackbar 
+      v-model="snackbar.show" 
+      :color="snackbar.color" 
+      top 
+      right 
+      :timeout="3000"
+      style="margin-right: 1%;"
+    >
+      <span>
+        {{ snackbar.message }}
+      </span>
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 
 </template>
@@ -277,6 +300,14 @@ export default {
       ],
       Laporan: [],
       Pengampu : [],
+
+      // Notifikasi Berhasil
+      snackbar: {
+        show: false,
+        message: "",
+        color: "",
+      },
+
     }
   },
 
@@ -332,11 +363,15 @@ export default {
     },
 
     SignDocument (){
-
+      this.snackbar.show = true;
+      this.snackbar.color = "primary";
+      this.snackbar.message = "Dokumen Laporan TA berhasil ditandatangani";
     },
 
     unduhItem () {
-      
+      this.snackbar.show = true;
+      this.snackbar.color = "primary";
+      this.snackbar.message = "Dokumen Laporan TA berhasil diunduh";
     },
 
     shouldShowSignatureIcon(item, Laporan) {

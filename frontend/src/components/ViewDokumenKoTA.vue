@@ -303,6 +303,23 @@
       </v-data-table>
     </v-card>
     <!-- End Datatables -->
+    <v-snackbar 
+      v-model="snackbar.show" 
+      :color="snackbar.color" 
+      top 
+      right 
+      :timeout="3000"
+      style="margin-right: 1%;"
+    >
+      <span>
+        {{ snackbar.message }}
+      </span>
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 
 </template>
@@ -350,6 +367,14 @@ export default {
       ],
       Laporan: [],
       Pengampu : [],
+
+      // Notifikasi Berhasil
+      snackbar: {
+        show: false,
+        message: "",
+        color: "",
+      },
+
     }
   },
 
@@ -359,9 +384,15 @@ export default {
 
   methods: {
     save() {
+      this.snackbar.show = true;
+      this.snackbar.color = "primary";
+      this.snackbar.message = "Perubahan data Dokumen Laporan TA berhasil disimpan";
       // your save implementation here
     },
     add_Dokumen(){
+      this.snackbar.show = true;
+      this.snackbar.color = "primary";
+      this.snackbar.message = "Dokumen Laporan TA berhasil ditambahkan";
       // your save implementation here
     },
     initialize () {
@@ -406,6 +437,9 @@ export default {
     },
     deleteItemConfirm () {
       this.Laporan.splice(this.editedIndex, 1)
+      this.snackbar.show = true;
+      this.snackbar.color = "primary";
+      this.snackbar.message = "Data Dokumen Laporan TA berhasil dihapus";
       this.closeDelete()
     },
     closeDelete () {
@@ -417,7 +451,9 @@ export default {
     },
 
     unduhItem () {
-      
+      this.snackbar.show = true;
+      this.snackbar.color = "primary";
+      this.snackbar.message = "Dokumen Laporan TA berhasil diunduh";
     },
 
     getButtonStyle(item) {

@@ -75,38 +75,22 @@
 
                 <v-card-text>
                   <v-container>
-                    <v-row>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.NIP"
-                          label="NIP"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.nama"
-                          label="Nama"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.email"
-                          label="Email"
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
+                    <v-text-field
+                      v-model="editedItem.NIP"
+                      :rules="rules"
+                      label="NIP"
+                      :disabled="editedIndex > -1"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedItem.nama"
+                      :rules="rules"
+                      label="Nama"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedItem.email"
+                      :rules="rules"
+                      label="Email"
+                    ></v-text-field>
                   </v-container>
                 </v-card-text>
 
@@ -259,6 +243,23 @@
       </v-data-table>
     </v-card>
     <!-- End Datatables -->
+    <v-snackbar 
+      v-model="snackbar.show" 
+      :color="snackbar.color" 
+      top 
+      right 
+      :timeout="3000"
+      style="margin-right: 1%;"
+    >
+      <span>
+        {{ snackbar.message }}
+      </span>
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 
 </template>
@@ -293,11 +294,19 @@
         nama: '',
         email: '',
       },
+
+      // Notifikasi Berhasil
+      snackbar: {
+        show: false,
+        message: "",
+        color: "",
+      },
+
     }),
 
     computed: {
       formTitle () {
-        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+        return this.editedIndex === -1 ? 'Tambah Dosen' : 'Sunting Data Dosen'
       },
     },
 
@@ -352,14 +361,23 @@
       
       deleteItemConfirm () {
         this.dosen.splice(this.editedIndex, 1)
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Data Dosen berhasil dihapus!";
         this.closeDelete()
       },
 
       sendEmailConfirm () {
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Email berhasil dikirimkan!";
         this.closeEmail()
       },
 
       sendAllEmailConfirm () {
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Email berhasil dikirimkan!";
         this.closeAllEmail()
       },
 
@@ -393,6 +411,10 @@
         } else {
           this.dosen.push(this.editedItem)
         }
+        // Show success notification
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Data mahasiswa berhasil disimpan!";
         this.close()
       },
     },
