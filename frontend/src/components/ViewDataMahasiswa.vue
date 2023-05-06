@@ -169,7 +169,7 @@
             label="Search"
             single-line
             hide-details
-            style="width: 15%;margin-right: 1%; margin-bottom: 0.5%; "
+            style="width: 20%;margin-right: 1%; margin-bottom: 0.5%; "
             class="custom-card"
           ></v-text-field>
           <!-- End Input Search -->
@@ -177,17 +177,15 @@
         <!-- Start Kolom Action -->
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon
-            small
             class="mr-2"
             @click="editItem(item)"
           >
             mdi-pencil-outline
           </v-icon>
           <v-icon
-            small
             @click="deleteItem(item)"
           >
-            mdi-delete
+            mdi-trash-can-outline
           </v-icon>
         </template>
         <!-- End Kolom Action -->

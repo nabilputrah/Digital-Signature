@@ -125,7 +125,7 @@
             label="Search"
             single-line
             hide-details
-            style="width: 15%;margin-right: 1%; margin-bottom: 0.5%; "
+            style="width: 20%;margin-right: 1%; margin-bottom: 0.5%; "
             class="custom-card"
           ></v-text-field>
           <!-- End Input Search -->
@@ -133,14 +133,12 @@
         <!-- Start Kolom Action -->
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon
-            small
             class="mr-2"
             @click="redirectToEdit(item.ID_KoTA)"
           >
             mdi-pencil-outline
           </v-icon>
           <v-icon
-            small
             @click="sendEmail(item)"
           >
             mdi-email-outline
@@ -150,7 +148,6 @@
         <!-- Start Kolom Dokumen -->
         <template v-slot:[`item.dokumen`]="{ item }">
           <v-icon
-            small
             class="mr-2"
             @click="redirectToDetail(item.ID_KoTA)"
           >
@@ -222,7 +219,7 @@
       },
 
       redirectToDetail(ID_KoTA) {
-        this.$router.push(`/koordinator/dokumen_detail/${ID_KoTA}`);
+        this.$router.push(`/koordinator/KoTA/dokumen_detail/${ID_KoTA}`);
       },
 
       redirectToEdit(ID_KoTA) {
@@ -273,11 +270,6 @@
 
 .theme--light.v-icon{
   color:#1A5F7A;
-}
-
-.header_bg{
-  background-color: #91BBCB
-  ;
 }
 
 ::v-deep .v-data-table-header{
