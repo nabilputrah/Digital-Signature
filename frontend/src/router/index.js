@@ -24,10 +24,10 @@ const checkAuthKoordinator = (to, from, next) => {
   const token = localStorage.getItem('token');
   if (token) {
     const decodedToken = JSON.parse(atob(token.split('.')[1]));
-    console.log(decodedToken);
+   
     const userRole = decodedToken.user.role;
     if (userRole === 'Koordinator') {
-      // Jika "role" dari token sesuai dengan "dosen", maka lanjutkan ke halaman yang diminta
+      // Jika "role" dari token sesuai dengan "Koordinator", maka lanjutkan ke halaman yang diminta
       next();
     } else {
       // Jika "role" dari token tidak sesuai, maka arahkan pengguna kembali ke halaman login
@@ -43,10 +43,29 @@ const checkAuthDosen = (to, from, next) => {
   const token = localStorage.getItem('token');
   if (token) {
     const decodedToken = JSON.parse(atob(token.split('.')[1]));
-    console.log(decodedToken);
+   
     const userRole = decodedToken.user.role;
     if (userRole === 'Dosen') {
-      // Jika "role" dari token sesuai dengan "dosen", maka lanjutkan ke halaman yang diminta
+      // Jika "role" dari token sesuai dengan "Dosen", maka lanjutkan ke halaman yang diminta
+      next();
+    } else {
+      // Jika "role" dari token tidak sesuai, maka arahkan pengguna kembali ke halaman login
+      next( {name:'login'} );
+    }
+  } else {
+    // Jika pengguna tidak memiliki token, maka arahkan pengguna kembali ke halaman login
+    next( {name:'login'} );
+  }
+};
+
+const checkAuthKoTA = (to, from, next) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+   
+    const userRole = decodedToken.user.role;
+    if (userRole === 'KoTA') {
+      // Jika "role" dari token sesuai dengan "Dosen", maka lanjutkan ke halaman yang diminta
       next();
     } else {
       // Jika "role" dari token tidak sesuai, maka arahkan pengguna kembali ke halaman login
@@ -74,7 +93,10 @@ const routes = [
 {
   path: '/KoTA/profil',
   name: 'profil',
-  component: DataProfilKoTA
+  component: DataProfilKoTA,
+  meta: {
+    requiresAuthKoTA: true,
+  },
 },
 
 
@@ -176,6 +198,12 @@ router.beforeEach((to, from, next) => {
 
   if (to.matched.some((record) => record.meta.requiresAuthDosen)) {
     checkAuthDosen(to, from, next);
+  } else {
+    next();
+  }
+
+  if (to.matched.some((record) => record.meta.requiresAuthKoTA)) {
+    checkAuthKoTA(to, from, next);
   } else {
     next();
   }

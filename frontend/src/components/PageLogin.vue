@@ -97,6 +97,9 @@ export default {
               else if (userRole === 'Dosen') {
                   this.$router.push('/dosen/profil')
               }
+              else if (userRole === 'KoTA') {
+                  this.$router.push('/KoTA/profil')
+              }
           }
    
      

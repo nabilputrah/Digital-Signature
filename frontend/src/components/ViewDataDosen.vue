@@ -84,6 +84,7 @@
                         <v-text-field
                           v-model="editedItem.NIP"
                           label="NIP"
+                           :disabled="editedIndex > -1"
                         ></v-text-field>
                       </v-col>
                       <v-col
@@ -267,6 +268,7 @@
 </template>
 
 <script>
+import axios from 'axios'
   export default {
     data: () => ({
       search : '',
@@ -313,24 +315,18 @@
       },
     },
 
-    created () {
+    mounted () {
       this.initialize()
     },
 
     methods: {
-      initialize () {
-        this.dosen = [
-          {
-            NIP: 'Frozen Yogurt',
-            nama: 159,
-            email: 6.0,
-          },
-          {
-            NIP: 'TAIII',
-            nama: 32,
-            email: 6.3,
-          },
-        ]
+      async initialize () {
+         try {
+          const response = await axios.get(`http://localhost:3000/api/dosen`);
+          this.dosen = response.data.data
+        } catch (error) {
+          console.error(error.message);
+        }
       },
 
       editItem (item) {
@@ -354,7 +350,20 @@
       },
       
       deleteItemConfirm () {
-        this.dosen.splice(this.editedIndex, 1)
+        axios({
+            method:'delete',
+            url: 'http://localhost:3000/api/dosen/'+ this.editedItem.NIP
+            
+          })
+          .then(response => {
+          
+            console.log(response.data)
+            this.initialize()
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
         this.closeDelete()
       },
 
@@ -392,9 +401,39 @@
 
       save () {
         if (this.editedIndex > -1) {
-          Object.assign(this.dosen[this.editedIndex], this.editedItem)
+          axios({
+            method:'put',
+            url: 'http://localhost:3000/api/dosen/'+ this.editedItem.NIP,
+            data: this.editedItem
+          })
+          .then(response => {
+          
+            console.log(response.data)
+            this.initialize()
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
         } else {
-          this.dosen.push(this.editedItem)
+          axios({
+            method:'post',
+            url: 'http://localhost:3000/api/signupuser/dosen/',
+            data: {
+             username: this.editedItem.NIP,
+             nama: this.editedItem.nama,
+             email: this.editedItem.email
+            } 
+          })
+          .then(response => {
+          
+            console.log(response.data)
+            this.initialize()
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
         }
         this.close()
       },

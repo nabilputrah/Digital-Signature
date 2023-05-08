@@ -13,7 +13,7 @@ const relasiController = require('../controllers').relasi_kota;
 const laporanController = require('../controllers').laporan;
 const secretController = require('../controllers').secret_key;
 
-const { verifyTokenAndRole } = require('../controllers/user')
+const { verifyTokenAndRoleKoordinator } = require('../controllers/user')
 
 // waktu indonesia 
 
@@ -49,10 +49,13 @@ router.post('/api/upload', (req, res) => {
 
 /* Endpoint User Controller */ 
 router.post('/api/signupuser/dosen', userController.signUpUserDosen)
+router.post('/api/signupuser/kota', userController.signUpUserKoTA)
 router.post('/api/signup', userController.signUpUser)
 router.post('/api/login', userController.loginUser)
-router.get('/api/getkoordata/:id',verifyTokenAndRole, userController.getKoordinatorWithProdi)
-router.get('/api/user',verifyTokenAndRole, userController.getAllUser)
+router.post('/api/checkCurrentPassword', userController.checkValidPassword)
+router.get('/api/getkoordata/:id',verifyTokenAndRoleKoordinator, userController.getKoordinatorWithProdi)
+router.get('/api/getdosendata/:id',userController.getDosenWithUser)
+router.get('/api/user',verifyTokenAndRoleKoordinator, userController.getAllUser)
 router.get('/api/user/:id', userController.getUserById)
 router.post('/api/user', userController.addUser)
 router.put('/api/user/:id',userController.updateUser)
@@ -100,6 +103,10 @@ router.get('/api/mahasiswa/:id', mahasiswaController.getMahasiswaById)
 router.post('/api/mahasiswa', mahasiswaController.addMahasiswa)
 router.put('/api/mahasiswa/:id',mahasiswaController.updateMahasiswa)
 router.delete('/api/mahasiswa/:id', mahasiswaController.deleteMahasiswa)
+router.post('/api/mahasiswad4import/', mahasiswaController.importMahasiswaD4)
+router.post('/api/mahasiswad3import/', mahasiswaController.importMahasiswaD3)
+
+router.put('/api/mahasiswastatus/:id',mahasiswaController.updateMahasiswaStatusKoTA)
 
 /* Endpoint Relasi Controller*/
 router.get('/api/relasi', relasiController.getAllRelasiKoTA)

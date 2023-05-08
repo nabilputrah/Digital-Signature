@@ -1,5 +1,6 @@
 const User = require('../models').User;
 const Dosen = require('../models').Dosen;
+const KoTA = require('../models').KoTA;
 const { Op } = require("sequelize");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -10,7 +11,7 @@ const secret ='secret'
 
 module.exports = {
 
-  verifyTokenAndRole(req, res, next) {
+  verifyTokenAndRoleKoordinator(req, res, next) {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
       return res.status(401).send({ auth: false, message: 'No token provided.' });
@@ -67,7 +68,8 @@ module.exports = {
   },
 
   async signUpUserDosen(req, res) {
-    const { username, nama, password, email} = req.body
+    const { username, nama, email} = req.body
+    const password = "Dosen" + username.substring(0, 4) +username.substring(username.length - 4)
     const hashPassword = await bcrypt.hash(password, 10)
 
     const optionsUser = {
@@ -119,6 +121,66 @@ module.exports = {
     }
   },
 
+  async signUpUserKoTA(req, res) {
+    const { username, nama_KoTA, tahun_ajaran, id_prodi, jumlah_pembimbing, jumlah_penguji } = req.body
+
+    const password = "KoTA"+ username + jumlah_pembimbing + jumlah_penguji
+    const hashPasword = await bcrypt.hash(password, 10)
+    
+    const optionsUser = {
+      fields: ['username', 'password', 'role'],
+      returning: false
+    }
+
+    try {
+      await User.create({
+        username: username,
+        password: hashPasword,
+        role: 'KoTA'
+      }, optionsUser)
+
+      
+      // select id_user from table user
+
+      const user = await User.findOne({
+        where: {
+          username: username
+        },
+        attributes: {
+          exclude: ['id','createdAt','updatedAt']
+        }
+      })
+
+       // insert data KoTA 
+
+       const optionsKoTA = {
+        fields:['id_KoTA', 'id_prodi', 'id_user','tahun_ajaran','nama_KoTA','jumlah_pembimbing','jumlah_penguji'],
+        returning: true
+      }
+
+      const kota = await KoTA.create({
+        id_KoTA: username,
+        id_prodi: id_prodi,
+        id_user: user.id_user,
+        tahun_ajaran: tahun_ajaran,
+        nama_KoTA: nama_KoTA,
+        jumlah_pembimbing: jumlah_pembimbing,
+        jumlah_penguji: jumlah_penguji
+      }, optionsKoTA)
+
+      return res.status(200).send({
+        message: 'add KoTA with user success',
+        data: kota
+      })
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+
+  },
+
+
   async loginUser(req, res) {
     const { username, password } = req.body
     
@@ -158,6 +220,42 @@ module.exports = {
       })
     }
   },
+  async checkValidPassword(req, res) {
+    const { username, password } = req.body
+    
+    try {
+      const user = await User.findOne({
+        where:{
+          username
+        },
+        attributes:{
+          exclude:['id','createdAt','updatedAt']
+        }
+      })
+
+      if (!user) {
+        return res.status(404).send({
+          message:'Invalid username or password'
+        })
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password)
+
+      if (!isPasswordValid) {
+        return res.status(400).send({
+          message: 'Invalid Password'
+        })
+      }
+
+      return res.status(200).send({
+        message:'Password Sesuai',
+      })
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
 
   async getKoordinatorWithProdi(req, res) {
     const { id } = req.params
@@ -170,6 +268,31 @@ module.exports = {
                            JOIN "Prodi" as p
                               ON p."id_prodi" = k."id_prodi"
                            WHERE u."id_user" = $1`
+      const paramsQuery = [id]
+      const result = await db.query(selectQuery, paramsQuery)
+
+      if (Object.keys(result).length > 0) {
+        return res.status(200).send({
+          message: `Get data success`,
+          data: result.rows
+        })
+      }   
+      
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
+  async getDosenWithUser(req, res) {
+    const { id } = req.params
+
+    try {
+      const selectQuery = ` SELECT u."id_user", u."password", d."nama", d."NIP", d."email"  
+                            FROM "User" as u
+                            JOIN "Dosen" as d ON
+                            d."id_user" = u."id_user"
+                            WHERE u."id_user" = $1`
       const paramsQuery = [id]
       const result = await db.query(selectQuery, paramsQuery)
 
@@ -383,7 +506,7 @@ module.exports = {
           id_user: req.params.id
         },
         attributes: {
-          exclude: ['id']
+          exclude: ['id','createdAt','updatedAt']
         }
       })
 
@@ -392,14 +515,18 @@ module.exports = {
           message: 'data tidak ditemukan'
         })
       }
+      const currentPassword = req.body.currentPassword
 
-      if (user.password != req.body.currentPassword) {
+      const isMatch = await bcrypt.compare(currentPassword, user.password)
+      if (!isMatch) {
         return res.status(400).send({
           message: 'current password salah'
         })
       }
+
+      const hashedNewPassword = await bcrypt.hash(req.body.newPassword, 10)
       await User.update({
-       password: req.body.newPassword
+       password: hashedNewPassword
       },{
         where: {
           id_user: req.params.id
