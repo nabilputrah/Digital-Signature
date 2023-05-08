@@ -229,7 +229,7 @@
         <template v-slot:[`item.dokumen`]="{ item }">
           <v-icon
             class="mr-2"
-            @click="redirectToDetail(item.ID_laporan)"
+            @click="viewPdf(item.dokumen)"
           >
             mdi-file-document-outline
           </v-icon>
@@ -383,6 +383,9 @@ export default {
   },
 
   methods: {
+    viewPdf(filename) {
+      window.open(`../assets/${filename}`, '_blank');
+    },
     save() {
       this.snackbar.show = true;
       this.snackbar.color = "primary";
@@ -400,10 +403,12 @@ export default {
           {
             ID_laporan: 'Laporan_402_v1',
             tanggal_dibuat: '2023-05-04',
+            dokumen : 'LaporanTA.pdf'
           },
           {
             ID_laporan: 'Laporan_402_Final',
             tanggal_dibuat: '2023-05-05',
+            dokumen : 'LaporanTA.pdf'
           },
         ],
         this.Pengampu = [

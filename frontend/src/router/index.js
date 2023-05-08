@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+// import HomeView from '../views/HomeView.vue'
 
 import Login from '../views/LoginPage.vue'
+import ValidasiPage from '../views/ValidasiPage.vue'
 
 // Role KoTA
 import DashboardKoor from '../views/DashboardKoor.vue'
@@ -49,7 +50,7 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: ValidasiPage
   },
   {
     path: '/login',
