@@ -84,10 +84,25 @@ export default {
         } else {
           this.deleteCredentialsFromCookie()
         }
-          console.log('login berhasil');
           localStorage.setItem('token', response.data.token);
-          this.$router.push('/koordinator/KoTA');
-          console.log(localStorage.token);
+          const token = localStorage.getItem('token')
+
+          if(token) {
+              const decodedToken = JSON.parse(atob(token.split('.')[1]))
+              const userRole = decodedToken.user.role
+              
+              if (userRole === 'Koordinator') {      
+                  this.$router.push('/koordinator/KoTA')
+              }
+              else if (userRole === 'Dosen') {
+                  this.$router.push('/dosen/profil')
+              }
+              else if (userRole === 'KoTA') {
+                  this.$router.push('/KoTA/profil')
+              }
+          }
+   
+     
         })
         .catch((error) => {
           this.dialog = true;

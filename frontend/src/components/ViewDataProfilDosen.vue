@@ -31,7 +31,7 @@
               </v-col>
               <v-col cols="8" >
                 <v-text-field 
-                v-model="NIP"
+                v-model="dosen.NIP"
                 :rules="rules"
                 placeholder="Nama NIP"
                 dense
@@ -53,7 +53,7 @@
               </v-col>
               <v-col cols="8" >
                 <v-text-field 
-                v-model="name"
+                v-model="dosen.nama"
                 :rules="rules"
                 placeholder="Nama Dosen"
                 dense
@@ -74,7 +74,7 @@
               </v-col>
               <v-col cols="8" >
                 <v-text-field 
-                v-model="email"
+                v-model="dosen.email"
                 :rules="rules"
                 placeholder="Email"
                 dense
@@ -102,7 +102,7 @@
               </v-col>
               <v-col cols="8" v-if="!passwordFieldsVisible">
                 <v-text-field 
-                v-model="password"
+                v-model="dosen.nama"
                 :type="'password'"
                 placeholder="Password"
                 dense
@@ -187,13 +187,17 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   data() {
     return {
-      // Data Form Nama
-      NIP : "199304262019032028",
-      name : "Aprianti Nanda Sari, S.T., M.Kom.",
-      email : "aprianti.nanda@polban.ac.id",
+
+      dataFromToken: '',
+      dosen:'',
+      // // Data Form Nama
+      // NIP : "199304262019032028",
+      // name : "Aprianti Nanda Sari, S.T., M.Kom.",
+      // email : "aprianti.nanda@polban.ac.id",
       rules: [
         value => !!value || 'Required.',
         // value => (value && value.length >= 3) || 'Min 3 characters',
@@ -216,12 +220,50 @@ export default {
 
     }
   },
+
+  mounted (){
+      const token = localStorage.getItem('token');
+
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.dataFromToken= payload.user;
+      }
+
+      this.initialize()
+    },
+
   methods: {
-    save() {
-      this.snackbar.show = true;
-      this.snackbar.color = "primary";
-      this.snackbar.message = "Data profil berhasil diperbarui!";
-      // your save implementation here
+    async save() {
+      axios({
+          method:'put',
+          url: 'http://localhost:3000/api/dosen/'+ this.dosen.NIP,
+          data: {
+            NIP: this.dosen.NIP,
+            nama: this.dosen.nama,
+            email: this.dosen.email
+          }
+        })
+        .then(response => {
+        
+          console.log(response.data)
+          window.location.reload()
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Data profil berhasil diperbarui!";
+  
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+    },
+
+    async initialize() {
+       try {
+            const response = await axios.get(`http://localhost:3000/api/getdosendata/${this.dataFromToken.id_user}`)
+            this.dosen = response.data.data[0]
+          } catch (error) {
+            console.error(error.message);
+          }
     },
 
     togglePasswordFields() {
@@ -229,26 +271,68 @@ export default {
       this.showPassword = false
     },
     changePassword() {
-      if (this.currentPassword !== this.password) {
-        this.snackbar.show = true;
-        this.snackbar.color = "error";
-        this.snackbar.message = "Current password is incorrect!";
-        // alert('Current password is incorrect!');
-        return;
-      }
-      if (this.newPassword !== this.confirmNewPassword) {
-        this.snackbar.show = true;
-        this.snackbar.color = "error";
-        this.snackbar.message = "New password and confirm password do not match!";
-        // alert('New password and confirm password do not match!');
-        return;
-      }
-      this.password = this.newPassword;
-      this.snackbar.show = true;
-      this.snackbar.color = "primary";
-      this.snackbar.message = "Password baru berhasil disimpan!";
-      // alert('Password has been changed!');
-      this.togglePasswordFields();
+      axios({
+          method:'post',
+          url: 'http://localhost:3000/api/checkCurrentPassword/',
+          data: {
+           username: this.dosen.NIP,
+           password: this.currentPassword
+          }
+        })
+        .then(response => {
+        
+          console.log(response.data)
+          
+        })
+        .catch(error => {
+          
+          
+          if (this.currentPassword !== this.password) {
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Current password is incorrect!";
+            console.log(error.request.response)
+          return;
+        }
+        })
+
+     
+        if (this.newPassword !== this.confirmNewPassword) {
+          // alert('New password and confirm password do not match!');
+          this.snackbar.show = true;
+          this.snackbar.color = "error";
+          this.snackbar.message = "New password and confirm password do not match!";
+          return;
+        }
+      
+      // change password in db
+      axios({
+          method:'put',
+          url: 'http://localhost:3000/api/user/change-password/'+ this.dosen.id_user,
+          data: {
+           currentPassword: this.currentPassword,
+           newPassword: this.newPassword
+          }
+        })
+        .then(response => {
+        
+          console.log(response.data)
+          // alert('Password has been changed!');
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Password baru berhasil disimpan!";
+          this.currentPassword = ''
+          this.newPassword = ''
+          this.confirmNewPassword = ''
+          this.togglePasswordFields();
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
+      
+    
+     
     }
   },
 }

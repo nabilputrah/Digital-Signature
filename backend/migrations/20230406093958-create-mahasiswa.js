@@ -14,8 +14,6 @@ module.exports = {
           model:"Prodi",
           key:"id_prodi"
         },
-        onDelete:'cascade',
-        onUpdate:'cascade',
         allowNull:false
       },
       id_KoTA: {
@@ -24,8 +22,6 @@ module.exports = {
           model:"KoTA",
           key:"id_KoTA"
         },
-        onDelete:'cascade',
-        onUpdate:'cascade'
       },
       nama: {
         type: Sequelize.STRING,

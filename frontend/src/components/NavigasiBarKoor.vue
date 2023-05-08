@@ -27,7 +27,7 @@
           </v-menu>
         </v-row>
         <v-row no-gutters style="justify-content: end; ">
-          <span class="font-weight-light" >{{ navbar.role }}</span>
+          <span class="font-weight-light" >Koordinator</span>
         </v-row>
 
       </v-toolbar-title>

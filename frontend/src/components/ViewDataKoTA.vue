@@ -134,7 +134,7 @@
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon
             class="mr-2"
-            @click="redirectToEdit(item.ID_KoTA)"
+            @click="redirectToEdit(item.id_KoTA)"
           >
             mdi-pencil-outline
           </v-icon>
@@ -149,7 +149,7 @@
         <template v-slot:[`item.dokumen`]="{ item }">
           <v-icon
             class="mr-2"
-            @click="redirectToDetail(item.ID_KoTA)"
+            @click="redirectToDetail(item.id_KoTA)"
           >
             mdi-file-document-arrow-right
           </v-icon>
@@ -188,6 +188,7 @@
 </template>
 
 <script>
+import axios from 'axios'
   export default {
     data: () => ({
       search : '',
@@ -197,7 +198,7 @@
         {
           text: 'ID KoTA',
           align: 'start',
-          value: 'ID_KoTA',
+          value: 'id_KoTA',
         },
         { text: 'Tahun Ajaran', value: 'tahun_ajaran' },
         { text: 'Dokumen Laporan', value: 'dokumen', sortable: false },
@@ -231,25 +232,32 @@
     },
 
     methods: {
-      initialize () {
-        this.KoTA = [
-          {
-            ID_KoTA: 402,
-            tahun_ajaran: '2022/2023',
-          },
-          {
-            ID_KoTA: 403,
-            tahun_ajaran: '2023/2024',
-          },
-        ]
+      async initialize () {
+        // this.KoTA = [
+        //   {
+        //     id_KoTA: 402,
+        //     tahun_ajaran: '2022/2023',
+        //   },
+        //   {
+        //     id_KoTA: 403,
+        //     tahun_ajaran: '2023/2024',
+        //   },
+        // ]
+        try {
+          const response = await axios.get('http://localhost:3000/api/KoTA')
+          this.KoTA = response.data.data
+
+        } catch (error) {
+          console.log(error.message)
+        }
       },
 
-      redirectToDetail(ID_KoTA) {
-        this.$router.push(`/koordinator/KoTA/dokumen_detail/${ID_KoTA}`);
+      redirectToDetail(id_KoTA) {
+        this.$router.push(`/koordinator/KoTA/dokumen_detail/${id_KoTA}`);
       },
 
-      redirectToEdit(ID_KoTA) {
-        this.$router.push(`/koordinator/KoTA/detail_KoTA/${ID_KoTA}`);
+      redirectToEdit(id_KoTA) {
+        this.$router.push(`/koordinator/KoTA/detail_KoTA/${id_KoTA}`);
       },
 
       sendEmail () {
