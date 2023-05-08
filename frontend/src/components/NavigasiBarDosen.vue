@@ -13,7 +13,7 @@
               v-bind="attrs"
               v-on="on"
               >
-              Aprianti Nanda Sari, S.T., M.Kom.</span>
+              {{ loggedIn.nama }}</span>
             </template>
             <v-list >
               <v-list-item
@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import axios from 'axios'
   export default {
     data: () => ({
       items: [
@@ -46,8 +47,39 @@
         
       ],
       status_navbar:false,
+      loggedIn:'',
+      navbar:''
     }),
-  }
+
+    mounted (){
+      const token = localStorage.getItem('token');
+
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.navbar= payload.user;
+      }
+
+      this.initializeNavbarLoggedIn()
+    },
+
+    methods:{
+      async initializeNavbarLoggedIn() {
+        //  const token = localStorage.getItem('token'); 
+        //  const headers = { Authorization: `Bearer ${token}` };
+
+          try {
+            const response = await axios.get(`http://localhost:3000/api/getdosendata/${this.navbar.id_user}`)
+            this.loggedIn = response.data.data[0]
+          } catch (error) {
+            console.error(error.message);
+          }
+        }
+        
+
+      }
+    }
+
+
 </script>
 
 <style scoped>

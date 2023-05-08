@@ -1,6 +1,7 @@
 const { sequelize } = require('../models');
 const db = require('../db/index')
 const Dosen = require('../models').Dosen;
+const User = require('../models').User;
 // const { Op } = require("sequelize");
 
 module.exports = {
@@ -87,7 +88,7 @@ module.exports = {
 
   async updateDosen(req, res) {
     const { id } = req.params
-    const { NIP, id_user, nama, email } = req.body
+    const { NIP, nama, email } = req.body
 
     try {
       const dosen = await Dosen.findByPk(id)
@@ -98,10 +99,10 @@ module.exports = {
         })
       }
 
-      const updateQuery = `UPDATE "Dosen" SET "NIP" = $1, id_user = $2, nama = $3, email = $4
-                           WHERE "NIP" = $5 RETURNING *`
+      const updateQuery = `UPDATE "Dosen" SET "NIP" = $1,  nama = $2, email = $3
+                           WHERE "NIP" = $4 RETURNING *`
 
-      const paramsQuery = [NIP, id_user, nama, email, id]
+      const paramsQuery = [NIP, nama, email, id]
 
       const result = await db.query(updateQuery, paramsQuery)
 
@@ -129,10 +130,21 @@ module.exports = {
         })
       }
 
-      await dosen.destroy()
+      // await dosen.destroy()
+      await User.destroy({
+        where: {
+          id_user: dosen.id_user
+        },
+        attributes:{
+          exclude: ['id']
+        }
+      })
+
 
       return res.status(200).send({
-        message: `Data dosen dengan NIP ${id} berhasil dihapus`
+        message: `Data dosen dengan NIP ${id} berhasil dihapus`,
+        id_user:dosen.id_user
+       
       })
     } catch (error) {
       return res.status(400).send({
