@@ -125,7 +125,7 @@
             label="Search"
             single-line
             hide-details
-            style="width: 15%;margin-right: 1%; margin-bottom: 0.5%; "
+            style="width: 20%;margin-right: 1%; margin-bottom: 0.5%; "
             class="custom-card"
           ></v-text-field>
           <!-- End Input Search -->
@@ -133,14 +133,12 @@
         <!-- Start Kolom Action -->
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon
-            small
             class="mr-2"
             @click="redirectToEdit(item.id_KoTA)"
           >
             mdi-pencil-outline
           </v-icon>
           <v-icon
-            small
             @click="sendEmail(item)"
           >
             mdi-email-outline
@@ -150,7 +148,6 @@
         <!-- Start Kolom Dokumen -->
         <template v-slot:[`item.dokumen`]="{ item }">
           <v-icon
-            small
             class="mr-2"
             @click="redirectToDetail(item.id_KoTA)"
           >
@@ -169,6 +166,23 @@
       </v-data-table>
     </v-card>
     <!-- End Datatables -->
+    <v-snackbar 
+      v-model="snackbar.show" 
+      :color="snackbar.color" 
+      top 
+      right 
+      :timeout="3000"
+      style="margin-right: 1%;"
+    >
+      <span>
+        {{ snackbar.message }}
+      </span>
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 
 </template>
@@ -202,6 +216,15 @@ import axios from 'axios'
         nama: '',
         email: '',
       },
+
+      // Notifikasi Berhasil
+      snackbar: {
+        show: false,
+        message: "",
+        color: "",
+      },
+
+
     }),
 
     mounted () {
@@ -230,7 +253,7 @@ import axios from 'axios'
       },
 
       redirectToDetail(id_KoTA) {
-        this.$router.push(`/koordinator/dokumen_detail/${id_KoTA}`);
+        this.$router.push(`/koordinator/KoTA/dokumen_detail/${id_KoTA}`);
       },
 
       redirectToEdit(id_KoTA) {
@@ -246,10 +269,16 @@ import axios from 'axios'
       },
       
       sendEmailConfirm () {
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Email berhasil dikirimkan!";
         this.closeEmail()
       },
 
       sendAllEmailConfirm () {
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Email berhasil dikirimkan!";
         this.closeAllEmail()
       },
 
@@ -281,11 +310,6 @@ import axios from 'axios'
 
 .theme--light.v-icon{
   color:#1A5F7A;
-}
-
-.header_bg{
-  background-color: #91BBCB
-  ;
 }
 
 ::v-deep .v-data-table-header{

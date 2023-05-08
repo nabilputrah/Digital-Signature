@@ -2,7 +2,7 @@
   <div >
     <!-- Start Breadcrumbs -->
     <v-breadcrumbs style="margin-left: 0.5%;">
-      <h4 style="color: #1a5f7a;">Profil</h4>
+      <h4 style="color: #1a5f7a;">Detail KoTA</h4>
       <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
       <v-breadcrumbs-item 
       :disabled="false" 

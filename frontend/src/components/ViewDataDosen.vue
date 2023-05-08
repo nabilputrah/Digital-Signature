@@ -75,39 +75,22 @@
 
                 <v-card-text>
                   <v-container>
-                    <v-row>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.NIP"
-                          label="NIP"
-                           :disabled="editedIndex > -1"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.nama"
-                          label="Nama"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.email"
-                          label="Email"
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
+                    <v-text-field
+                      v-model="editedItem.NIP"
+                      :rules="rules"
+                      label="NIP"
+                      :disabled="editedIndex > -1"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedItem.nama"
+                      :rules="rules"
+                      label="Nama"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedItem.email"
+                      :rules="rules"
+                      label="Email"
+                    ></v-text-field>
                   </v-container>
                 </v-card-text>
 
@@ -228,7 +211,7 @@
             label="Search"
             single-line
             hide-details
-            style="width: 15%;margin-right: 1%; margin-bottom: 0.5%; "
+            style="width: 20%;margin-right: 1%; margin-bottom: 0.5%; "
             class="custom-card"
           ></v-text-field>
           <!-- End Input Search -->
@@ -236,7 +219,6 @@
         <!-- Start Kolom Action -->
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon
-            small
             class="mr-2"
             @click="editItem(item)"
           >
@@ -244,13 +226,11 @@
           </v-icon>
           <v-icon
             class="mr-2"
-            small
             @click="deleteItem(item)"
           >
-            mdi-delete
+            mdi-trash-can-outline
           </v-icon>
           <v-icon
-            small
             @click="sendEmail(item)"
           >
             mdi-email-outline
@@ -263,6 +243,23 @@
       </v-data-table>
     </v-card>
     <!-- End Datatables -->
+    <v-snackbar 
+      v-model="snackbar.show" 
+      :color="snackbar.color" 
+      top 
+      right 
+      :timeout="3000"
+      style="margin-right: 1%;"
+    >
+      <span>
+        {{ snackbar.message }}
+      </span>
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 
 </template>
@@ -298,11 +295,19 @@ import axios from 'axios'
         nama: '',
         email: '',
       },
+
+      // Notifikasi Berhasil
+      snackbar: {
+        show: false,
+        message: "",
+        color: "",
+      },
+
     }),
 
     computed: {
       formTitle () {
-        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+        return this.editedIndex === -1 ? 'Tambah Dosen' : 'Sunting Data Dosen'
       },
     },
 
@@ -364,14 +369,23 @@ import axios from 'axios'
           .catch(error => {
               console.log(error.request.response)
           })
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Data Dosen berhasil dihapus!";
         this.closeDelete()
       },
 
       sendEmailConfirm () {
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Email berhasil dikirimkan!";
         this.closeEmail()
       },
 
       sendAllEmailConfirm () {
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Email berhasil dikirimkan!";
         this.closeAllEmail()
       },
 
@@ -435,6 +449,10 @@ import axios from 'axios'
               console.log(error.request.response)
           })
         }
+        // Show success notification
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Data mahasiswa berhasil disimpan!";
         this.close()
       },
     },

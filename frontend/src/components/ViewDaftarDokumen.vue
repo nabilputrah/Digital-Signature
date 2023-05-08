@@ -18,7 +18,6 @@
         :search="search"
         :headers="headers"
         :items="KoTA"
-        sort-by="calories"
         class="elevation-1"
         style="padding-top: 0.5%;"
       >
@@ -52,8 +51,6 @@
         <template v-slot:[`item.status`]="{ item }">
           <v-btn
             :style="getButtonStyle(item)"
-
-            :rounded="0"
           >
             {{ item.status ? 'Done' : 'Not Started' }}
           </v-btn>
@@ -62,7 +59,6 @@
         <!-- Start Kolom Dokumen -->
         <template v-slot:[`item.dokumen`]="{ item }">
           <v-icon
-            small
             class="mr-2"
             @click="redirectToDetail(item.ID_KoTA)"
           >
@@ -126,20 +122,24 @@
       },
 
       getButtonStyle(item) {
-      if (!item.status) {
-        return {
-          'pointer-events': 'none',
-          'background-color': 'rgba(172, 12, 12, 0.83)',
-          'color': '#ffffff',
-        };
-      } else {
-        return {
-          'pointer-events': 'none',
-          'background-color': '#68B984',
-          'color': '#ffffff',
-        };
-      }
-    },
+        if (!item.status) {
+          return {
+            'pointer-events': 'none',
+            'background-color': 'rgba(172, 12, 12, 0.83)',
+            'color': '#ffffff',
+          };
+        } else {
+          return {
+            'pointer-events': 'none',
+            'background-color': '#68B984',
+            'color': '#ffffff',
+          };
+        }
+      },
+
+      redirectToDetail(ID_KoTA) {
+        this.$router.push(`/dosen/daftar_dokumen/dokumen_detail/${ID_KoTA}`);
+      },
 
     },
   }

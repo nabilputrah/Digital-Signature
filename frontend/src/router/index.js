@@ -1,7 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+// import HomeView from '../views/HomeView.vue'
+
 import Login from '../views/LoginPage.vue'
+import ValidasiPage from '../views/ValidasiPage.vue'
+
+// Role KoTA
 import DashboardKoor from '../views/DashboardKoor.vue'
 import DataMahasiswa from '../views/DataMahasiswa.vue'
 import DataDosen from '../views/DataDosen.vue' 
@@ -10,13 +14,16 @@ import DataKoTA from '../views/DataKoTA.vue'
 import AddKoTA from '../views/AddKoTA.vue'
 import DetailKoTA from '../views/DetailKoTA.vue'
 import EditKoTA from '../views/EditKoTA.vue'
+import DokumenKoor from '../views/DetailDokumenKoor.vue'
 
 // Role Dosen
 import DaftarDokumen from '../views/DaftarDokumen.vue'
 import DataProfilDosen from '../views/DataProfilDosen.vue'
+import DokumenDosen from '../views/DetailDokumenDosen.vue'
 
 //Role KoTA
 import DataProfilKoTA from '../views/DataProfilKoTA.vue'
+import DokumenKoTA from '../views/DetailDokumenKoTA.vue'
 
 Vue.use(VueRouter)
 
@@ -81,7 +88,7 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: ValidasiPage
   },
   {
     path: '/login',
@@ -90,14 +97,24 @@ const routes = [
   },
 
 // Role KoTA
-{
+  {
   path: '/KoTA/profil',
   name: 'profil',
   component: DataProfilKoTA,
   meta: {
     requiresAuthKoTA: true,
   },
-},
+  },
+  {
+    path: '/KoTA/dokumen_detail',
+    name: 'dokumenKoTA',
+    component: DokumenKoTA,
+    meta: {
+      requiresAuthKoTA: true,
+    },
+  },
+
+
 
 
 // Role Dosen 
@@ -117,9 +134,21 @@ const routes = [
       requiresAuthDosen: true,
     },
   },
-
+  {
+    path: '/dosen/daftar_dokumen/dokumen_detail/:id',
+    name: 'dokumenDosen',
+    component: DokumenDosen,
+    meta: {
+      requiresAuthDosen: true,
+    },
+  },
 
 // Role Koordinator
+  {
+    path: '/koordinator/KoTA/dokumen_detail/:id',
+    name: 'dokumenKoor',
+    component: DokumenKoor
+  },
   {
     path: '/koordinator/dashboard',
     name: 'dashboard',
