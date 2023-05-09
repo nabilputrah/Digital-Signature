@@ -95,65 +95,111 @@
         <!-- Start Card Dokumen Valid -->
         <v-card 
         class="text-center" 
-        style="width: 50%;" 
+        style="width: 70%;" 
         color="white"
         v-if="DokumenValidCard"
         >
-          <v-card-title class="text-h5">Dokumen Valid</v-card-title>
+          <v-card-title class="text-h5">Verifikasi Dokumen Laporan TA JTK Polban</v-card-title>
           <v-card-text>
-            Dokumen yang Anda unggah memiliki nama file "Laporan TA.pdf" dan telah divalidasi.
-          </v-card-text>
-          <v-card-text>
-            <v-row v-for="(item, index) in list_Pengampu" :key="index" style="background-color: green;">
-              <v-row cols="12">
-                <v-col class="text-start align-self-center" cols="3">
-                  <span 
-                  style="font-size:1rem;"
-                  >Dosen</span>
-                </v-col>
-                <v-col >
-                  <v-text-field
-                    v-model="item.dosen"
-                    :placeholder="`Dosen ${index + 1}`"
-                    dense
-                    outlined
-                    disabled
-                    hide-details
-                  ></v-text-field>
-                </v-col>
-                <!-- <v-col>
-                  <v-text-field 
-                  placeholder="Dosen 1"
+            <v-row dense>
+              <v-col class="text-start align-self-center" cols="3">
+                <span 
+                style="font-size:1rem;"
+                >ID Dokumen</span>
+              </v-col>
+              <v-col >
+                <v-text-field
+                  v-model="id_dokumen"
+                  :placeholder="'Id Dokumen'"
                   dense
                   outlined
                   disabled
                   hide-details
-                  ></v-text-field>
-                </v-col> -->
-              </v-row>
+                ></v-text-field>
+              </v-col>
             </v-row>
-            
-            <v-row v-for="(item, index) in list_Pengampu" :key="index" style="background-color: yellow;">
-              <v-col cols="12" sm="6" md="4">
-                <v-text-field
-                  :label="`Dosen ${index + 1}`"
-                  v-model="item.dosen"
-                  required
-                ></v-text-field>
+            <v-row dense>
+              <v-col class="text-start align-self-center" cols="3">
+                <span 
+                style="font-size:1rem;"
+                >Judul Laporan</span>
               </v-col>
-              <v-col cols="12" sm="6" md="4">
-                <v-text-field
-                  :label="`Peran ${index + 1}`"
-                  v-model="item.peran"
-                  required
-                ></v-text-field>
+              <v-col >
+                <v-textarea
+                  dense
+                  outlined
+                  disabled
+                  rows="1"
+                  hide-details
+                  auto-grow
+                  :value="Judul_Laporan"
+                ></v-textarea>
               </v-col>
-              <v-col cols="12" sm="6" md="4">
-                <v-text-field
-                  :label="`Timestamp ${index + 1}`"
-                  v-model="item.timestamp"
-                  required
-                ></v-text-field>
+            </v-row>
+          </v-card-text>
+          <v-card-text class="text-start" style="color: #68B984;font-size:1rem;">
+            Tanda Tangan Elektronik Valid<br>
+            Dokumen tidak pernah mengalami perubahan
+          </v-card-text>
+          <v-card-text >
+            <v-row >
+              <v-col cols="4" v-for="(item, index) in list_Pengampu" :key="index" >
+                <div class="text-start align-self-center">
+                  <span style="font-size:1rem;">{{index+1}}.</span>
+                </div>
+                <v-row dense>
+                  <v-col class="text-start align-self-center" cols="3">
+                    <span 
+                    style="font-size:1rem;"
+                    >Dosen</span>
+                  </v-col>
+                  <v-col >
+                    <v-textarea
+                      dense
+                      outlined
+                      disabled
+                      rows="1"
+                      hide-details
+                      auto-grow
+                      :placeholder="`Dosen ${index + 1}`"
+                      :value="item.dosen"
+                    ></v-textarea>
+                  </v-col>
+                </v-row>
+                <v-row dense>
+                  <v-col class="text-start align-self-center" cols="3">
+                    <span 
+                    style="font-size:1rem;"
+                    >Peran</span>
+                  </v-col>
+                  <v-col >
+                    <v-text-field
+                      v-model="item.peran"
+                      :placeholder="`Peran ${index + 1}`"
+                      dense
+                      outlined
+                      disabled
+                      hide-details
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+                <v-row dense>
+                  <v-col class="text-start align-self-center" cols="3">
+                    <span 
+                    style="font-size:1rem;"
+                    >Timestamp</span>
+                  </v-col>
+                  <v-col >
+                    <v-text-field
+                      v-model="item.timestamp"
+                      :placeholder="`Timestamp ${index + 1}`"
+                      dense
+                      outlined
+                      disabled
+                      hide-details
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
           </v-card-text>
@@ -166,10 +212,11 @@
         <!-- End Card Dokumen Valid -->
 
         <!-- Start Card  Tidak Valid -->
-        <v-card class="mx-auto mt-5" max-width="500" v-if="DokumenInValidCard">
-          <v-card-title class="text-h5">Dokumen Tidak Valid</v-card-title>
-          <v-card-text>
-            Dokumen yang Anda tidak valid.
+        <v-card class="mx-auto mt-5" style="width: 35%;" v-if="DokumenInValidCard">
+          <v-card-title class="text-h5">Verifikasi Dokumen Laporan TA JTK Polban</v-card-title>
+          <v-card-text class="text-start" style="font-size:1rem; color: rgba(172, 12, 12, 0.83);">
+            Dokumen Tidak Valid<br>
+            Dokumen yang anda unggah tidak terdaftar atau telah mengalami perubahan.
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -188,28 +235,53 @@ export default {
   data() {
     return {
       backgroundImage: require("../assets/Logo_DSign_text.svg"),
-      WelcomeCard:false,
+      WelcomeCard:true,
       validasiDokumen: false,
-      DokumenValidCard:true,
+      DokumenValidCard:false,
       DokumenInValidCard:false,
 
+      //Data Input File
+      file: null,
+      dragging: false,
+      validationError: null,
       tab: 0,
       items: [
         { text: "Browse" },
         { text: "Drop" },
       ],
 
+      // Data Dokumen Valid
+      id_dokumen : 'Laporan_20224022023_Final',
+      Judul_Laporan : 'PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME',
       list_Pengampu: [
         {
-          dosen: "",
-          peran: "Pembimbing",
-          timestamp: "2023",
+          dosen: "Aprianti Nanda Sari, S.T., M.Kom.",
+          peran: "1",
+          timestamp: "1",
+        },
+        {
+          dosen: "Urip Teguh Setijohatmo, BSCS., M.Kom.",
+          peran: "2",
+          timestamp: "2",
+        },
+        {
+          dosen: "3",
+          peran: "3",
+          timestamp: "3",
+        },
+        {
+          dosen: "4",
+          peran: "4",
+          timestamp: "4",
+        },
+        {
+          dosen: "5",
+          peran: "5",
+          timestamp: "5",
         },
       ],
       
-      file: null,
-      dragging: false,
-      validationError: null,
+
     }
   },
   computed: {

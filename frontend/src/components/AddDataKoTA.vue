@@ -743,7 +743,7 @@ export default {
       }
      
 
-      this.$router.push('/koordinator/mahasiswa')
+      this.$router.push('/koordinator/KoTA')
 
     },
 

@@ -452,7 +452,7 @@ import axios from 'axios'
         // Show success notification
         this.snackbar.show = true;
         this.snackbar.color = "primary";
-        this.snackbar.message = "Data mahasiswa berhasil disimpan!";
+        this.snackbar.message = "Data Dosen berhasil disimpan!";
         this.close()
       },
     },
