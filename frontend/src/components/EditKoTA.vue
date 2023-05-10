@@ -45,7 +45,7 @@
     class="custom-card"
     >
       <div style="width: 97%;margin-left: auto;margin-right: auto;">
-        <v-card-title>Edit Data Tahun Ajaran</v-card-title>
+        <v-card-title>Detail Data KoTA</v-card-title>
         <v-card-text >
           <v-form>
             <!-- Start Form -->
@@ -252,7 +252,7 @@
             <!-- Start Button Simpan Perubahan -->
             <v-row >
               <v-col class="text-right" >
-                <v-btn color="primary" @click="save(ID_KoTA)">Simpan</v-btn>
+                <v-btn color="primary" @click="save">Simpan</v-btn>
               </v-col>
             </v-row>
             <!-- End Button Simpan Perubahan -->
@@ -260,6 +260,31 @@
         </v-card-text>
     </div>
     </v-card>
+    <!-- Start Card Pop up Email Data KoTA -->
+    <v-dialog 
+      v-model="saveSucced" 
+      max-width="350"
+      >
+      <v-card>
+        <v-card-title class="headline">
+          Save Data 
+        </v-card-title>
+        <v-card-text>
+          <div>Data KoTA Berhasil Diubah</div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="BackToDetail(ID_KoTA)"
+          >
+            Kembali
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <!-- End Card Pop up Email Data KoTA -->
     <!-- End Card -->
   </div>
 
@@ -303,6 +328,8 @@ export default {
         { selectedItem: 'Iwan Awaludin, S.T., M.T. ', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
         { selectedItem: 'Urip Teguh Setijohatmo, BSCS., M.Kom.', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
       ],
+
+      saveSucced : false
 
     }
   },
@@ -353,7 +380,21 @@ export default {
   },
 
   methods: {
-    save(ID_KoTA) {
+    save() {
+      // this.saveSucced = true
+      this.openDialogWithTimeout()
+    },
+
+    openDialogWithTimeout() {
+      this.saveSucced = true
+      setTimeout(() => {
+        this.dialog = false
+        // redirect to another page after dialog is closed
+        this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.ID_KoTA}`)
+      }, 2000) // set the timeout to 5 seconds
+    },
+
+    BackToDetail (ID_KoTA) {
       this.$router.push(`/koordinator/KoTA/detail_KoTA/${ID_KoTA}`);
     },
 

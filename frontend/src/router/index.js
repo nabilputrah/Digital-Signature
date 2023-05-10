@@ -3,7 +3,6 @@ import VueRouter from 'vue-router'
 // import HomeView from '../views/HomeView.vue'
 
 import Login from '../views/LoginPage.vue'
-import OpenPDF from '../views/ViewPDF.vue'
 import ValidasiPage from '../views/ValidasiPage.vue'
 
 // Role KoTA
@@ -87,11 +86,6 @@ const checkAuthKoTA = (to, from, next) => {
 
 const routes = [
 
-  {
-    path: '/OpenPDF',
-    name: 'openPDF',
-    component: OpenPDF
-  },
   {
     path: '/',
     name: 'home',
