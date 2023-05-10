@@ -74,24 +74,26 @@
                 </v-card-title>
 
                 <v-card-text>
-                  <v-container>
-                    <v-text-field
-                      v-model="editedItem.NIP"
-                      :rules="rules"
-                      label="NIP"
-                      :disabled="editedIndex > -1"
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="editedItem.nama"
-                      :rules="rules"
-                      label="Nama"
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="editedItem.email"
-                      :rules="rules"
-                      label="Email"
-                    ></v-text-field>
-                  </v-container>
+                  <v-form ref="form" v-model="valid">
+                    <v-container>
+                      <v-text-field
+                        v-model="editedItem.NIP"
+                        :rules="rules.nip"
+                        label="NIP"
+                        :disabled="editedIndex > -1"
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="editedItem.nama"
+                        :rules="rules.nama"
+                        label="Nama"
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="editedItem.email"
+                        :rules="rules.email"
+                        label="Email"
+                      ></v-text-field>
+                    </v-container>
+                  </v-form>
                 </v-card-text>
 
                 <v-card-actions>
@@ -107,6 +109,7 @@
                     color="#1a5f7a"
                     text
                     @click="save"
+                    :disabled="!valid"
                   >
                     Save
                   </v-btn>
@@ -283,6 +286,27 @@ import axios from 'axios'
         { text: 'Email', value: 'email' },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
+
+      // Data validasi Input
+      valid: false,
+      rules: {
+        nip: [
+          v => !!v || "NIP wajib diisi",
+          v => (v && v.length >= 18) || "NIP minimal 18 huruf",
+          v => (v && v.length <= 18) || "NIP Maksimal 18 huruf"
+        ],
+        nama: [
+          v => !!v || "Nama wajib diisi",
+        ],
+        email: [
+          v => !!v || "Email wajib diisi",
+          v =>
+            /.+@.+\..+/.test(v) ||
+            "Format email tidak valid"
+        ]
+      },
+      MessageError :'',
+
       dosen: [],
       editedIndex: -1,
       editedItem: {
@@ -423,11 +447,20 @@ import axios from 'axios'
           .then(response => {
           
             console.log(response.data)
+            this.snackbar.show = true;
+            this.snackbar.color = "primary";
+            this.snackbar.message = "Data Dosen berhasil diubah!";
             this.initialize()
     
           })
           .catch(error => {
               console.log(error.request.response)
+              this.MessageError = error.request.response
+              if (this.MessageError.includes('email')){
+                this.snackbar.show = true;
+                this.snackbar.color = "error";
+                this.snackbar.message = "Email Sudah Terdaftar!!!";
+              }
           })
         } else {
           axios({
@@ -442,17 +475,30 @@ import axios from 'axios'
           .then(response => {
           
             console.log(response.data)
+            this.snackbar.show = true;
+            this.snackbar.color = "primary";
+            this.snackbar.message = "Data Dosen berhasil disimpan!";
+
             this.initialize()
     
           })
           .catch(error => {
-              console.log(error.request.response)
+            console.log(error.request.response)
+            this.MessageError = error.request.response
+            if (this.MessageError.includes('Email')){
+              this.snackbar.show = true;
+              this.snackbar.color = "error";
+              this.snackbar.message = "Email Sudah Terdaftar!!!";
+            }
+            if (this.MessageError.includes('Username')){
+              this.snackbar.show = true;
+              this.snackbar.color = "error";
+              this.snackbar.message = "NIP Sudah Terdaftar!!!";
+            }
+
           })
         }
         // Show success notification
-        this.snackbar.show = true;
-        this.snackbar.color = "primary";
-        this.snackbar.message = "Data Dosen berhasil disimpan!";
         this.close()
       },
     },
