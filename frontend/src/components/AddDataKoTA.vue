@@ -37,7 +37,7 @@
       <div style="width: 97%;margin-left: auto;margin-right: auto;">
         <v-card-title>Edit Data Tahun Ajaran</v-card-title>
         <v-card-text >
-          <v-form>
+          <v-form ref="form" v-model="valid">
             <!-- Start Form -->
             <v-row>
               <!-- Start Form Kiri -->
@@ -49,7 +49,7 @@
                 </span>
                 <v-text-field 
                 v-model="ID_KoTA"
-                :rules="rules"
+                :rules="rules.ID_KoTA"
                 placeholder="Id KoTA"
                 dense
                 outlined
@@ -63,6 +63,7 @@
                 </span>
                 <v-select
                   v-model="tahunAjaran"
+                  :rules="rules.tahun_ajaran"
                   clearable
                   :items="listTahunAjaran"
                   placeholder="-/-"
@@ -102,9 +103,9 @@
                         <v-select
                           v-model="item.selectedItem"
                           :items="filteredItems(index)"
+                          :rules="[uniqueMahasiswaRule(index)]"
                           clearable
                           outlined
-                          hide-details
                           dense
                           :menu-props="{ offsetY: true}"
                           :placeholder="'Pilih Anggota ' + (index + 1)"
@@ -159,9 +160,9 @@
                         <v-select
                           v-model="item.selectedItem"
                           :items="filteredPembimbing(index)"
+                          :rules="[uniquePembimbingRule(index)]"
                           clearable
                           outlined
-                          hide-details
                           dense
                           :menu-props="{ offsetY: true}"
                           :placeholder="'Pilih Pembimbing ' + (index + 1)"
@@ -211,9 +212,9 @@
                         <v-select
                           v-model="item.selectedItem"
                           :items="filteredPenguji(index)"
+                          :rules="[uniquePengujiRule(index)]"
                           clearable
                           outlined
-                          hide-details
                           dense
                           :menu-props="{ offsetY: true}"
                           :placeholder="'Pilih Penguji ' + (index + 1)"
@@ -242,7 +243,12 @@
             <!-- Start Button Simpan Perubahan -->
             <v-row >
               <v-col class="text-right" >
-                <v-btn color="primary" @click="save">Simpan</v-btn>
+                <v-btn 
+                  color="primary" 
+                  @click="save" 
+                  :disabled="!valid"
+                  >Simpan
+                </v-btn>
               </v-col>
             </v-row>
             <!-- End Button Simpan Perubahan -->
@@ -264,10 +270,6 @@ export default {
       statusAddKota: false,
       // Data Form Nama
       ID_KoTA : '',
-      rules: [
-        value => !!value || 'Required.',
-        // value => (value && value.length >= 3) || 'Min 3 characters',
-      ],
 
       // Data Tahun Ajaran
       tahunAjaran: '',
@@ -298,6 +300,20 @@ export default {
         { selectedItem: null, items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
       ],
 
+      // Data Validasi
+      valid: false,
+      rules: {
+        ID_KoTA: [
+          v => !!v || "ID_KoTA wajib diisi",
+          v => /^[0-9]+$/.test(v) || 'ID harus berupa angka',
+          v => (v && v.length >= 3) || "ID_KoTA Minimal 3 angka",
+          v => (v && v.length <= 3) || "ID_KoTA Maksimal 3 angka"
+        ],
+        tahun_ajaran: [
+          v => !!v || "Tahun Ajaran wajib diisi",
+        ],
+      },
+
     }
   },
   mounted() {
@@ -306,12 +322,6 @@ export default {
    this.initializePembimbingList();
    this.initializePengujiList();
 
-    // console.log("idkota = " + this.ID_KoTA)
-    // console.log("tahunajaran = " + this.tahunAjaran)
-    // console.log("anggotalength = " + this.form.length)
-    // console.log("pembimbinglength = " + this.formPembimbing.length)
-    // console.log("pengujilength = " + this.formPenguji.length)
- 
   },
 
   computed: {
@@ -358,6 +368,32 @@ export default {
   },
 
   methods: {
+    // Start Validasi Input
+    uniqueMahasiswaRule(index) {
+      return v => {
+        if (!v) return 'Anggota wajib diisi';
+        const duplicate = this.form.filter((anggota, i) => i !== index && anggota.selectedItem === v);
+        return duplicate.length === 0 || 'Tidak boleh memilih mahasiswa yang sama';
+      };
+    },
+    
+    uniquePembimbingRule(index) {
+      return v => {
+        if (!v) return 'Pembimbing wajib diisi';
+        const duplicate = this.formPembimbing.filter((anggota, i) => i !== index && anggota.selectedItem === v);
+        return duplicate.length === 0 || 'Tidak boleh memilih Pembimbing yang sama';
+      };
+    },
+
+    uniquePengujiRule(index) {
+      return v => {
+        if (!v) return 'Penguji wajib diisi';
+        const duplicate = this.formPenguji.filter((anggota, i) => i !== index && anggota.selectedItem === v);
+        return duplicate.length === 0 || 'Tidak boleh memilih Penguji yang sama';
+      };
+    },
+
+    // End Validasi Input
 
     async initializeMahasiswaList () {
         try {
