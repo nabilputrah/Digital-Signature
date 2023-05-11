@@ -252,7 +252,7 @@
             <!-- Start Button Simpan Perubahan -->
             <v-row >
               <v-col class="text-right" >
-                <v-btn color="primary" @click="save(ID_KoTA)">Simpan</v-btn>
+                <v-btn color="primary" @click="save">Simpan</v-btn>
               </v-col>
             </v-row>
             <!-- End Button Simpan Perubahan -->
@@ -266,18 +266,28 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   data() {
     return {
+      id_laporan:'',
+      statusAddKota: false,
+      statusDeleteKota: false,
+      
+      detailKoTA:'',
+      mahasiswaKoTA:'',
+      pembimbingKoTA:'',
+      pengujiKoTA:'',
+
       // Data Form Nama
-      ID_KoTA : 402,
+      ID_KoTA : '',
       rules: [
         value => !!value || 'Required.',
         // value => (value && value.length >= 3) || 'Min 3 characters',
       ],
 
       // Data Tahun Ajaran
-      tahunAjaran: '2022/2023',
+      tahunAjaran: '',
       listTahunAjaran: [],
 
       //Maksimal dan minimal pilihan form
@@ -290,24 +300,18 @@ export default {
 
       //Data List Dropdown
       form: [
-        { selectedItem: 'Andika Yudha', items: ['Andika Yudha', 'Nabil Putra H', 'Fachri Dia', 'Titis Sampurno'], search: '' },
-        { selectedItem: 'Nabil Putra H', items: ['Andika Yudha', 'Nabil Putra H', 'Fachri Dia', 'Titis Sampurno'], search: '' },
-      ],
+        { selectedItem: null, items: [{ value: 'aa', text: 'ab'},{ value: 'aa', text: 'aa'},], search: '' },
+        { selectedItem: null, items: [{ value: 'aa', text: 'aa'},{ value: 'aa', text: 'aa'},], search: '' },
 
-      formPembimbing: [
-        { selectedItem: 'Aprianti Nanda Sari, S.T., M.Kom.', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
-        { selectedItem: 'Ghifari Munawar, S.Kom., M.T', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
       ],
-
-      formPenguji: [
-        { selectedItem: 'Iwan Awaludin, S.T., M.T. ', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
-        { selectedItem: 'Urip Teguh Setijohatmo, BSCS., M.Kom.', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
-      ],
+      formPembimbing: '',
+      formPenguji: '',
 
     }
   },
   mounted() {
     this.generateListTahunAjaran();
+    this.initializeDetailKoTA()
   },
 
   computed: {
@@ -315,6 +319,7 @@ export default {
       return (index) => {
         const items = this.form[index].items;
         const search = this.form[index].search;
+        // console.log(this.form[0].selectedItem)
         if (search.length === 0) {
           return items;
         } else {
@@ -353,8 +358,462 @@ export default {
   },
 
   methods: {
-    save(ID_KoTA) {
-      this.$router.push(`/koordinator/KoTA/detail_KoTA/${ID_KoTA}`);
+    async initializeDetailKoTA() {
+      // detail kotga
+      try {
+        const response = await axios.get('http://localhost:3000/api/KoTA/'+ this.$route.params.id)
+        this.detailKoTA = response.data.data
+        this.tahunAjaran = this.detailKoTA.tahun_ajaran
+        this.ID_KoTA = this.detailKoTA.nama_KoTA
+      } catch (error) { 
+        console.log(error.message.request)
+      }
+      // mahasiswa kota
+      try {
+          const responseList = await axios.get(`http://localhost:3000/api/mahasiswa/`);
+          const listMahasiswa = responseList.data.data
+          const response = await axios.get('http://localhost:3000/api/mahasiswakota/'+ this.$route.params.id)
+          this.mahasiswaKoTA= response.data.data
+       
+        
+          const selectedItem = this.mahasiswaKoTA.map((item) => ({
+            selectedItem: item.NIM,
+            items: listMahasiswa.map((mhs) =>({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` })),
+            search: ""
+          }));
+          this.form = selectedItem;
+           
+        
+        } catch (error) {
+          console.error(error.message);
+        }
+      
+
+      // pembimbing kota
+      try {
+        const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
+        const listDosen = responseList.data.data
+        const response = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ this.$route.params.id)
+        this.pembimbingKoTA = response.data.data
+        
+        // Set nilai items dan search pada setiap elemen form
+        const selectedItem = this.pembimbingKoTA.map((item) => ({
+          selectedItem: item.NIP,
+          items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })),
+          search: ""
+        }));
+   
+        this.formPembimbing = selectedItem
+
+      } catch (error) { 
+        console.log(error.message.request)
+      }
+      // penguji kota
+      try {
+        const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
+        const listDosen = responseList.data.data
+        const response = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ this.$route.params.id)
+        this.pengujiKoTA = response.data.data
+       
+         // Set nilai items dan search pada setiap elemen form
+        const selectedItem = this.pengujiKoTA.map((item) => ({
+          selectedItem: item.NIP,
+          items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })),
+          search: ""
+        }));
+   
+        this.formPenguji = selectedItem
+
+      } catch (error) { 
+        console.log(error.message.request)
+      }
+    },
+    async save() {
+      // this.$router.push(`/koordinator/KoTA/detail_KoTA/${ID_KoTA}`);
+
+      // Delete KoTA
+    
+      await axios({
+        method:'delete',
+        url: 'http://localhost:3000/api/KoTA/'+ this.$route.params.id,
+        
+      })
+      .then(response => {
+      
+        console.log(response.data.data)
+        this.id_laporan = response.data.id_laporan
+        this.statusDeleteKota = true
+      })
+      .catch(error => {
+          console.log(error.request.response)
+      })
+
+
+
+      
+        // Insert new KoTA
+      const tahunAjaran = this.tahunAjaran;
+      const namaKota = this.ID_KoTA;
+      const tahunAjaranTanpaTanda = tahunAjaran.replace("/", "");
+      const generatedIdKota = tahunAjaranTanpaTanda.slice(0, 4) + namaKota + tahunAjaranTanpaTanda.slice(4);
+      
+      await axios({
+        method:'post',
+        url: 'http://localhost:3000/api/signupuser/kota',
+        data: {
+          username: generatedIdKota,
+          nama_KoTA: namaKota,
+          tahun_ajaran: tahunAjaran,
+          id_prodi: 'PRD001',
+          jumlah_pembimbing: this.formPembimbing.length,
+          jumlah_penguji: this.formPenguji.length,
+        } 
+      })
+      .then(response => {
+        this.statusAddKota = true
+        console.log(response.data)
+
+      })
+      .catch(error => {
+          console.log(error.request.response)
+      })
+
+      // insert data to laporan, ubah update simpan id laporan pas query di awal 
+      await axios({
+        method:'put',
+        url: 'http://localhost:3000/api/laporanidkota/' + this.id_laporan,
+        data: {
+          id_laporan:generatedIdKota,
+          id_KoTA: generatedIdKota,
+       
+        } 
+      })
+      .then(response => {
+        this.statusAddKota = true
+        console.log(response.data)
+
+      })
+      .catch(error => {
+          console.log(error.request.response)
+      })
+
+
+      // START update status mahasiswa (kota dan isketua)
+      
+      if (this.form.length === 1) {
+        await axios({
+          method:'put',
+          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[0].selectedItem,
+          data: {
+            id_KoTA: generatedIdKota,
+            isKetua: true 
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+      }
+
+      else if (this.form.length === 2) {
+        await axios({
+          method:'put',
+          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[0].selectedItem,
+          data: {
+            id_KoTA: generatedIdKota,
+            isKetua: true 
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
+        await axios({
+          method:'put',
+          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[1].selectedItem,
+          data: {
+            id_KoTA: generatedIdKota,
+            isKetua: false 
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+      }
+
+      else if (this.form.length === 3) {
+        axios({
+          method:'put',
+          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[0].selectedItem,
+          data: {
+            id_KoTA: generatedIdKota,
+            isKetua: true 
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
+        await axios({
+          method:'put',
+          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[1].selectedItem,
+          data: {
+            id_KoTA: generatedIdKota,
+            isKetua: false 
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
+        await axios({
+          method:'put',
+          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[2].selectedItem,
+          data: {
+            id_KoTA: generatedIdKota,
+            isKetua: false 
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+      }
+      // END update status mahasiswa (kota dan isketua)
+      if (this.statusAddKota){
+         // START Relasi Pembimbing
+      if (this.formPembimbing.length === 2) {
+        await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.formPembimbing[0].selectedItem,
+            role:'Pembimbing',
+            urutan: 1
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
+        await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.formPembimbing[1].selectedItem,
+            role:'Pembimbing',
+            urutan: 2
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+      }
+
+     
+
+      else if (this.formPembimbing.length === 3) {
+        await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.formPembimbing[0].selectedItem,
+            role:'Pembimbing',
+            urutan: 1
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
+        await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.formPembimbing[1].selectedItem,
+            role:'Pembimbing',
+            urutan: 2
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
+        await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.formPembimbing[2].selectedItem,
+            role:'Pembimbing',
+            urutan: 3
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+      }
+      // END Relasi Pembimbing
+
+      // START Relasi Penguji
+
+      if (this.formPenguji.length === 2) {
+        await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.formPenguji[0].selectedItem,
+            role:'Penguji',
+            urutan: 1
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
+        await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.formPenguji[1].selectedItem,
+            role:'Penguji',
+            urutan: 2
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+      }
+      else if (this.formPenguji.length === 3) {
+        await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.formPenguji[0].selectedItem,
+            role:'Penguji',
+            urutan: 1
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
+        await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.formPenguji[1].selectedItem,
+            role:'Penguji',
+            urutan: 2
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+        await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.formPenguji[2].selectedItem,
+            role:'Penguji',
+            urutan: 3
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+        }
+      
+    }
+      
+
     },
 
     generateListTahunAjaran() {

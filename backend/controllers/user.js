@@ -1,10 +1,15 @@
 const User = require('../models').User;
 const Dosen = require('../models').Dosen;
 const KoTA = require('../models').KoTA;
+// const Laporan = require('../models').KoTA;
 const { Op } = require("sequelize");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../db/index')
+
+// const NodeRSA = require('node-rsa');
+
+
 const secret ='secret'
 
 
@@ -68,6 +73,7 @@ module.exports = {
   },
 
   async signUpUserDosen(req, res) {
+    
     const { username, nama, email} = req.body
     const password = "Dosen" + username.substring(0, 4) +username.substring(username.length - 4)
     const hashPassword = await bcrypt.hash(password, 10)
@@ -110,6 +116,8 @@ module.exports = {
         email: email
       }, optionsDosen)
 
+  
+
       return res.status(200).send({
         message: 'add dosen with user success',
         data: dosen
@@ -122,6 +130,8 @@ module.exports = {
   },
 
   async signUpUserKoTA(req, res) {
+    
+    
     const { username, nama_KoTA, tahun_ajaran, id_prodi, jumlah_pembimbing, jumlah_penguji } = req.body
 
     const password = "KoTA"+ username + jumlah_pembimbing + jumlah_penguji
@@ -158,7 +168,7 @@ module.exports = {
         returning: true
       }
 
-      const kota = await KoTA.create({
+       const kota = await KoTA.create({
         id_KoTA: username,
         id_prodi: id_prodi,
         id_user: user.id_user,
@@ -167,6 +177,22 @@ module.exports = {
         jumlah_pembimbing: jumlah_pembimbing,
         jumlah_penguji: jumlah_penguji
       }, optionsKoTA)
+
+      // / insert laporan
+
+      // const optionsLaporan = {
+      //   fields:['id_laporan', 'id_KoTA', 'private_key', 'public_key'],
+      //   returning: true
+      // }
+
+      // const laporan = await Laporan.create({
+      //   id_laporan: 'Laporan_' + username,
+      //   id_KoTA: username,
+      //   privateKey: privateKey,
+      //   publicKey: publicKey
+
+      // }, optionsLaporan)
+
 
       return res.status(200).send({
         message: 'add KoTA with user success',

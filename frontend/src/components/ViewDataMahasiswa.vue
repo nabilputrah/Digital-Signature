@@ -170,6 +170,24 @@
           No Data
         </template>
       </v-data-table>
+      <iframe src="https://drive.google.com/viewerng/viewer?embedded=true&url=digital-signature.infinityfreeapp.com/laporan_ta/example.pdf"
+    
+        
+       
+        width="75%" height="500px">
+        </iframe>
+     <!-- <v-btn @click="openPage">Buka halaman HTML</v-btn -->
+
+    <!-- <v-dialog v-model="dialogHtml" max-width="1000">
+      <v-card>
+        <v-card-title>
+          <span class="headline">{{ pageTitle }}</span>
+        </v-card-title>
+        <v-card-text>
+          <iframe :src="pageUrl" style="width:100%; height:70vh;"></iframe>
+        </v-card-text>
+      </v-card>
+    </v-dialog> -->
     </v-card>
     <!-- End Datatables -->
     <v-snackbar 
@@ -195,9 +213,18 @@
 
 <script>
 import axios from 'axios'
+// import pdf from 'vue-pdf'
   export default {
+    components: {
+    // pdf,
+  },
     data: () => ({
+      // source1: ('../assets/LaporanTA.pdf'),
+      // source2: 'data:application/pdf;base64,<BASE64_ENCODED_PDF>',
+      // alamat:require('../assets/LaporanTA.pdf'),
       search : '',
+      pageUrl: 'http://127.0.0.1:8081/index.html', // ganti dengan URL halaman HTML Anda
+      dialogHtml: false,
       dialog: false,
       dialogDelete: false,
       headers: [
@@ -244,6 +271,7 @@ import axios from 'axios'
       },
     },
 
+    
     watch: {
       dialog (val) {
         val || this.close()
@@ -258,6 +286,9 @@ import axios from 'axios'
     },
 
     methods: {
+      openPage() {
+        this.dialogHtml = true
+      },
       async initialize () {
         try {
           const response = await axios.get(`http://localhost:3000/api/mahasiswa`);

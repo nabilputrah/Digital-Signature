@@ -1,6 +1,11 @@
 var express = require('express');
 var router = express.Router();
 const path = require('path');
+const fs = require('fs')
+// const pdfjs = requi('pdfjs-dist/build/pdf');
+// const pdfjsWorker = import('pdfjs-dist/build/pdf.worker.entry');
+
+// pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const userController = require('../controllers').user;
 const dosenController = require('../controllers').dosen;
@@ -17,12 +22,52 @@ const { verifyTokenAndRoleKoordinator } = require('../controllers/user')
 
 // waktu indonesia 
 
+router.get('/pdf', (req, res) => {
+  const filePath = path.resolve('./uploads/img_ttd/','2023-05-02-235405-12040-38521-1-PB.pdf');
+  console.log(filePath)
+  const stat = fs.statSync(filePath);
+  const fileSize = stat.size;
+  const range = req.headers.range;
 
+  if (range) {
+    const parts = range.replace(/bytes=/, '').split('-');
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize-1;
+    const chunksize = (end-start) + 1;
+    const file = fs.createReadStream(filePath, {start, end});
+    const head = {
+      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': chunksize,
+      'Content-Type': 'application/pdf',
+    };
+    res.writeHead(206, head);
+    file.pipe(res);
+  } else {
+    const head = {
+      'Content-Length': fileSize,
+      'Content-Type': 'application/pdf',
+    };
+    res.writeHead(200, head);
+    fs.createReadStream(filePath).pipe(res);
+  }
+});
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
+// // /* GET home page. */
+// router.get('/dashboard', function(req, res, next) {
+//   pdfjs.getDocument({ data: './uploads/img_ttd/2023-05-02-235405-Andika_4034.pdf' }).promise.then((pdf) => {
+//     // get the first page of the PDF
+//     pdf.getPage(1).then((page) => {
+//       // render the PDF page using an embedded PDF viewer
+//       const embedUrl = `/pdfjs/web/viewer.html?file=data:application/pdf;base64,${btoa(pdfStream)}`;
+//       res.render('pdf', { embedUrl: embedUrl });
+//     });
+//   });
+// });
 
 /* Exercise upload file. */
 router.post('/api/upload', (req, res) => {
@@ -99,6 +144,9 @@ router.delete('/api/KoTA/:id', koTAController.deleteKoTA)
 
 /* Endpoint Mahasiswa Controller*/
 router.get('/api/mahasiswa', mahasiswaController.getAllMahasiswa)
+router.get('/api/mahasiswakota/:id', mahasiswaController.getAllMahasiswaByKoTA)
+router.get('/api/mahasiswa/nullkotad4', mahasiswaController.getAllMahasiswaNullKoTAD4)
+router.get('/api/mahasiswa/nullkotad3', mahasiswaController.getAllMahasiswaNullKoTAD3)
 router.get('/api/mahasiswa/:id', mahasiswaController.getMahasiswaById)
 router.post('/api/mahasiswa', mahasiswaController.addMahasiswa)
 router.put('/api/mahasiswa/:id',mahasiswaController.updateMahasiswa)
@@ -110,6 +158,8 @@ router.put('/api/mahasiswastatus/:id',mahasiswaController.updateMahasiswaStatusK
 
 /* Endpoint Relasi Controller*/
 router.get('/api/relasi', relasiController.getAllRelasiKoTA)
+router.get('/api/relasibykota/pembimbing/:id', relasiController.getAllRelasiKoTAByPemKoTA)
+router.get('/api/relasibykota/penguji/:id', relasiController.getAllRelasiKoTAByPenKoTA)
 router.get('/api/relasi/:id', relasiController.getRelasiKoTAById)
 router.post('/api/relasi', relasiController.addRelasiKoTA)
 router.put('/api/relasi/:id',relasiController.updateRelasiKoTA)
@@ -121,6 +171,7 @@ router.get('/api/laporan', laporanController.getAllLaporan)
 router.get('/api/laporan/:id', laporanController.getLaporanById)
 router.post('/api/laporan', laporanController.addLaporan)
 // router.put('/api/laporan/:id',laporanController.updateLaporan)
+router.put('/api/laporanidkota/:id',laporanController.updateIdKoTALaporan)
 router.delete('/api/laporan/:id', laporanController.deleteLaporan)
 // router.put('/api/laporan/doSignature/:id', laporanController.doSignature)
 

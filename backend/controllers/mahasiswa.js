@@ -4,9 +4,106 @@ const csv = require('csv-parser');
 const fs = require('fs');
 
 module.exports = {
+  async getAllMahasiswaByKoTA(req, res) {
+    const { id } = req.params
+    try {
+        const mahasiswa = await Mahasiswa.findAll({
+            where:{
+              id_KoTA: id
+            },
+            attributes: {
+                exclude: ['createdAt', 'updatedAt','id']
+            },
+            order: [
+                ['NIM', 'ASC']
+            ]
+        })
+        
+        if (mahasiswa.length == 0) {
+            return res.status(400).send({
+                message:'Data mahasiswa tidak ada'
+            })
+        }
+
+        return res.status(200).send({
+            message:'Get all data mahasiswa berhasil',
+            data: mahasiswa
+        })
+    } catch (error) {
+        return res.status(400).send({
+            message: error.message
+        })
+    }
+   
+  },
   async getAllMahasiswa(req, res) {
     try {
         const mahasiswa = await Mahasiswa.findAll({
+            attributes: {
+                exclude: ['createdAt', 'updatedAt','id']
+            },
+            order: [
+                ['NIM', 'ASC']
+            ]
+        })
+        
+        if (mahasiswa.length == 0) {
+            return res.status(400).send({
+                message:'Data mahasiswa tidak ada'
+            })
+        }
+
+        return res.status(200).send({
+            message:'Get all data mahasiswa berhasil',
+            data: mahasiswa
+        })
+    } catch (error) {
+        return res.status(400).send({
+            message: error.message
+        })
+    }
+   
+  },
+  async getAllMahasiswaNullKoTAD4(req, res) {
+    try {
+        const mahasiswa = await Mahasiswa.findAll({
+            where:{
+              id_KoTA:null,
+              id_prodi:'PRD001'
+            },
+            attributes: {
+                exclude: ['createdAt', 'updatedAt','id']
+            },
+            order: [
+                ['NIM', 'ASC']
+            ]
+        })
+        
+        if (mahasiswa.length == 0) {
+            return res.status(400).send({
+                message:'Data mahasiswa tidak ada'
+            })
+        }
+
+        return res.status(200).send({
+            message:'Get all data mahasiswa berhasil',
+            data: mahasiswa
+        })
+    } catch (error) {
+        return res.status(400).send({
+            message: error.message
+        })
+    }
+   
+
+  },
+  async getAllMahasiswaNullKoTAD3(req, res) {
+    try {
+        const mahasiswa = await Mahasiswa.findAll({
+            where:{
+              id_KoTA:null,
+              id_prodi:'PRD002'
+            },
             attributes: {
                 exclude: ['createdAt', 'updatedAt','id']
             },

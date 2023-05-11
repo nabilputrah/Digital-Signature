@@ -34,31 +34,49 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    id_KoTA: DataTypes.STRING,
-    judul_TA: DataTypes.STRING,
-    dokumen_laporan: {
+    id_KoTA: {
       type: DataTypes.STRING,
-      allowNull: false,
+    
       unique: true,
       validate: {
         isUnique: async function (value) {
           const laporan = await Laporan.findOne({
              where: {
-               dokumen_laporan: value 
+               id_KoTA: value 
               },
               attributes: {
                 exclude:['id']
               } 
             });
           if (laporan) {
-            throw new Error('Dokumen Laporan must be unique');
+            throw new Error('id KoTA must be unique');
           }
         },
       },
     },
+    judul_TA: DataTypes.STRING,
+    // dokumen_laporan: {
+    //   type: DataTypes.STRING,
+    //   allowNull: false,
+    //   unique: true,
+    //   validate: {
+    //     isUnique: async function (value) {
+    //       const laporan = await Laporan.findOne({
+    //          where: {
+    //            dokumen_laporan: value 
+    //           },
+    //           attributes: {
+    //             exclude:['id']
+    //           } 
+    //         });
+    //       if (laporan) {
+    //         throw new Error('Dokumen Laporan must be unique');
+    //       }
+    //     },
+    //   },
+    // },
     lembar_pengesahan: {
       type: DataTypes.STRING,
-      allowNull: false,
       unique: true,
       validate: {
         isUnique: async function (value) {
@@ -78,7 +96,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     digital_signature: {
       type: DataTypes.STRING,
-      allowNull: false,
+    
       unique: true,
       validate: {
         isUnique: async function (value) {
@@ -98,9 +116,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     tgl_disetujui: DataTypes.DATE,
     tgl_disidangkan: DataTypes.DATE,
-    version: DataTypes.STRING,
+    // version: DataTypes.STRING,
     private_key: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
       unique: true,
       validate: {
@@ -120,7 +138,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
    public_key: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
       unique: true,
       validate: {
@@ -139,7 +157,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
     },
-    tgl_unggah: DataTypes.DATE
+    // tgl_unggah: DataTypes.DATE
   }, {
     sequelize,
     timestamps:false,
