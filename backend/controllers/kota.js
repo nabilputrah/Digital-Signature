@@ -138,6 +138,84 @@ module.exports = {
     }
   },
   
+  async deleteKoTAWithLaporan(req, res) {
+    const { id } = req.params
+
+    try {
+     
+      const kota = await KoTA.findOne({
+        where: {
+          id_KoTA: id
+        },
+        attributes: {
+          exclude:['id']
+        }
+      })
+
+      if (!kota) {
+        return res.status(404).send({
+          message:'Data KoTA tidak ditemukan'
+        })
+      }
+    const id_user = kota.id_user
+  
+    // select mahasiswa
+
+    const selectQuery = ` SELECT m."NIM", k."id_user" FROM "Mahasiswa" as m
+                        JOIN "KoTA" as k ON m."id_KoTA" = k."id_KoTA" WHERE k."id_user" = $1`
+    const paramsQuery = [id_user]
+    const result = await db.query(selectQuery, paramsQuery)
+
+    const nimArray = result.rows.map((item)=>{
+      return item.NIM;
+    })
+    
+
+    // update mahasiswa kota to null  
+    const update = await Mahasiswa.update({
+      id_KoTA : null,
+      isKetua : false
+      }, {
+        where: {
+          id_KoTA: id,
+          NIM: nimArray
+        }
+      }
+    )
+
+      await KoTA.destroy({
+        where: {
+          id_KoTA:id
+        }
+      })
+
+      
+      await User.destroy({
+        where: {
+          id_user: id_user
+        }
+      })
+      
+      await Laporan.destroy({
+        where: {
+          id_KoTA: id
+        }
+      })
+
+      
+   
+      return res.status(200).send({
+        message:`Data KoTA dengan id ${id} berhasil dihapus`,
+        data: update,
+    
+        
+      })
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
   async deleteKoTA(req, res) {
     const { id } = req.params
 
@@ -196,7 +274,7 @@ module.exports = {
         }
       }
     )
-    // update mahasiswa kota to null  
+    // update laporan kota to null  
     const updateLaporan = await Laporan.update({
       id_KoTA : null,
       }, {
@@ -214,17 +292,18 @@ module.exports = {
       })
 
       
-    await User.destroy({
-      where: {
-        id_user: id_user
-      }
-    })
+    // await User.destroy({
+    //   where: {
+    //     id_user: id_user
+    //   }
+    // })
 
       
    
       return res.status(200).send({
         message:`Data KoTA dengan id ${id} berhasil dihapus`,
         data: update, updateLaporan,
+        id_user: id_user,
         id_laporan: id_laporan
         
       })
