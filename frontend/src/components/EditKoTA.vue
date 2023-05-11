@@ -250,8 +250,8 @@
             </v-row>
             <!-- End Form -->
 
-            <!-- Start Button Simpan Perubahan -->
-            <v-row >
+           <!-- Start Button Simpan Perubahan -->
+           <v-row >
               <v-col class="text-right" >
                 <v-btn 
                   style="margin-right: 1%;"
@@ -317,12 +317,7 @@ export default {
       pengujiKoTA:'',
 
       // Data Form Nama
-      ID_KoTA : 402,
       ID_KoTA : '',
-      rules: [
-        value => !!value || 'Required.',
-        // value => (value && value.length >= 3) || 'Min 3 characters',
-      ],
 
       // Data Tahun Ajaran
       tahunAjaran: '',
@@ -412,49 +407,6 @@ export default {
   },
 
   methods: {
-    save() {
-      // this.saveSucced = true
-      this.openDialogWithTimeout()
-    },
-
-    // Start Validasi Input
-    uniqueMahasiswaRule(index) {
-      return v => {
-        if (!v) return 'Anggota wajib diisi';
-        const duplicate = this.form.filter((anggota, i) => i !== index && anggota.selectedItem === v);
-        return duplicate.length === 0 || 'Tidak boleh memilih mahasiswa yang sama';
-      };
-    },
-    
-    uniquePembimbingRule(index) {
-      return v => {
-        if (!v) return 'Pembimbing wajib diisi';
-        const duplicate = this.formPembimbing.filter((anggota, i) => i !== index && anggota.selectedItem === v);
-        return duplicate.length === 0 || 'Tidak boleh memilih Pembimbing yang sama';
-      };
-    },
-
-    uniquePengujiRule(index) {
-      return v => {
-        if (!v) return 'Penguji wajib diisi';
-        const duplicate = this.formPenguji.filter((anggota, i) => i !== index && anggota.selectedItem === v);
-        return duplicate.length === 0 || 'Tidak boleh memilih Penguji yang sama';
-      };
-    },
-
-    // End Validasi Input
-
-    openDialogWithTimeout() {
-      this.saveSucced = true
-      setTimeout(() => {
-        this.dialog = false
-        // redirect to another page after dialog is closed
-        this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.ID_KoTA}`)
-      }, 2000) // set the timeout to 5 seconds
-    },
-
-    BackToDetail (ID_KoTA) {
-      this.$router.push(`/koordinator/KoTA/detail_KoTA/${ID_KoTA}`);
     async initializeDetailKoTA() {
       // detail kotga
       try {
@@ -907,10 +859,49 @@ export default {
             console.log(error.request.response)
         })
         }
-      
-    }
-      
+        
+      }
+      this.openDialogWithTimeout()
+    },
 
+    // Start Validasi Input
+    uniqueMahasiswaRule(index) {
+      return v => {
+        if (!v) return 'Anggota wajib diisi';
+        const duplicate = this.form.filter((anggota, i) => i !== index && anggota.selectedItem === v);
+        return duplicate.length === 0 || 'Tidak boleh memilih mahasiswa yang sama';
+      };
+    },
+    
+    uniquePembimbingRule(index) {
+      return v => {
+        if (!v) return 'Pembimbing wajib diisi';
+        const duplicate = this.formPembimbing.filter((anggota, i) => i !== index && anggota.selectedItem === v);
+        return duplicate.length === 0 || 'Tidak boleh memilih Pembimbing yang sama';
+      };
+    },
+
+    uniquePengujiRule(index) {
+      return v => {
+        if (!v) return 'Penguji wajib diisi';
+        const duplicate = this.formPenguji.filter((anggota, i) => i !== index && anggota.selectedItem === v);
+        return duplicate.length === 0 || 'Tidak boleh memilih Penguji yang sama';
+      };
+    },
+
+    // End Validasi Input
+
+    openDialogWithTimeout() {
+      this.saveSucced = true
+      setTimeout(() => {
+        this.dialog = false
+        // redirect to another page after dialog is closed
+        this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.ID_KoTA}`)
+      }, 2000) // set the timeout to 5 seconds
+    },
+
+    BackToDetail (ID_KoTA) {
+      this.$router.push(`/koordinator/KoTA/detail_KoTA/${ID_KoTA}`);
     },
 
     generateListTahunAjaran() {
