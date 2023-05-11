@@ -41,7 +41,9 @@
 
                 <vue-editor
                 v-model="laporan.judul_TA"
+                :rules="rules"
                 :editorToolbar="customToolbar"
+                placeholder="Judul Tugas Akhir"
                 ></vue-editor>
   
               </v-col>
@@ -81,9 +83,25 @@
                   </template>
                   <v-date-picker
                     v-model="laporan.tgl_disetujui"
-                    @input="menu_disetujui = false"
-                  ></v-date-picker>
-                </v-menu>
+                    scrollable
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="menu_disetujui = false"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="menu_disetujui = false"
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-dialog>
               </v-col>
             </v-row>
             <!-- End Form Tanggal Disetujui -->
@@ -121,9 +139,25 @@
                   </template>
                   <v-date-picker
                     v-model="laporan.tgl_disidangkan"
-                    @input="menu_disidangkan = false"
-                  ></v-date-picker>
-                </v-menu>
+                    scrollable
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="menu_disidangkan = false"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="menu_disidangkan = false"
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-dialog>
               </v-col>
             </v-row>
             <!-- End Form Tanggal Disidangkan -->
