@@ -18,21 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       primaryKey:true,
       allowNull:false,
-      validate: {
-        async isDuplicatePK(value) {
-          const kota = await KoTA.findOne({
-            where: {
-              id_KoTA: value
-            },
-            attributes:{
-              exclude:['id']
-            }
-          });
-        if (kota) {
-          throw new Error('ID KoTA must be unique');
-        }
-        }
-      }
+      
     },
     id_user: {
       type: DataTypes.INTEGER,

@@ -15,18 +15,20 @@ module.exports = {
           key:"id_KoTA"
         },
         onDelete:"cascade",
-        onUpdate:"cascade"
+        onUpdate:"cascade",
+        unique:true
       },
       judul_TA: {
         type: Sequelize.STRING
       },
-      dokumen_laporan: {
-        type: Sequelize.STRING,
-        unique:true
-      },
+      // dokumen_laporan: {
+      //   type: Sequelize.STRING,
+      //   unique:true
+      // },
       lembar_pengesahan: {
         type: Sequelize.STRING,
-        unique:true
+        unique:true,
+       
       },
       digital_signature: {
         type: Sequelize.STRING,
@@ -38,21 +40,23 @@ module.exports = {
       tgl_disidangkan: {
         type: Sequelize.DATE
       },
-      version: {
-        type: Sequelize.STRING
-      },
+      // version: {
+      //   type: Sequelize.STRING
+      // },
       private_key: {
-        type: Sequelize.STRING,
-        unique: true
+        type: Sequelize.TEXT,
+        unique: true,
+        allowNull: false
       },
       public_key: {
-        type: Sequelize.STRING,
-        unique: true
+        type: Sequelize.TEXT,
+        unique: true,
+        allowNull:false
       },
-      tgl_unggah: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
+      // tgl_unggah: {
+      //   allowNull: false,
+      //   type: Sequelize.DATE
+      // },
     });
   },
   async down(queryInterface, Sequelize) {
