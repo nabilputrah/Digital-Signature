@@ -3,9 +3,62 @@ const moment = require('moment-timezone');
 const path = require('path');
 const Relasi_KoTA = require('../models').Relasi_KoTA;
 
+
 moment.tz.setDefault('Asia/Jakarta');
 
 module.exports = {
+  async getAllRelasiKoTAByPemKoTA(req, res) {
+    const { id } = req.params
+    try {
+       const updateQuery = `SELECT r."id_KoTA", r."NIP", r."role", r."role", r."urutan", d."nama"
+                            FROM "Relasi_KoTA" as r
+                            JOIN "Dosen" as d ON d."NIP" = r."NIP"
+                            WHERE r."id_KoTA" = $1 AND r."role" = 'Pembimbing' 
+                            ORDER BY r."urutan" ASC `
+
+      const paramsQuery = [ id]
+
+      const result = await db.query(updateQuery, paramsQuery)
+
+      if (Object.keys(result).length > 0) {
+        return res.status(200).send({
+          message: `Tampil succes`,
+          data: result.rows
+        })
+      } 
+    } catch (error) {
+        return res.status(400).send({
+            message: error.message
+        })
+    }
+   
+},
+  async getAllRelasiKoTAByPenKoTA(req, res) {
+    const { id } = req.params
+    try {
+       const updateQuery = `SELECT r."id_KoTA", r."NIP", r."role", r."role", r."urutan", d."nama"
+                            FROM "Relasi_KoTA" as r
+                            JOIN "Dosen" as d ON d."NIP" = r."NIP"
+                            WHERE r."id_KoTA" = $1 AND r."role" = 'Penguji' 
+                            ORDER BY r."urutan" ASC `
+
+      const paramsQuery = [ id]
+
+      const result = await db.query(updateQuery, paramsQuery)
+
+      if (Object.keys(result).length > 0) {
+        return res.status(200).send({
+          message: `Tampil succes`,
+          data: result.rows
+        })
+      } 
+    } catch (error) {
+        return res.status(400).send({
+            message: error.message
+        })
+    }
+   
+},
   async getAllRelasiKoTA(req, res) {
     try {
         const relasi_KoTA = await Relasi_KoTA.findAll({

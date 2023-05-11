@@ -397,11 +397,12 @@ export default {
 
     async initializeMahasiswaList () {
         try {
-          const response = await axios.get(`http://localhost:3000/api/mahasiswa`);
+          const response = await axios.get(`http://localhost:3000/api/mahasiswa/nullkotad4`);
           const mahasiswa = response.data.data
         
           this.form.forEach((item) => {
             item.items = mahasiswa.map((mhs) => ({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` }));
+          
           });
         } catch (error) {
           console.error(error.message);
@@ -453,6 +454,24 @@ export default {
           id_prodi: 'PRD001',
           jumlah_pembimbing: this.formPembimbing.length,
           jumlah_penguji: this.formPenguji.length,
+        } 
+      })
+      .then(response => {
+        this.statusAddKota = true
+        console.log(response.data)
+
+      })
+      .catch(error => {
+          console.log(error.request.response)
+      })
+      // insert data to laporan 
+      await axios({
+        method:'post',
+        url: 'http://localhost:3000/api/laporan',
+        data: {
+          id_laporan:generatedIdKota,
+          id_KoTA: generatedIdKota,
+       
         } 
       })
       .then(response => {

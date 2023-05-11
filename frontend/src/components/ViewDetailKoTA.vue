@@ -197,7 +197,7 @@
                   <v-icon style="color: #FFFFFF;" left>mdi-trash-can-outline</v-icon>
                   Delete
                 </v-btn>
-                <v-btn color="primary" @click="edit_data(ID_KoTA)" left>
+                <v-btn color="primary" @click="edit_data(detailKoTA.id_KoTA)" left>
                   <v-icon style="color: #FFFFFF;" left>mdi-file-edit-outline</v-icon>
                   Ubah Data
                 </v-btn>
@@ -243,12 +243,19 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   data() {
     return {
+
+      detailKoTA:'',
+      mahasiswaKoTA:'',
+      pembimbingKoTA:'',
+      pengujiKoTA:'',
+
       dialogDelete: false,
       // Data Form Nama
-      ID_KoTA : 402,
+      ID_KoTA : '',
       rules: [
         value => !!value || 'Required.',
         // value => (value && value.length >= 3) || 'Min 3 characters',
@@ -266,25 +273,15 @@ export default {
 
 
       //Data List Dropdown
-      form: [
-        { selectedItem: 'Andika Yudha', items: ['Andika Yudha', 'Nabil Putra H', 'Fachri Dia', 'Titis Sampurno'], search: '' },
-        { selectedItem: 'Nabil Putra H', items: ['Andika Yudha', 'Nabil Putra H', 'Fachri Dia', 'Titis Sampurno'], search: '' },
-      ],
-
-      formPembimbing: [
-        { selectedItem: 'Aprianti Nanda Sari, S.T., M.Kom.', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
-        { selectedItem: 'Ghifari Munawar, S.Kom., M.T', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
-      ],
-
-      formPenguji: [
-        { selectedItem: 'Iwan Awaludin, S.T., M.T. ', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
-        { selectedItem: 'Urip Teguh Setijohatmo, BSCS., M.Kom.', items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' },
-      ],
+      form: '',
+      formPembimbing: '',
+      formPenguji: '',
 
     }
   },
   mounted() {
     this.generateListTahunAjaran();
+    this.initializeDetailKoTA()
   },
 
   computed: {
@@ -330,6 +327,77 @@ export default {
   },
 
   methods: {
+    async initializeDetailKoTA() {
+      // detail kotga
+        try {
+        const response = await axios.get('http://localhost:3000/api/KoTA/'+ this.$route.params.id)
+        this.detailKoTA = response.data.data
+        this.tahunAjaran = this.detailKoTA.tahun_ajaran
+        this.ID_KoTA = this.detailKoTA.nama_KoTA
+      } catch (error) { 
+        console.log(error.message.request)
+      }
+      // mahasiswa kota
+      try {
+          const responseList = await axios.get(`http://localhost:3000/api/mahasiswa/`);
+          const listMahasiswa = responseList.data.data
+          const response = await axios.get('http://localhost:3000/api/mahasiswakota/'+ this.$route.params.id)
+          this.mahasiswaKoTA= response.data.data
+       
+        
+          const selectedItem = this.mahasiswaKoTA.map((item) => ({
+            selectedItem: item.NIM,
+            items: listMahasiswa.map((mhs) =>({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` })),
+            search: ""
+          }));
+          this.form = selectedItem;
+           
+        
+        } catch (error) {
+          console.error(error.message);
+        }
+      
+
+      // pembimbing kota
+      try {
+        const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
+        const listDosen = responseList.data.data
+        const response = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ this.$route.params.id)
+        this.pembimbingKoTA = response.data.data
+        
+        // Set nilai items dan search pada setiap elemen form
+        const selectedItem = this.pembimbingKoTA.map((item) => ({
+          selectedItem: item.NIP,
+          items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })),
+          search: ""
+        }));
+   
+        this.formPembimbing = selectedItem
+
+      } catch (error) { 
+        console.log(error.message.request)
+      }
+      // penguji kota
+      try {
+        const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
+        const listDosen = responseList.data.data
+        const response = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ this.$route.params.id)
+        this.pengujiKoTA = response.data.data
+       
+         // Set nilai items dan search pada setiap elemen form
+        const selectedItem = this.pengujiKoTA.map((item) => ({
+          selectedItem: item.NIP,
+          items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })),
+          search: ""
+        }));
+   
+        this.formPenguji = selectedItem
+
+      } catch (error) { 
+        console.log(error.message.request)
+      }
+    
+    },
     edit_data(ID_KoTA){
       this.$router.push(`/koordinator/KoTA/edit_KoTA/${ID_KoTA}`);
     },
