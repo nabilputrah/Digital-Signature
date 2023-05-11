@@ -390,6 +390,31 @@ module.exports = {
       })
     }
   },
+  async getKoTAWithUser(req, res) {
+    const { id } = req.params
+
+    try {
+      const selectQuery = ` SELECT u."id_user", u."password", k."nama_KoTA", k."tahun_ajaran",k."id_KoTA" 
+                            FROM "User" as u
+                            JOIN "KoTA" as k ON
+                            k."id_user" = u."id_user"
+                            WHERE u."id_user" = $1`
+      const paramsQuery = [id]
+      const result = await db.query(selectQuery, paramsQuery)
+
+      if (Object.keys(result).length > 0) {
+        return res.status(200).send({
+          message: `Get data success`,
+          data: result.rows
+        })
+      }   
+      
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
 
 
   getAllUser(req, res) {

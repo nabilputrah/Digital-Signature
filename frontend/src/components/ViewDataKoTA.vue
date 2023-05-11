@@ -155,14 +155,6 @@
           </v-icon>
         </template>
         <!-- End Kolom Dokumen -->
-        <template v-slot:no-data>
-          <v-btn
-            color="primary"
-            @click="initialize"
-          >
-            Reset
-          </v-btn>
-        </template>
       </v-data-table>
     </v-card>
     <!-- End Datatables -->

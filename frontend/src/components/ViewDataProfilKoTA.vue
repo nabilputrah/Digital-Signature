@@ -31,7 +31,7 @@
               </v-col>
               <v-col cols="8" >
                 <v-text-field 
-                v-model="ID_KoTA"
+                v-model="kota.nama_KoTA"
                 :rules="rules"
                 placeholder="Id KoTA"
                 dense
@@ -53,7 +53,7 @@
               </v-col>
               <v-col cols="8" >
                 <v-text-field 
-                v-model="tahun_ajaran"
+                v-model="kota.tahun_ajaran"
                 :rules="rules"
                 placeholder="Tahun Ajaran"
                 dense
@@ -62,6 +62,7 @@
                 ></v-text-field>
               </v-col>
             </v-row>
+  
             <!-- End Form Tahun Ajaran -->
             <!-- Start Form Anggota -->
             <v-row>
@@ -77,7 +78,7 @@
                 <v-row v-for="(item, index) in listAnggota" :key="index">
                   <v-col>
                     <v-text-field 
-                    v-model="item.anggota"
+                    v-model="item.nama"
                     :rules="rules"
                     placeholder="Anggota"
                     dense
@@ -186,16 +187,16 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   data() {
     return {
+
+      dataFromToken: '',
+      kota: '',
       // Data Form Nama
-      ID_KoTA : 402,
-      tahun_ajaran : "2022/2023",
-      listAnggota: [
-        { anggota: 'Andika Yudha'},
-        { anggota: 'Nabil Putra H'},
-      ],
+      
+      listAnggota: [],
       rules: [
         value => !!value || 'Required.',
         // value => (value && value.length >= 3) || 'Min 3 characters',
@@ -218,7 +219,44 @@ export default {
 
     }
   },
+
+  mounted(){
+     const token = localStorage.getItem('token');
+
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.dataFromToken= payload.user;
+      }
+
+      this.initialize()
+      // this.initializeListAnggota()
+  },
   methods: {
+
+    async initialize() {
+      try {
+          const response = await axios.get(`http://localhost:3000/api/getkotadata/${this.dataFromToken.id_user}`)
+          this.kota = response.data.data[0]
+          const id_kota = response.data.data[0].id_KoTA
+
+          const responseList = await axios.get('http://localhost:3000/api/mahasiswakota/' +id_kota)
+          this.listAnggota = responseList.data.data
+
+         
+
+        } catch (error) {
+          console.error(error.message);
+        }
+    },
+    // async initializeListAnggota() {
+    //   try {
+          
+    //       console.log(response.data.data)
+
+    //     } catch (error) {
+    //       console.error(error.message);
+    //     }
+    // },
     save() {
       // your save implementation here
     },
