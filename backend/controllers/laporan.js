@@ -76,6 +76,35 @@ module.exports = {
       })
     }
   },
+  async getLaporanByKoTA(req, res) {
+    const { id } = req.params
+
+    try {
+      const laporan = await Laporan.findOne({
+        where: {
+          id_KoTA: id
+        },
+        attributes: {
+          exclude:['id','createdAt','updatedAt']
+        }
+      })
+
+      if (!laporan) {
+        return res.status(404).send({
+          message:'Data laporan tidak ditemukan'
+        })
+      }
+
+      return res.status(200).send({
+        message:`Get data laporan dengan id ${id} berhasil`,
+        data: laporan
+      })
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
  
  
   async addLaporan(req, res) {
@@ -284,6 +313,35 @@ module.exports = {
 
       return res.status(200).send({
         message: 'update id kota pada laporan berhasil',
+        data: updateLaporan
+      })
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
+
+  async updateLaporan(req, res) {
+    const { id } = req.params
+    const { judul_TA, tgl_disetujui, tgl_disidangkan } = req.body
+
+
+    try {
+       
+    const updateLaporan = await Laporan.update({
+      judul_TA : judul_TA,
+      tgl_disetujui: tgl_disetujui,
+      tgl_disidangkan: tgl_disidangkan
+      }, {
+        where: {
+          id_KoTA: id
+        }
+      }
+    )
+
+      return res.status(200).send({
+        message: 'update laporan berhasil',
         data: updateLaporan
       })
     } catch (error) {
