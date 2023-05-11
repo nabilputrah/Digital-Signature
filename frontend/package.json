@@ -16,6 +16,7 @@
     "vue-pdf": "^4.3.0",
     "vue-pdf-embed": "^1.1.6",
     "vue-router": "^3.5.1",
+    "vue2-editor": "^2.10.3",
     "vuetify": "^2.6.15"
   },
   "devDependencies": {

@@ -31,13 +31,19 @@
                 </div>
               </v-col>
               <v-col cols="8" >
-                <v-text-field 
+                <!-- <v-text-field 
                 v-model="judul_tugas_akhir"
                 :rules="rules"
                 placeholder="Judul Tugas Akhir"
                 dense
                 outlined
-                ></v-text-field>
+                ></v-text-field> -->
+
+                <vue-editor
+                v-model="laporan.judul_TA"
+                :editorToolbar="customToolbar"
+                ></vue-editor>
+  
               </v-col>
             </v-row>
             <!-- End Form Judul Tugas Akhir -->
@@ -61,7 +67,7 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="tanggal_disetujui"
+                      v-model="laporan.tgl_disetujui"
                       placeholder="Tanggal Disetujui"
                       dense
                       outlined
@@ -74,26 +80,10 @@
                     ></v-text-field>
                   </template>
                   <v-date-picker
-                    v-model="tanggal_disetujui"
-                    scrollable
-                  >
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="menu_disetujui = false"
-                    >
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="menu_disetujui = false"
-                    >
-                      OK
-                    </v-btn>
-                  </v-date-picker>
-                </v-dialog>
+                    v-model="laporan.tgl_disetujui"
+                    @input="menu_disetujui = false"
+                  ></v-date-picker>
+                </v-menu>
               </v-col>
             </v-row>
             <!-- End Form Tanggal Disetujui -->
@@ -117,7 +107,7 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="tanggal_disidangkan"
+                      v-model="laporan.tgl_disidangkan"
                       placeholder="Tanggal Disidangkan"
                       dense
                       outlined
@@ -130,26 +120,10 @@
                     ></v-text-field>
                   </template>
                   <v-date-picker
-                    v-model="tanggal_disidangkan"
-                    scrollable
-                  >
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="menu_disidangkan = false"
-                    >
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="menu_disidangkan = false"
-                    >
-                      OK
-                    </v-btn>
-                  </v-date-picker>
-                </v-dialog>
+                    v-model="laporan.tgl_disidangkan"
+                    @input="menu_disidangkan = false"
+                  ></v-date-picker>
+                </v-menu>
               </v-col>
             </v-row>
             <!-- End Form Tanggal Disidangkan -->
@@ -425,11 +399,23 @@
 </template>
 
 <script>
+import axios from 'axios'
+import { VueEditor } from "vue2-editor";
 export default {
+  components: {
+    VueEditor
+  },
   data() {
     return {
+
+      dataFromToken: '',
+      kota: '',
+      laporan: '',
       // Data Form Nama
       judul_tugas_akhir : "",
+      customToolbar: [
+        [ "italic"],
+      ],
       tanggal_disetujui : '',
       tanggal_disidangkan : '',
       // tanggal_disetujui: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -498,7 +484,14 @@ export default {
   },
 
   mounted () {
+     const token = localStorage.getItem('token');
+
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.dataFromToken= payload.user;
+      }
     this.initialize()
+
   },
 
   methods: {
@@ -534,10 +527,34 @@ export default {
     viewPdf(filename) {
       window.open(`../assets/${filename}`, '_blank');
     },
-    save() {
-      this.snackbar.show = true;
-      this.snackbar.color = "primary";
-      this.snackbar.message = "Perubahan data Dokumen Laporan TA berhasil disimpan";
+    async save() {
+      // 
+      await axios({
+          method:'put',
+          url: 'http://localhost:3000/api/laporan/'+ this.kota.id_KoTA,
+          data: this.laporan
+        })
+        .then(response => {
+        
+          console.log(response.data)
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Perubahan data Dokumen Laporan TA berhasil disimpan";
+          this.initialize()
+  
+        })
+        .catch(error => {
+            console.log(error.request.response)
+            this.MessageError = error.request.response
+            if (this.MessageError.includes('email')){
+              this.snackbar.show = true;
+              this.snackbar.color = "error";
+              this.snackbar.message = "Email Sudah Terdaftar!!!";
+            }
+        })
+   
+
+    
       // your save implementation here
     },
 
@@ -562,39 +579,73 @@ export default {
       this.validasiDokumen = true;
     },
 
-    initialize () {
-        this.Laporan = [
-          {
-            ID_laporan: 'Laporan_402_v1',
-            tanggal_dibuat: '2023-05-04',
-            dokumen : 'LaporanTA.pdf'
-          },
-          {
-            ID_laporan: 'Laporan_402_Final',
-            tanggal_dibuat: '2023-05-05',
-            dokumen : 'LaporanTA.pdf'
-          },
-        ],
-        this.Pengampu = [
-          {
-            dosen: 'Aprianti Nanda Sari, S.T., M.Kom.',
-            peran: 'Pembimbing',
-            urutan : 1,
-            status : true
-          },
-          {
-            dosen: 'Ghifari Munawar, S.Kom., M.T',
-            peran: 'Pembimbing',
-            urutan : 2,
-            status : true
-          },
-          {
-            dosen: 'Yadhi Adhitia P., S.T.',
-            peran: 'Ketua Jurusan',
-            urutan : '',
-            status : false
-          },
-        ]
+    async initialize () {
+
+    try {
+        const response = await axios.get(`http://localhost:3000/api/getkotadata/${this.dataFromToken.id_user}`)
+        this.kota = response.data.data[0]
+        const id_kota = response.data.data[0].id_KoTA
+
+        const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +id_kota)
+        this.laporan = responseListLaporan.data.data
+        this.convertDateDisetujui()
+        this.convertDateDisidangkan()
+        
+
+        console.log(this.kota)
+
+      } catch (error) {
+        console.error(error.message);
+      }
+      this.Laporan = [
+        {
+          ID_laporan: 'Laporan_402_v1',
+          tanggal_dibuat: '2023-05-04',
+          dokumen : 'LaporanTA.pdf'
+        },
+        {
+          ID_laporan: 'Laporan_402_Final',
+          tanggal_dibuat: '2023-05-05',
+          dokumen : 'LaporanTA.pdf'
+        },
+      ],
+      this.Pengampu = [
+        {
+          dosen: 'Aprianti Nanda Sari, S.T., M.Kom.',
+          peran: 'Pembimbing',
+          urutan : 1,
+          status : true
+        },
+        {
+          dosen: 'Ghifari Munawar, S.Kom., M.T',
+          peran: 'Pembimbing',
+          urutan : 2,
+          status : true
+        },
+        {
+          dosen: 'Yadhi Adhitia P., S.T.',
+          peran: 'Ketua Jurusan',
+          urutan : '',
+          status : false
+        },
+      ]
+    },
+
+    convertDateDisetujui() {
+      const date = new Date(this.laporan.tgl_disetujui);
+      const year = date.toISOString().substring(0, 4);
+      const month = date.toISOString().substring(5, 7);
+      const day = date.toISOString().substring(8, 10);
+      this.laporan.tgl_disetujui = year + '-' + month + '-' + day;
+     
+    },
+    convertDateDisidangkan() {
+      const date = new Date(this.laporan.tgl_disidangkan);
+      const year = date.toISOString().substring(0, 4);
+      const month = date.toISOString().substring(5, 7);
+      const day = date.toISOString().substring(8, 10);
+      this.laporan.tgl_disidangkan = year + '-' + month + '-' + day;
+      console.log(this.laporan.tgl_disetujui)
     },
     redirectToDetail(ID_laporan) {
       this.$router.push(`/KoTA/dokumen_detail/${ID_laporan}`);
