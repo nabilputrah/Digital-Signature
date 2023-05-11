@@ -308,6 +308,7 @@ export default {
   data() {
     return {
       id_laporan:'',
+      id_user:'',
       statusAddKota: false,
       statusDeleteKota: false,
       
@@ -504,6 +505,7 @@ export default {
       
         console.log(response.data.data)
         this.id_laporan = response.data.id_laporan
+        this.id_user = response.data.id_user
         this.statusDeleteKota = true
       })
       .catch(error => {
@@ -521,10 +523,11 @@ export default {
       
       await axios({
         method:'post',
-        url: 'http://localhost:3000/api/signupuser/kota',
+        url: 'http://localhost:3000/api/KoTA',
         data: {
-          username: generatedIdKota,
-          nama_KoTA: namaKota,
+          id_KoTA: generatedIdKota,
+          id_user: this.id_user,
+          nama_KoTA:namaKota,
           tahun_ajaran: tahunAjaran,
           id_prodi: 'PRD001',
           jumlah_pembimbing: this.formPembimbing.length,

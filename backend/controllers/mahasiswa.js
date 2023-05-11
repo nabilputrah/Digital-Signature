@@ -5,7 +5,7 @@ const fs = require('fs');
 
 module.exports = {
   async getAllMahasiswaByKoTA(req, res) {
-    const { id } = req.params
+    const {id} = req.params
     try {
         const mahasiswa = await Mahasiswa.findAll({
             where:{

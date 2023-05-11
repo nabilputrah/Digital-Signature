@@ -13,7 +13,7 @@
               v-bind="attrs"
               v-on="on"
               >
-              KoTA-402</span>
+              KoTA-{{ loggedIn.nama_KoTA }}  {{ loggedIn.tahun_ajaran }}</span>
             </template>
             <v-list >
               <v-list-item
@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import axios from 'axios'
   export default {
     data: () => ({
       items: [
@@ -45,8 +46,36 @@
         { title: 'Keluar' , link:'/login'},
         
       ],
-      status_navbar:false,
+       status_navbar:false,
+      loggedIn:'',
+      navbar:''
+      
     }),
+
+    mounted() {
+      const token = localStorage.getItem('token');
+        if (token) {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          this.navbar= payload.user;
+          // console.log(this.navbar)
+        }
+
+        this.initializeNavbarLoggedIn()
+
+    },
+    methods:{
+      async initializeNavbarLoggedIn (){
+        
+        try {
+          const response = await axios.get(`http://localhost:3000/api/getkotadata/${this.navbar.id_user}`,);
+          this.loggedIn = response.data.data[0]
+          // console.log(this.loggedIn)
+         
+        } catch (error) {
+          console.error(error.message);
+        }
+      }
+    },
   }
 </script>
 
