@@ -91,59 +91,63 @@
             </v-row>
             <!-- End Form Anggota -->
             <!-- Start Form Password -->
-            <v-row>
-              <v-col cols="4">
-                <div class="justify-center">
-                  <span 
-                  style="font-size:1rem;"
-                  >Password</span>
-                  <v-text-field__details></v-text-field__details>
-                </div>
-              </v-col>
-              <v-col cols="8" v-if="!passwordFieldsVisible">
-                <v-text-field 
-                v-model="password"
-                :type="'password'"
-                placeholder="Password"
-                dense
-                outlined
-                disabled
-                ></v-text-field>
-              </v-col>
-              <v-col v-if="passwordFieldsVisible">
-                <v-text-field 
-                v-model="currentPassword" 
-                @click:append="showPassword = !showPassword"
-                placeholder="Current Password"
-                dense
-                outlined
-                :type="showPassword ? 'text' : 'password'" 
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                ></v-text-field>
-              </v-col>  
-              <v-col v-if="passwordFieldsVisible">
-                <v-text-field 
-                v-model="newPassword" 
-                @click:append="showPassword = !showPassword"
-                placeholder="New Password"
-                dense
-                outlined
-                :type="showPassword ? 'text' : 'password'" 
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                ></v-text-field>
-              </v-col>  
-              <v-col v-if="passwordFieldsVisible">
-                <v-text-field 
-                v-model="confirmNewPassword" 
-                @click:append="showPassword = !showPassword"
-                placeholder="Confirm New Password"
-                dense
-                outlined
-                :type="showPassword ? 'text' : 'password'" 
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                ></v-text-field>
-              </v-col>
-            </v-row>
+            <v-form ref="form" v-model="validasiFormPass">
+              <v-row>
+                <v-col cols="4">
+                  <div class="justify-center">
+                    <span 
+                    style="font-size:1rem;"
+                    >Password</span>
+                    <v-text-field__details></v-text-field__details>
+                  </div>
+                </v-col>
+                <v-col cols="8" v-if="!passwordFieldsVisible">
+                  <v-text-field 
+                  v-model="password"
+                  :type="'password'"
+                  placeholder="Password"
+                  dense
+                  outlined
+                  disabled
+                  ></v-text-field>
+                </v-col>
+                <v-col v-if="passwordFieldsVisible">
+                  <v-text-field 
+                  v-model="currentPassword" 
+                  @click:append="showPassword = !showPassword"
+                  placeholder="Current Password"
+                  :rules = rules
+                  dense
+                  outlined
+                  :type="showPassword ? 'text' : 'password'" 
+                  :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  ></v-text-field>
+                </v-col>  
+                <v-col v-if="passwordFieldsVisible">
+                  <v-text-field 
+                  v-model="newPassword" 
+                  @click:append="showPassword = !showPassword"
+                  placeholder="New Password"
+                  :rules = rules
+                  dense
+                  outlined
+                  :type="showPassword ? 'text' : 'password'" 
+                  :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  ></v-text-field>
+                </v-col>  
+                <v-col v-if="passwordFieldsVisible">
+                  <v-text-field 
+                  v-model="confirmNewPassword" 
+                  @click:append="showPassword = !showPassword"
+                  placeholder="Confirm New Password"
+                  dense
+                  outlined
+                  :type="showPassword ? 'text' : 'password'" 
+                  :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-form>
             <!-- End Form Password -->
             <!-- Start Button Change Password -->
             <v-row v-if="!passwordFieldsVisible">
@@ -155,7 +159,11 @@
             <!-- Start Button Simpan Passwornd Baru -->
             <v-row v-if="passwordFieldsVisible">
               <v-col class="text-right" >
-                <v-btn color="primary" @click="changePassword" style="margin-right: 1%;">Update password</v-btn>
+                <v-btn color="primary" 
+                  @click="changePassword" 
+                  style="margin-right: 1%;"
+                  :disabled="!validasiFormPass"
+                  >Update password</v-btn>
                 <v-btn color="primary" @click="togglePasswordFields">Cancel</v-btn>
               </v-col>
             </v-row>
@@ -192,6 +200,7 @@ export default {
   data() {
     return {
 
+      validasiFormPass: false,
       dataFromToken: '',
       kota: '',
       // Data Form Nama
@@ -266,26 +275,64 @@ export default {
       this.showPassword = false
     },
     changePassword() {
-      if (this.currentPassword !== this.password) {
-        this.snackbar.show = true;
-        this.snackbar.color = "error";
-        this.snackbar.message = "Current password is incorrect!";
-        // alert('Current password is incorrect!');
-        return;
-      }
-      if (this.newPassword !== this.confirmNewPassword) {
-        this.snackbar.show = true;
-        this.snackbar.color = "error";
-        this.snackbar.message = "New password and confirm password do not match!";
-        // alert('New password and confirm password do not match!');
-        return;
-      }
-      this.password = this.newPassword;
-      this.snackbar.show = true;
-      this.snackbar.color = "primary";
-      this.snackbar.message = "Password baru berhasil disimpan!";
-      // alert('Password has been changed!');
-      this.togglePasswordFields();
+      axios({
+          method:'post',
+          url: 'http://localhost:3000/api/checkCurrentPassword/',
+          data: {
+           username: this.kota.id_KoTA,
+           password: this.currentPassword
+          }
+        })
+        .then(response => {
+        
+          console.log(response.data)
+          
+        })
+        .catch(error => {
+          
+          
+          if (this.currentPassword !== this.password) {
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Current password is incorrect!";
+            console.log(error.request.response)
+          return;
+        }
+        })
+
+     
+        if (this.newPassword !== this.confirmNewPassword) {
+          // alert('New password and confirm password do not match!');
+          this.snackbar.show = true;
+          this.snackbar.color = "error";
+          this.snackbar.message = "New password and confirm password do not match!";
+          return;
+        }
+      
+      // change password in db
+      axios({
+          method:'put',
+          url: 'http://localhost:3000/api/user/change-password/'+ this.kota.id_user,
+          data: {
+           currentPassword: this.currentPassword,
+           newPassword: this.newPassword
+          }
+        })
+        .then(response => {
+        
+          console.log(response.data)
+          // alert('Password has been changed!');
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Password baru berhasil disimpan!";
+          this.currentPassword = ''
+          this.newPassword = ''
+          this.confirmNewPassword = ''
+          this.togglePasswordFields();
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
     }
   },
 }

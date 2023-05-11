@@ -386,14 +386,6 @@ export default {
       };
     },
 
-    uniquePengujiPembimbingRule(index){
-      return v => {
-        if (!v) return 'Penguji wajib diisi';
-        const duplicate = this.formPenguji.filter((anggota, i) => i !== index && anggota.selectedItem === v);
-        return duplicate.length === 0 || 'Tidak boleh memilih Dosen sebagai Pembimbing dan Penguji';
-      };
-    },
-
     uniqueDosenRule(index, pengampu) {
       return v => {
         // Cari duplicate dalam pengampu yang sama

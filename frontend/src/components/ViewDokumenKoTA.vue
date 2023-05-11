@@ -41,7 +41,9 @@
 
                 <vue-editor
                 v-model="laporan.judul_TA"
+                :rules="rules"
                 :editorToolbar="customToolbar"
+                placeholder="Judul Tugas Akhir"
                 ></vue-editor>
   
               </v-col>
@@ -58,13 +60,12 @@
                 </div>
               </v-col>
               <v-col cols="8" >
-                <v-menu
+                <v-dialog
+                  ref="dialog"
                   v-model="menu_disetujui"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
+                  :return-value.sync="date"
+                  persistent
+                  width="290px"
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
@@ -72,18 +73,35 @@
                       placeholder="Tanggal Disetujui"
                       dense
                       outlined
+                      :rules = "rules"
+                      clearable
                       readonly
                       append-icon="mdi-calendar"
                       v-bind="attrs"
                       v-on="on"
-                    >
-                  </v-text-field>
+                    ></v-text-field>
                   </template>
                   <v-date-picker
                     v-model="laporan.tgl_disetujui"
-                    @input="menu_disetujui = false"
-                  ></v-date-picker>
-                </v-menu>
+                    scrollable
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="menu_disetujui = false"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="menu_disetujui = false"
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-dialog>
               </v-col>
             </v-row>
             <!-- End Form Tanggal Disetujui -->
@@ -98,13 +116,12 @@
                 </div>
               </v-col>
               <v-col cols="8" >
-                <v-menu
+                <v-dialog
+                  ref="dialog"
                   v-model="menu_disidangkan"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
+                  :return-value.sync="date"
+                  persistent
+                  width="290px"
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
@@ -112,18 +129,35 @@
                       placeholder="Tanggal Disidangkan"
                       dense
                       outlined
+                      :rules = "rules"
+                      clearable
                       readonly
                       append-icon="mdi-calendar"
                       v-bind="attrs"
                       v-on="on"
-                    >
-                  </v-text-field>
+                    ></v-text-field>
                   </template>
                   <v-date-picker
                     v-model="laporan.tgl_disidangkan"
-                    @input="menu_disidangkan = false"
-                  ></v-date-picker>
-                </v-menu>
+                    scrollable
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="menu_disidangkan = false"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="menu_disidangkan = false"
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-dialog>
               </v-col>
             </v-row>
             <!-- End Form Tanggal Disidangkan -->

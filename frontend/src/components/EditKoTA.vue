@@ -26,7 +26,7 @@
       :disabled="false"
       style="color: #1a5f7a;"
       >
-        <span style="cursor: pointer;" >Detail KoTA</span>
+        <span @click="BackToDetail()" style="cursor: pointer;" >Detail KoTA</span>
       </v-breadcrumbs-item>
       <v-breadcrumbs-item 
       :disabled="true">
@@ -45,7 +45,7 @@
     class="custom-card"
     >
       <div style="width: 97%;margin-left: auto;margin-right: auto;">
-        <v-card-title>Detail Data KoTA</v-card-title>
+        <v-card-title>Sunting Data KoTA</v-card-title>
         <v-card-text >
           <v-form ref="form" v-model="valid">
             <!-- Start Form -->
@@ -170,7 +170,7 @@
                         <v-select
                           v-model="item.selectedItem"
                           :items="filteredPembimbing(index)"
-                          :rules="[uniquePembimbingRule(index)]"
+                          :rules="[uniquePembimbingRule(index), uniqueDosenRule(index, 1)]"
                           clearable
                           outlined
                           dense
@@ -222,7 +222,7 @@
                         <v-select
                           v-model="item.selectedItem"
                           :items="filteredPenguji(index)"
-                          :rules="[uniquePengujiRule(index)]"
+                          :rules="[uniquePengujiRule(index), uniqueDosenRule(index, 2)]"
                           clearable
                           outlined
                           dense
@@ -256,7 +256,7 @@
                 <v-btn 
                   style="margin-right: 1%;"
                   color="primary" 
-                  @click="BackToDetail(ID_KoTA)"
+                  @click="BackToDetail()"
                   >Cancel
                 </v-btn>
                 <v-btn 
@@ -289,7 +289,7 @@
           <v-btn
             color="primary"
             text
-            @click="BackToDetail(ID_KoTA)"
+            @click="BackToDetail()"
           >
             Kembali
           </v-btn>
@@ -894,6 +894,20 @@ export default {
         if (!v) return 'Pembimbing wajib diisi';
         const duplicate = this.formPembimbing.filter((anggota, i) => i !== index && anggota.selectedItem === v);
         return duplicate.length === 0 || 'Tidak boleh memilih Pembimbing yang sama';
+      };
+    },
+
+    uniqueDosenRule(index, pengampu) {
+      return v => {
+        // Cari duplicate dalam pengampu yang sama
+        const kelompokAnggota = pengampu === 1 ? this.formPembimbing : this.formPenguji;
+        const duplicate = kelompokAnggota.filter((anggota, i) => i !== index && anggota.selectedItem === v);
+
+        // Cari duplicate dalam pengampu yang berbeda
+        const otherKelompokAnggota = pengampu === 1 ? this.formPenguji : this.formPembimbing;
+        const otherDuplicate = otherKelompokAnggota.filter(anggota => anggota.selectedItem === v);
+
+        return duplicate.length === 0 && otherDuplicate.length === 0 || 'Tidak boleh memilih Dosen sebagai Pembimbing dan Penguji';
       };
     },
 
