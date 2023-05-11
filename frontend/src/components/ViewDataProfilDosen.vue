@@ -91,59 +91,63 @@
             </v-row>
             <!-- End Button Simpan Perubahan -->
             <!-- Start Form Password -->
-            <v-row>
-              <v-col cols="4">
-                <div class="justify-center">
-                  <span 
-                  style="font-size:1rem;"
-                  >Password</span>
-                  <v-text-field__details></v-text-field__details>
-                </div>
-              </v-col>
-              <v-col cols="8" v-if="!passwordFieldsVisible">
-                <v-text-field 
-                v-model="dosen.nama"
-                :type="'password'"
-                placeholder="Password"
-                dense
-                outlined
-                disabled
-                ></v-text-field>
-              </v-col>
-              <v-col v-if="passwordFieldsVisible">
-                <v-text-field 
-                v-model="currentPassword" 
-                @click:append="showPassword = !showPassword"
-                placeholder="Current Password"
-                dense
-                outlined
-                :type="showPassword ? 'text' : 'password'" 
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                ></v-text-field>
-              </v-col>  
-              <v-col v-if="passwordFieldsVisible">
-                <v-text-field 
-                v-model="newPassword" 
-                @click:append="showPassword = !showPassword"
-                placeholder="New Password"
-                dense
-                outlined
-                :type="showPassword ? 'text' : 'password'" 
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                ></v-text-field>
-              </v-col>  
-              <v-col v-if="passwordFieldsVisible">
-                <v-text-field 
-                v-model="confirmNewPassword" 
-                @click:append="showPassword = !showPassword"
-                placeholder="Confirm New Password"
-                dense
-                outlined
-                :type="showPassword ? 'text' : 'password'" 
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                ></v-text-field>
-              </v-col>
-            </v-row>
+            <v-form ref="form" v-model="validasiFormPass">
+              <v-row>
+                <v-col cols="4">
+                  <div class="justify-center">
+                    <span 
+                    style="font-size:1rem;"
+                    >Password</span>
+                    <v-text-field__details></v-text-field__details>
+                  </div>
+                </v-col>
+                <v-col cols="8" v-if="!passwordFieldsVisible">
+                  <v-text-field 
+                  v-model="dosen.nama"
+                  :type="'password'"
+                  placeholder="Password"
+                  dense
+                  outlined
+                  disabled
+                  ></v-text-field>
+                </v-col>
+                <v-col v-if="passwordFieldsVisible">
+                  <v-text-field 
+                  v-model="currentPassword" 
+                  @click:append="showPassword = !showPassword"
+                  placeholder="Current Password"
+                  :rules = rules
+                  dense
+                  outlined
+                  :type="showPassword ? 'text' : 'password'" 
+                  :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  ></v-text-field>
+                </v-col>  
+                <v-col v-if="passwordFieldsVisible">
+                  <v-text-field 
+                  v-model="newPassword" 
+                  @click:append="showPassword = !showPassword"
+                  placeholder="New Password"
+                  :rules = rules
+                  dense
+                  outlined
+                  :type="showPassword ? 'text' : 'password'" 
+                  :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  ></v-text-field>
+                </v-col>  
+                <v-col v-if="passwordFieldsVisible">
+                  <v-text-field 
+                  v-model="confirmNewPassword" 
+                  @click:append="showPassword = !showPassword"
+                  placeholder="Confirm New Password"
+                  dense
+                  outlined
+                  :type="showPassword ? 'text' : 'password'" 
+                  :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-form>
             <!-- End Form Password -->
             <!-- Start Button Change Password -->
             <v-row v-if="!passwordFieldsVisible">
@@ -155,7 +159,11 @@
             <!-- Start Button Simpan Passwornd Baru -->
             <v-row v-if="passwordFieldsVisible">
               <v-col class="text-right" >
-                <v-btn color="primary" @click="changePassword" style="margin-right: 1%;">Update password</v-btn>
+                <v-btn color="primary" 
+                  @click="changePassword" 
+                  style="margin-right: 1%;"
+                  :disabled="!validasiFormPass"
+                  >Update password</v-btn>
                 <v-btn color="primary" @click="togglePasswordFields">Cancel</v-btn>
               </v-col>
             </v-row>
@@ -192,6 +200,7 @@ export default {
   data() {
     return {
 
+      validasiFormPass: false,
       dataFromToken: '',
       dosen:'',
       // // Data Form Nama
