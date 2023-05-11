@@ -170,7 +170,7 @@
                         <v-select
                           v-model="item.selectedItem"
                           :items="filteredPembimbing(index)"
-                          :rules="[uniquePembimbingRule(index)]"
+                          :rules="[uniquePembimbingRule(index), uniqueDosenRule(index, 1)]"
                           clearable
                           outlined
                           dense
@@ -222,7 +222,7 @@
                         <v-select
                           v-model="item.selectedItem"
                           :items="filteredPenguji(index)"
-                          :rules="[uniquePengujiRule(index)]"
+                          :rules="[uniquePengujiRule(index), uniqueDosenRule(index, 2)]"
                           clearable
                           outlined
                           dense
@@ -894,6 +894,20 @@ export default {
         if (!v) return 'Pembimbing wajib diisi';
         const duplicate = this.formPembimbing.filter((anggota, i) => i !== index && anggota.selectedItem === v);
         return duplicate.length === 0 || 'Tidak boleh memilih Pembimbing yang sama';
+      };
+    },
+
+    uniqueDosenRule(index, pengampu) {
+      return v => {
+        // Cari duplicate dalam pengampu yang sama
+        const kelompokAnggota = pengampu === 1 ? this.formPembimbing : this.formPenguji;
+        const duplicate = kelompokAnggota.filter((anggota, i) => i !== index && anggota.selectedItem === v);
+
+        // Cari duplicate dalam pengampu yang berbeda
+        const otherKelompokAnggota = pengampu === 1 ? this.formPenguji : this.formPembimbing;
+        const otherDuplicate = otherKelompokAnggota.filter(anggota => anggota.selectedItem === v);
+
+        return duplicate.length === 0 && otherDuplicate.length === 0 || 'Tidak boleh memilih Dosen sebagai Pembimbing dan Penguji';
       };
     },
 
