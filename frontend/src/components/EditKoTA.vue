@@ -26,7 +26,7 @@
       :disabled="false"
       style="color: #1a5f7a;"
       >
-        <span style="cursor: pointer;" >Detail KoTA</span>
+        <span @click="BackToDetail()" style="cursor: pointer;" >Detail KoTA</span>
       </v-breadcrumbs-item>
       <v-breadcrumbs-item 
       :disabled="true">
@@ -45,7 +45,7 @@
     class="custom-card"
     >
       <div style="width: 97%;margin-left: auto;margin-right: auto;">
-        <v-card-title>Detail Data KoTA</v-card-title>
+        <v-card-title>Sunting Data KoTA</v-card-title>
         <v-card-text >
           <v-form ref="form" v-model="valid">
             <!-- Start Form -->
@@ -256,7 +256,7 @@
                 <v-btn 
                   style="margin-right: 1%;"
                   color="primary" 
-                  @click="BackToDetail(ID_KoTA)"
+                  @click="BackToDetail()"
                   >Cancel
                 </v-btn>
                 <v-btn 
@@ -289,7 +289,7 @@
           <v-btn
             color="primary"
             text
-            @click="BackToDetail(ID_KoTA)"
+            @click="BackToDetail()"
           >
             Kembali
           </v-btn>
