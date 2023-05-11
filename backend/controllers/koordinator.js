@@ -153,7 +153,7 @@ module.exports = {
 
       await Koordinator.destroy({
         where: {
-          id_koordinator:id
+          id_koor:id
         }
       })
    

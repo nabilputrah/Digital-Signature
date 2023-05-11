@@ -66,25 +66,28 @@
                   <span class="text-h5">{{ formTitle }}</span>
                 </v-card-title>
 
-                <v-card-text>
-                  <v-container>
+                <v-card-text >
+                  <v-form ref="form" v-model="valid">
+                  <v-container >
                     <v-text-field
                       v-model="editedItem.NIM"
-                      :rules="rules"
+                      :rules="rules.nim"
                       label="NIM"
+                      
                       :disabled="editedIndex > -1"
                     ></v-text-field>
                     <v-text-field
                       v-model="editedItem.nama"
-                      :rules="rules"
+                      :rules="rules.nama"
                       label="Nama"
                     ></v-text-field>
                     <v-text-field
                       v-model="editedItem.email"
-                      :rules="rules"
+                      :rules="rules.email"
                       label="Email"
                     ></v-text-field>
                   </v-container>
+                  </v-form>
                 </v-card-text>
 
                 <v-card-actions>
@@ -100,6 +103,7 @@
                     color="#1a5f7a"
                     text
                     @click="save()"
+                    :disabled="!valid"
                   >
                     Save
                   </v-btn>
@@ -238,10 +242,27 @@ import axios from 'axios'
         { text: 'KoTA', value: 'id_KoTA' },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
-      rules: [
-        value => !!value || 'Required.',
-        // value => (value && value.length >= 3) || 'Min 3 characters',
-      ],
+
+      // Data validasi Input
+      valid: false,
+      rules: {
+        nim: [
+          v => !!v || "NIM wajib diisi",
+          v => (v && v.length >= 9) || "NIM minimal 9 huruf",
+          v => (v && v.length <= 9) || "NIM Maksimal 9 huruf"
+        ],
+        nama: [
+          v => !!v || "Nama wajib diisi",
+        ],
+        email: [
+          v => !!v || "Email wajib diisi",
+          v =>
+            /.+@.+\..+/.test(v) ||
+            "Format email tidak valid"
+        ]
+      },
+      MessageError :'',
+
       mahasiswa: [],
       editedIndex: -1,
       editedItem: {
@@ -358,11 +379,20 @@ import axios from 'axios'
           .then(response => {
           
             console.log(response.data)
+            this.snackbar.show = true;
+            this.snackbar.color = "primary";
+            this.snackbar.message = "Data mahasiswa berhasil diubah!";
             this.initialize()
     
           })
           .catch(error => {
               console.log(error.request.response)
+              this.MessageError = error.request.response
+              if (this.MessageError.includes('email')){
+                this.snackbar.show = true;
+                this.snackbar.color = "error";
+                this.snackbar.message = "Email Sudah Terdaftar!!!";
+              }
           })
         } else {
 
@@ -388,7 +418,18 @@ import axios from 'axios'
     
           })
           .catch(error => {
-              console.log(error.request.response)
+            console.log(error.request.response)
+            this.MessageError = error.request.response
+            if (this.MessageError.includes('email')){
+              this.snackbar.show = true;
+              this.snackbar.color = "error";
+              this.snackbar.message = "Email Sudah Terdaftar!!!";
+            }
+            if (this.MessageError.includes('NIM')){
+              this.snackbar.show = true;
+              this.snackbar.color = "error";
+              this.snackbar.message = "NIM Sudah Terdaftar!!!";
+            }
           })
         }
         this.close()

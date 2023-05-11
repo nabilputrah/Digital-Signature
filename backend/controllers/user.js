@@ -1,7 +1,7 @@
 const User = require('../models').User;
 const Dosen = require('../models').Dosen;
 const KoTA = require('../models').KoTA;
-// const Laporan = require('../models').KoTA;
+const Koordinator = require('../models').Koordinator;
 const { Op } = require("sequelize");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -121,6 +121,61 @@ module.exports = {
       return res.status(200).send({
         message: 'add dosen with user success',
         data: dosen
+      })
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
+
+  async signUpUserKoorD4(req, res) {
+    const { username, nama, tahun_ajaran} = req.body
+    const password = tahun_ajaran.substring(0, 4) + username + tahun_ajaran.substring(tahun_ajaran.length - 4)
+    const hashPassword = await bcrypt.hash(password, 10)
+
+    const optionsUser = {
+      fields: ['username', 'password', 'role'],
+      returning: false
+    }
+
+    try {
+      // insert user 
+      await User.create({
+        username: username,
+        password: hashPassword,
+        role: 'Koordinator'
+      }, optionsUser)
+
+      // select id_user from table user
+
+      const user = await User.findOne({
+        where: {
+          username: username
+        },
+        attributes: {
+          exclude: ['id','createdAt','updatedAt']
+        }
+      })
+
+      // insert data Koor 
+
+      const optionsKoor = {
+        fields:['id_koor', 'id_user', 'id_prodi', 'nama_koordinator', 'tahun_ajaran'],
+        returning: true
+      }
+
+      const koordinator = await Koordinator.create({
+        id_koor: username,
+        id_user: user.id_user,
+        id_prodi: 'PRD001',
+        nama_koordinator: nama,
+        tahun_ajaran: tahun_ajaran
+      }, optionsKoor)
+
+      return res.status(200).send({
+        message: 'add koordinator d4 with user success',
+        data: koordinator
       })
     } catch (error) {
       return res.status(400).send({
@@ -287,7 +342,7 @@ module.exports = {
     const { id } = req.params
 
     try {
-      const selectQuery = `SELECT u."id_user", k."nama_koordinator", k."tahun_ajaran", p."nama_prodi"
+      const selectQuery = `SELECT u."id_user", k."nama_koordinator", k."id_koor", k."tahun_ajaran", p."nama_prodi", p."id_prodi"
                            FROM "User" as u
                            JOIN "Koordinator" as k 
                               ON k."id_user" = u."id_user"

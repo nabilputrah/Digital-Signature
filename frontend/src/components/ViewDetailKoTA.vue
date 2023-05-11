@@ -35,7 +35,7 @@
     class="custom-card"
     >
       <div style="width: 97%;margin-left: auto;margin-right: auto;">
-        <v-card-title>Edit Data Tahun Ajaran</v-card-title>
+        <v-card-title>Detail Data KoTA</v-card-title>
         <v-card-text >
           <v-form>
             <!-- Start Form -->

@@ -26,7 +26,7 @@
     class="custom-card"
     >
       <div style="width: 97%;margin-left: auto;margin-right: auto;">
-        <v-card-title>Edit Data Tahun Ajaran</v-card-title>
+        <v-card-title>Profil Koordinator</v-card-title>
         <v-card-text >
           <v-form>
             <!-- Start Form Nama Koordinator -->
@@ -41,7 +41,7 @@
               </v-col>
               <v-col cols="8" >
                 <v-text-field 
-                v-model="name"
+                v-model="koordinator.nama_koordinator"
                 :rules="rules"
                 placeholder="Nama Koordinator"
                 dense
@@ -62,7 +62,7 @@
               </v-col>
               <v-col>
                 <v-select
-                  v-model="tahunAjaran"
+                  v-model="koordinator.tahun_ajaran"
                   :items="listTahunAjaran"
                   item-text="tahunAjaran"
                   item-value="tahunAjaran"
@@ -82,59 +82,64 @@
             </v-row>
             <!-- End Button Simpan Perubahan -->
             <!-- Start Form Password -->
-            <v-row>
-              <v-col cols="4">
-                <div class="justify-center">
-                  <span 
-                  style="font-size:1rem;"
-                  >Password</span>
-                  <v-text-field__details></v-text-field__details>
-                </div>
-              </v-col>
-              <v-col cols="8" v-if="!passwordFieldsVisible">
-                <v-text-field 
-                v-model="password"
-                :type="'password'"
-                placeholder="Password"
-                dense
-                outlined
-                disabled
-                ></v-text-field>
-              </v-col>
-              <v-col v-if="passwordFieldsVisible">
-                <v-text-field 
-                v-model="currentPassword" 
-                @click:append="showPassword = !showPassword"
-                placeholder="Current Password"
-                dense
-                outlined
-                :type="showPassword ? 'text' : 'password'" 
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                ></v-text-field>
-              </v-col>  
-              <v-col v-if="passwordFieldsVisible">
-                <v-text-field 
-                v-model="newPassword" 
-                @click:append="showPassword = !showPassword"
-                placeholder="New Password"
-                dense
-                outlined
-                :type="showPassword ? 'text' : 'password'" 
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                ></v-text-field>
-              </v-col>  
-              <v-col v-if="passwordFieldsVisible">
-                <v-text-field 
-                v-model="confirmNewPassword" 
-                @click:append="showPassword = !showPassword"
-                placeholder="Confirm New Password"
-                dense
-                outlined
-                :type="showPassword ? 'text' : 'password'" 
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                ></v-text-field>
-              </v-col>
-            </v-row>
+            <v-form ref="form" v-model="validasiFormPass">
+              <v-row>
+                <v-col cols="4">
+                  <div class="justify-center">
+                    <span 
+                    style="font-size:1rem;"
+                    >Password</span>
+                    <v-text-field__details></v-text-field__details>
+                  </div>
+                </v-col>
+                <v-col cols="8" v-if="!passwordFieldsVisible">
+                  <v-text-field 
+                  v-model="password"
+                  :type="'password'"
+                  placeholder="Password"
+                  dense
+                  outlined
+                  disabled
+                  ></v-text-field>
+                </v-col>
+                  <v-col v-if="passwordFieldsVisible">
+                    <v-text-field 
+                    v-model="currentPassword" 
+                    @click:append="showPassword = !showPassword"
+                    placeholder="Current Password"
+                    :rules = rules
+                    dense
+                    outlined
+                    :type="showPassword ? 'text' : 'password'" 
+                    :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                    ></v-text-field>
+                  </v-col>  
+                  <v-col v-if="passwordFieldsVisible">
+                    <v-text-field 
+                    v-model="newPassword" 
+                    @click:append="showPassword = !showPassword"
+                    placeholder="New Password"
+                    :rules = rules
+                    dense
+                    outlined
+                    :type="showPassword ? 'text' : 'password'" 
+                    :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                    ></v-text-field>
+                  </v-col>  
+                  <v-col v-if="passwordFieldsVisible">
+                    <v-text-field 
+                    v-model="confirmNewPassword" 
+                    @click:append="showPassword = !showPassword"
+                    placeholder="Confirm New Password"
+                    dense
+                    outlined
+                    :type="showPassword ? 'text' : 'password'" 
+                    :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                    ></v-text-field>
+                  </v-col>
+              </v-row>
+          </v-form>
+
             <!-- End Form Password -->
             <!-- Start Button Change Password -->
             <v-row v-if="!passwordFieldsVisible">
@@ -146,7 +151,12 @@
             <!-- Start Button Simpan Passwornd Baru -->
             <v-row v-if="passwordFieldsVisible">
               <v-col class="text-right" >
-                <v-btn color="primary" @click="changePassword" style="margin-right: 1%;">Update password</v-btn>
+                <v-btn 
+                  color="primary" 
+                  @click="changePassword" 
+                  style="margin-right: 1%;"
+                  :disabled="!validasiFormPass"
+                  >Update password</v-btn>
                 <v-btn color="primary" @click="togglePasswordFields">Cancel</v-btn>
               </v-col>
             </v-row>
@@ -178,11 +188,15 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   data() {
     return {
+      validasiFormPass: false,
+      dataFromToken: '',
+      koordinator:'',
       // Data Form Nama
-      name : "Djoko Cahyo Utomo Lieharyani",
+      // name : "Djoko Cahyo Utomo Lieharyani",
       rules: [
         value => !!value || 'Required.',
         // value => (value && value.length >= 3) || 'Min 3 characters',
@@ -209,17 +223,57 @@ export default {
     }
   },
   mounted() {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      this.dataFromToken= payload.user;
+    }
+
+    this.initialize()
+    
     this.generateListTahunAjaran();
   },
 
   methods: {
-    save() {
-      this.snackbar.show = true;
-      this.snackbar.color = "primary";
-      this.snackbar.message = "Data profil berhasil diperbarui!";
-      // your save implementation here
+    async save() {
+      axios({
+          method:'put',
+          url: 'http://localhost:3000/api/koordinator/'+ this.koordinator.id_koor,
+          data: {
+            id_koor: this.koordinator.id_koor,
+            id_user: this.koordinator.id_user,
+            id_prodi: this.koordinator.id_prodi,
+            nama_koordinator: this.koordinator.nama_koordinator,
+            tahun_ajaran: this.koordinator.tahun_ajaran,
+          }
+        })
+        .then(response => {
+        
+          console.log(response.data)
+          window.location.reload()
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Data profil berhasil diperbarui!";
+  
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
     },
-
+    
+    async initialize() {      
+      try {
+          const token = localStorage.getItem('token'); 
+          const headers = { Authorization: `Bearer ${token}` };
+          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.dataFromToken.id_user}`, { headers });
+          this.koordinator = response.data.data[0]
+          console.log(this.koordinator)
+        } catch (error) {
+          console.error(error.message);
+        }
+    },
+    
     generateListTahunAjaran() {
       const currentYear = new Date().getFullYear();
       const list = [];
@@ -244,26 +298,63 @@ export default {
       this.showPassword = false
     },
     changePassword() {
-      if (this.currentPassword !== this.password) {
-        this.snackbar.show = true;
-        this.snackbar.color = "error";
-        this.snackbar.message = "Current password is incorrect!";
-        // alert('Current password is incorrect!');
-        return;
-      }
-      if (this.newPassword !== this.confirmNewPassword) {
-        this.snackbar.show = true;
-        this.snackbar.color = "error";
-        this.snackbar.message = "New password and confirm password do not match!";
-        // alert('New password and confirm password do not match!');
-        return;
-      }
-      this.password = this.newPassword;
-      this.snackbar.show = true;
-      this.snackbar.color = "primary";
-      this.snackbar.message = "Password baru berhasil disimpan!";
-      // alert('Password has been changed!');
-      this.togglePasswordFields();
+      axios({
+          method:'post',
+          url: 'http://localhost:3000/api/checkCurrentPassword/',
+          data: {
+           username: this.koordinator.id_koor,
+           password: this.currentPassword
+          }
+        })
+        .then(response => {
+        
+          console.log(response.data)
+          
+        })
+        .catch(error => {
+          
+          
+          if (this.currentPassword !== this.password) {
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Current password is incorrect!";
+            console.log(error.request.response)
+          return;
+        }
+        })
+
+     
+        if (this.newPassword !== this.confirmNewPassword) {
+          // alert('New password and confirm password do not match!');
+          this.snackbar.show = true;
+          this.snackbar.color = "error";
+          this.snackbar.message = "New password and confirm password do not match!";
+          return;
+        }
+      // change password in db
+      axios({
+          method:'put',
+          url: 'http://localhost:3000/api/user/change-password/'+ this.koordinator.id_user,
+          data: {
+           currentPassword: this.currentPassword,
+           newPassword: this.newPassword
+          }
+        })
+        .then(response => {
+        
+          console.log(response.data)
+          // alert('Password has been changed!');
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Password baru berhasil disimpan!";
+          this.currentPassword = ''
+          this.newPassword = ''
+          this.confirmNewPassword = ''
+          this.togglePasswordFields();
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
     }
   },
 }

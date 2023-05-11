@@ -85,6 +85,7 @@ const checkAuthKoTA = (to, from, next) => {
 };
 
 const routes = [
+
   {
     path: '/',
     name: 'home',

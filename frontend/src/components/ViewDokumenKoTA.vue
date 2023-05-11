@@ -303,6 +303,74 @@
       </v-data-table>
     </v-card>
     <!-- End Datatables -->
+
+    <!-- Start Card Upload Dokumen -->
+    <v-dialog
+    v-model="validasiDokumen"
+    class="text-center" 
+    max-width="600"
+    color="white"
+    >
+    <v-card >
+        <v-card-title class="headline">Validasi Dokumen</v-card-title>
+        <v-card-text>
+          <v-tabs v-model="tab">
+            <v-tab v-for="(item, index) in InputFile" :key="index">{{ item.text }}</v-tab>
+
+            <v-tab-item v-for="(item, index) in InputFile" :key="index">
+              <v-card flat>
+                <v-card-text>
+                  <v-form ref="form" @submit.prevent="validateFile">
+                    <template v-if="item.text === 'Browse'">
+                      <v-file-input
+                        v-model="file"
+                        label="Pilih File"
+                        accept=".pdf"
+                        prepend-icon="mdi-paperclip"
+                        @change="clearValidationErrors"
+                      ></v-file-input>
+                    </template>
+                    <template v-if="item.text === 'Drop'">
+                      <v-alert
+                        :value="dragging"
+                        class="mt-4"
+                        type="info"
+                      >
+                        Seret dan lepaskan file di sini
+                      </v-alert>
+                      <div
+                        class="mt-2"
+                        @dragover.prevent
+                        @dragenter.prevent="dragging = true"
+                        @dragleave.prevent="dragging = false"
+                        @drop.prevent="onDrop"
+                      >
+                        <v-icon class="mr-2">mdi-folder-outline</v-icon>
+                        <span class="caption grey--text">{{ dropMessage }}</span>
+                      </div>
+                    </template>
+                    <v-alert
+                      v-if="validationError"
+                      type="error"
+                      dismissible
+                    >
+                      {{ validationError }}
+                    </v-alert>
+                  </v-form>
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
+          </v-tabs>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="close_Popup_AddDokumen">Kembali</v-btn>
+          <v-btn color="primary" @click="add_Dokumen_succes">Unggah Dokumen</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <!-- End Card Upload Dokumen -->
+
     <v-snackbar 
       v-model="snackbar.show" 
       :color="snackbar.color" 
@@ -368,6 +436,16 @@ export default {
       Laporan: [],
       Pengampu : [],
 
+      validasiDokumen: false,
+      tab: 0,
+      InputFile: [
+        { text: "Browse" },
+        { text: "Drop" },
+      ],
+      file: null,
+      dragging: false,
+      validationError: null,
+
       // Notifikasi Berhasil
       snackbar: {
         show: false,
@@ -378,11 +456,49 @@ export default {
     }
   },
 
+  computed: {
+    dropMessage() {
+      if (this.dragging) {
+        return "Lepaskan file di sini";
+      }
+      return "Seret dan lepaskan file di sini";
+    },
+  },
+
   mounted () {
     this.initialize()
   },
 
   methods: {
+    validateFile() {
+      if (!this.file) {
+        this.validationError = "Mohon pilih file yang akan divalidasi.";
+        return;
+      }
+      if (this.file && this.file.name === 'LaporanTA.pdf'){
+        this.validasiDokumen = !this.validasiDokumen
+        this.DokumenValidCard = !this.DokumenValidCard
+      } 
+      else {
+        this.validasiDokumen = !this.validasiDokumen
+        this.DokumenInValidCard = !this.DokumenInValidCard
+      }
+      // Lakukan validasi dokumen dengan file yang dipilih
+      // Misalnya: this.$axios.post('/validate', { file: this.file })
+      // Jika validasi sukses, lakukan aksi yang diperlukan
+    },
+    
+    onDrop(event) {
+      event.preventDefault();
+      this.dragging = false;
+      const files = event.dataTransfer.files;
+      if (files.length > 0) {
+        this.file = files[0];
+      } else {
+        this.file = null;
+      }
+    },
+
     viewPdf(filename) {
       window.open(`../assets/${filename}`, '_blank');
     },
@@ -392,12 +508,28 @@ export default {
       this.snackbar.message = "Perubahan data Dokumen Laporan TA berhasil disimpan";
       // your save implementation here
     },
-    add_Dokumen(){
+
+    add_Dokumen_succes(){
+      if (!this.file) {
+        this.validationError = "Mohon pilih file yang akan divalidasi.";
+        return;
+      }
+      this.validasiDokumen = !this.validasiDokumen;
+      this.file = null
       this.snackbar.show = true;
       this.snackbar.color = "primary";
       this.snackbar.message = "Dokumen Laporan TA berhasil ditambahkan";
-      // your save implementation here
     },
+
+    close_Popup_AddDokumen(){
+      this.validasiDokumen = !this.validasiDokumen;
+      this.file = null
+    },
+
+    add_Dokumen(){
+      this.validasiDokumen = true;
+    },
+
     initialize () {
         this.Laporan = [
           {
