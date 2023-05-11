@@ -55,8 +55,8 @@
         items: [
           { title: 'Beranda', icon: 'mdi-home-outline', link:'/koordinator/dashboard'},
           { title: 'Data KoTA', icon: 'mdi-account-multiple-outline', link:'/koordinator/KoTA'},
-          { title: 'Data Mahasiswa', icon: 'mdi-account-outline', link:'/koordinator/mahasiswa' },
-          { title: 'Data Dosen', icon: 'mdi-account-outline', link:'/koordinator/dosen'},
+          { title: 'Data Mahasiswa', icon: 'mdi-account-school-outline', link:'/koordinator/mahasiswa' },
+          { title: 'Data Dosen', icon: 'mdi-account-tie-outline', link:'/koordinator/dosen'},
         ],
         mini: true,
         status_sidebar:false,
