@@ -332,10 +332,9 @@ export default {
       PengujiMaxItems: 3,
 
       //Data List Dropdown
-      form: [
-        { selectedItem: null, items: [{ value: 'aa', text: 'ab'},{ value: 'aa', text: 'aa'},], search: '' },
-        { selectedItem: null, items: [{ value: 'aa', text: 'aa'},{ value: 'aa', text: 'aa'},], search: '' },
-
+     form: [
+        { selectedItem: null, items: [{ NIM: '', nama: ''},{ NIM: '', nama: ''},], search: '' },
+        { selectedItem: null, items: [{ NIM: '', nama: ''},{ NIM: '', nama: ''},], search: '' },
       ],
       formPembimbing: '',
       formPenguji: '',
@@ -360,7 +359,10 @@ export default {
   },
   mounted() {
     this.generateListTahunAjaran();
-    this.initializeDetailKoTA()
+    this.initializeDetailKoTA();
+    this.initializeMahasiswaList();
+    this.initializePembimbingList();
+    this.initializePengujiList();
   },
 
   computed: {
@@ -373,7 +375,7 @@ export default {
           return items;
         } else {
           return items.filter((item) =>
-            item.toLowerCase().includes(search.toLowerCase())
+            item.text.toLowerCase().includes(search.toLowerCase())
           );
         }
       };
@@ -386,7 +388,7 @@ export default {
           return items;
         } else {
           return items.filter((item) =>
-            item.toLowerCase().includes(search.toLowerCase())
+            item.text.toLowerCase().includes(search.toLowerCase())
           );
         }
       };
@@ -399,7 +401,7 @@ export default {
           return items;
         } else {
           return items.filter((item) =>
-            item.toLowerCase().includes(search.toLowerCase())
+            item.text.toLowerCase().includes(search.toLowerCase())
           );
         }
       };
@@ -407,38 +409,33 @@ export default {
   },
 
   methods: {
-    async initializeDetailKoTA() {
-      // detail kotga
-      try {
-        const response = await axios.get('http://localhost:3000/api/KoTA/'+ this.$route.params.id)
-        this.detailKoTA = response.data.data
-        this.tahunAjaran = this.detailKoTA.tahun_ajaran
-        this.ID_KoTA = this.detailKoTA.nama_KoTA
-      } catch (error) { 
-        console.log(error.message.request)
-      }
-      // mahasiswa kota
-      try {
-          const responseList = await axios.get(`http://localhost:3000/api/mahasiswa/`);
-          const listMahasiswa = responseList.data.data
-          const response = await axios.get('http://localhost:3000/api/mahasiswakota/'+ this.$route.params.id)
-          this.mahasiswaKoTA= response.data.data
-       
-        
-          const selectedItem = this.mahasiswaKoTA.map((item) => ({
-            selectedItem: item.NIM,
-            items: listMahasiswa.map((mhs) =>({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` })),
-            search: ""
-          }));
-          this.form = selectedItem;
-           
-        
-        } catch (error) {
-          console.error(error.message);
-        }
+    async initializeMahasiswaList(){
       
+    try {
 
-      // pembimbing kota
+      // yang urang baru 
+      const responseList = await axios.get(`http://localhost:3000/api/mahasiswa/`);
+      const listMahasiswa = responseList.data.data
+      const response = await axios.get('http://localhost:3000/api/mahasiswakota/'+ this.$route.params.id)
+      this.mahasiswaKoTA= response.data.data
+    
+    
+      const selectedItem = this.mahasiswaKoTA.map((item) => ({
+        selectedItem: item.NIM,
+        items: listMahasiswa.map((mhs) =>({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` })),
+        search: ""
+      }));
+      this.form = selectedItem;
+
+      
+      } catch (error) {
+        console.error(error.message);
+      }
+      
+    },
+
+    async initializePembimbingList(){
+        // pembimbing kota
       try {
         const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
         const listDosen = responseList.data.data
@@ -451,13 +448,16 @@ export default {
           items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })),
           search: ""
         }));
-   
+    
         this.formPembimbing = selectedItem
 
       } catch (error) { 
         console.log(error.message.request)
       }
-      // penguji kota
+    },
+
+    async initializePengujiList(){
+    // penguji kota
       try {
         const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
         const listDosen = responseList.data.data
@@ -476,6 +476,19 @@ export default {
       } catch (error) { 
         console.log(error.message.request)
       }
+    },
+
+    async initializeDetailKoTA() {
+      // detail kotga
+      try {
+        const response = await axios.get('http://localhost:3000/api/KoTA/'+ this.$route.params.id)
+        this.detailKoTA = response.data.data
+        this.tahunAjaran = this.detailKoTA.tahun_ajaran
+        this.ID_KoTA = this.detailKoTA.nama_KoTA
+      } catch (error) { 
+        console.log(error.message.request)
+      }
+
     },
     async save() {
       // this.$router.push(`/koordinator/KoTA/detail_KoTA/${ID_KoTA}`);
@@ -896,12 +909,12 @@ export default {
       setTimeout(() => {
         this.dialog = false
         // redirect to another page after dialog is closed
-        this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.ID_KoTA}`)
+        this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.$route.params.id}`)
       }, 2000) // set the timeout to 5 seconds
     },
 
-    BackToDetail (ID_KoTA) {
-      this.$router.push(`/koordinator/KoTA/detail_KoTA/${ID_KoTA}`);
+    BackToDetail () {
+      this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.$route.params.id}`);
     },
 
     generateListTahunAjaran() {
@@ -932,24 +945,35 @@ export default {
       }
     },
 
-    addForm() {
-      this.form.push({ selectedItem: null, items: ['Andika Yudha', 'Nabil Putra H', 'Fachri Dia', 'Titis Sampurno'], search: '' });
+    async addForm() {
+   
+      const responseList = await axios.get(`http://localhost:3000/api/mahasiswa/`);
+      const listMahasiswa = responseList.data.data
+
+      this.form.push({ selectedItem: null, items: listMahasiswa.map((mhs) =>({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` })), search: '' });
+  
     },
 
     removeForm(index) {
       this.form.splice(index, 1);
     },
 
-    addFormPembimbing() {
-      this.formPembimbing.push({ selectedItem: null, items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' });
+    async addFormPembimbing() {
+      const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
+      const listDosen = responseList.data.data
+     
+      this.formPembimbing.push({ selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' });
     },
 
     removeFormPembimbing(index) {
       this.formPembimbing.splice(index, 1);
     },
 
-    addFormPenguji() {
-      this.formPenguji.push({ selectedItem: null, items: ['Aprianti Nanda Sari, S.T., M.Kom.', 'Ghifari Munawar, S.Kom., M.T', 'Iwan Awaludin, S.T., M.T. ', 'Urip Teguh Setijohatmo, BSCS., M.Kom.'], search: '' });
+    async addFormPenguji() {
+      const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
+      const listDosen = responseList.data.data
+     
+      this.formPenguji.push({ selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' });
     },
 
     removeFormPenguji(index) {

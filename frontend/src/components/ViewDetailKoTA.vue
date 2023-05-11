@@ -406,8 +406,25 @@ export default {
     },
 
     deleteItemConfirm () {
+
+      axios({
+        method:'delete',
+        url: 'http://localhost:3000/api/KoTAwithLaporan/'+ this.$route.params.id
+        
+      })
+      .then(response => {
+      
+        console.log(response.data)
         this.$router.push('/koordinator/KoTA');
         this.closeDelete()
+       
+
+      })
+      .catch(error => {
+          console.log(error.request.response)
+      })
+
+       
       },
 
     closeDelete () {
