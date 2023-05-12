@@ -212,7 +212,7 @@
       <v-dialog v-model="dialogDelete" max-width="350">
         <v-card>
           <v-card-title class="headline">
-            Delete Mahasiswa 
+            Delete KoTA 
           </v-card-title>
           <v-card-text>
             <div>Do you really want to delete this item?</div>
