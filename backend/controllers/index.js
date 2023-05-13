@@ -8,6 +8,7 @@ const mahasiswa = require('./mahasiswa');
 const relasi_kota = require('./relasikota');
 const laporan = require('./laporan');
 const secret_key = require('./secretkey');
+const dokumen = require('./dokumen');
 
 module.exports = {
   user,
@@ -19,5 +20,6 @@ module.exports = {
   mahasiswa,
   relasi_kota,
   laporan,
-  secret_key
+  secret_key,
+  dokumen
 };
