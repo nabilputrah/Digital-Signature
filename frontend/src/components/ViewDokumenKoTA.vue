@@ -180,7 +180,7 @@
         :search="search_laporan"
         :headers="headers_laporan"
         :items="Laporan"
-        sort-by="ID_laporan"
+        sort-by="tanggal_dibuat"
         class="elevation-1"
         style="padding-top: 0.5%;"
       >
@@ -203,7 +203,7 @@
             >
               + Tambah Dokumen
             </v-btn>
-            <!-- Start Card Pop up Delete Data Dosen -->
+            <!-- Start Card Pop up Delete Dokumen -->
             <v-dialog v-model="dialogDelete" max-width="350">
               <v-card>
                 <v-card-title class="headline">
@@ -231,7 +231,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <!-- End Card Pop up Delete Data Dosen -->
+            <!-- End Card Pop up Delete Dokumen -->
           </v-toolbar>
 
           <!-- Start Input Search -->
@@ -259,7 +259,7 @@
           <v-icon
             v-if="item.ID_laporan.includes('Final')"
             color="primary" 
-            @click="unduhItem(item)"
+            @click="unduhItem(item.dokumen)"
           >
             mdi-tray-arrow-down
           </v-icon>
@@ -269,21 +269,18 @@
         <template v-slot:[`item.dokumen`]="{ item }">
           <v-icon
             class="mr-2"
-            @click="viewPdf(item.dokumen)"
+            @click="Open_Dokumen(item.dokumen)"
           >
             mdi-file-document-outline
           </v-icon>
         </template>
         <!-- End Kolom Dokumen -->
-        <template v-slot:no-data>
-          <v-btn
-            color="primary"
-            @click="initialize"
-          >
-            Reset
-          </v-btn>
-        </template>
       </v-data-table>
+    <!-- Start Dialog Buka Dokumen -->
+    <v-dialog v-model="Dokumen_Dialog" max-width="90%">
+      <div id="pdfContainer"></div>
+    </v-dialog>
+    <!-- End Dialog Buka Dokumen -->
     </v-card>
     <!-- End Datatables -->
 
@@ -332,14 +329,6 @@
           </v-btn>
         </template>
         <!-- End Kolom Status -->
-        <template v-slot:no-data>
-          <v-btn
-            color="primary"
-            @click="initialize"
-          >
-            Reset
-          </v-btn>
-        </template>
       </v-data-table>
     </v-card>
     <!-- End Datatables -->
@@ -433,6 +422,7 @@
 </template>
 
 <script>
+import PDFObject from 'pdfobject';
 import axios from 'axios'
 import { VueEditor } from "vue2-editor";
 export default {
@@ -450,6 +440,11 @@ export default {
       customToolbar: [
         [ "italic"],
       ],
+
+      //Pop Up dialog Dokumen
+      Dokumen_Dialog : false, 
+      previewUrl : '',
+
       tanggal_disetujui : '',
       tanggal_disidangkan : '',
       // tanggal_disetujui: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -564,9 +559,56 @@ export default {
       }
     },
 
-    viewPdf(filename) {
-      window.open(`../assets/${filename}`, '_blank');
+
+    async Open_Dokumen(ID_laporan) {
+      this.Dokumen_Dialog = !this.Dokumen_Dialog
+      // console.log(ID_laporan)
+      const response = await axios.get('http://localhost:3000/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      this.previewUrl = URL.createObjectURL(response.data);
+      // console.log(this.previewUrl)
+      this.showPdf();
     },
+
+    showPdf() {
+      const pdfContainer = document.getElementById('pdfContainer');
+      PDFObject.embed(this.previewUrl, pdfContainer, {
+        pdfOpenParams: {
+          navpanes: 0,
+          toolbar: 0,
+          statusbar: 1,
+        },
+        callback: this.customizePdfToolbar,
+        width: '100%',
+        height: 'calc(100vh - 100px)', // Mengurangi tinggi toolbar Vuetify
+      });
+    },
+    removePdf() {
+      const pdfContainer = document.getElementById('pdfContainer');
+      pdfContainer.innerHTML = '';
+    },
+
+    async unduhItem(ID_laporan) {
+      const link = document.createElement('a');
+      const response = await axios.get('http://localhost:3000/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      this.previewUrl = URL.createObjectURL(response.data);
+      link.href = this.previewUrl; // Ganti dengan URL dokumen PDF yang ingin diunduh
+      link.download = ID_laporan; // Nama file yang akan diunduh
+      link.target = '_blank';
+      link.click();
+      this.snackbar.show = true;
+      this.snackbar.color = "primary";
+      this.snackbar.message = "Dokumen Laporan TA berhasil diunduh";
+    },
+
+    // unduhItem () {
+
+    //   window.open(this.previewUrl, '_blank');
+    //   this.snackbar.show = true;
+    //   this.snackbar.color = "primary";
+    //   this.snackbar.message = "Dokumen Laporan TA berhasil diunduh";
+    // },
+
+
     async save() {
       // 
       await axios({
@@ -728,11 +770,6 @@ export default {
       })
     },
 
-    unduhItem () {
-      this.snackbar.show = true;
-      this.snackbar.color = "primary";
-      this.snackbar.message = "Dokumen Laporan TA berhasil diunduh";
-    },
 
     getButtonStyle(item) {
       if (!item.status) {

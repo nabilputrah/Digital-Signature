@@ -292,6 +292,7 @@ import axios from 'axios'
       rules: {
         nip: [
           v => !!v || "NIP wajib diisi",
+          v => /^[0-9]+$/.test(v) || 'NIP harus berupa angka',
           v => (v && v.length >= 18) || "NIP minimal 18 huruf",
           v => (v && v.length <= 18) || "NIP Maksimal 18 huruf"
         ],

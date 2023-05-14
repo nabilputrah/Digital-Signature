@@ -174,24 +174,6 @@
           No Data
         </template>
       </v-data-table>
-      <!-- <iframe src="https://drive.google.com/viewerng/viewer?embedded=true&url=digital-signature.infinityfreeapp.com/laporan_ta/example.pdf" -->
-    
-        
-       
-        <!-- width="75%" height="500px">
-        </iframe> -->
-     <v-btn @click="openPage">Buka halaman HTML</v-btn>
-
-    <v-dialog v-model="dialogHtml" max-width="1000">
-      <v-card>
-        <v-card-title>
-          <span class="headline">{{ pageTitle }}</span>
-        </v-card-title>
-        <v-card-text>
-          <iframe :src="pageUrl" style="width:100%; height:70vh;"></iframe>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
     </v-card>
     <!-- End Datatables -->
     <v-snackbar 
@@ -229,8 +211,6 @@ import axios from 'axios'
       duplikatNIMUpdated :false,
       resultAkhir:'',
       search : '',
-      pageUrl: 'OpenPDF.html', // ganti dengan URL halaman HTML Anda
-      dialogHtml: false,
       dialog: false,
       dialogDelete: false,
       headers: [
@@ -250,6 +230,7 @@ import axios from 'axios'
       rules: {
         nim: [
           v => !!v || "NIM wajib diisi",
+          v => /^[0-9]+$/.test(v) || 'NIM harus berupa angka',
           v => (v && v.length >= 9) || "NIM minimal 9 huruf",
           v => (v && v.length <= 9) || "NIM Maksimal 9 huruf"
         ],
@@ -330,16 +311,6 @@ import axios from 'axios'
         } catch (error) {
           console.error(error.message);
         }
-
-        await axios.get('https://mst-test-production.up.railway.app/list', {mode:'no-cors'})
-        
-        .then(response => {
-          console.log(response.data);
-        })
-        .catch(error => {
-          console.error(error);
-        });
-
         
       },
 

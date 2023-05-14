@@ -45,18 +45,15 @@
                   <span 
                   style="font-size:1rem;"
                   >Judul Tugas Akhir</span>
-                  <v-text-field__details></v-text-field__details>
                 </div>
               </v-col>
               <v-col cols="8" >
-                <v-text-field 
-                v-model="judul_tugas_akhir"
+                <vue-editor
+                v-model="laporan.judul_TA"
                 :rules="rules"
-                placeholder="Judul Tugas Akhir"
+                :editorToolbar="customToolbar"
                 disabled
-                dense
-                outlined
-                ></v-text-field>
+                ></vue-editor>
               </v-col>
             </v-row>
             <!-- End Form Judul Tugas Akhir -->
@@ -67,15 +64,15 @@
                   <span 
                   style="font-size:1rem;"
                   >Tanggal Disetujui</span>
-                  <v-text-field__details></v-text-field__details>
                 </div>
               </v-col>
               <v-col cols="8" >
                 <v-text-field
-                  v-model="tanggal_disetujui"
+                  v-model="laporan.tgl_disetujui"
                   placeholder="Tanggal Disetujui"
                   dense
                   outlined
+                  hide-details
                   disabled
                   readonly
                   append-icon="mdi-calendar"
@@ -91,15 +88,15 @@
                   <span 
                   style="font-size:1rem;"
                   >Tanggal Disidangkan</span>
-                  <v-text-field__details></v-text-field__details>
                 </div>
               </v-col>
               <v-col cols="8" >
                 <v-text-field
-                  v-model="tanggal_disidangkan"
+                  v-model="laporan.tgl_disidangkan"
                   placeholder="Tanggal Disidangkan"
                   dense
                   outlined
+                  hide-details
                   disabled
                   readonly
                   append-icon="mdi-calendar"
@@ -154,7 +151,7 @@
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon 
             v-if="shouldShowDownloadIcon(item)" 
-            @click="unduhItem(item)"
+            @click="unduhItem(item.dokumen)"
           >
             mdi-tray-arrow-down
           </v-icon>
@@ -164,22 +161,19 @@
         <template v-slot:[`item.dokumen`]="{ item }">
           <v-icon
             class="mr-2"
-            @click="redirectToDetail(item.ID_laporan)"
+            @click="Open_Dokumen(item.dokumen)"
           >
             mdi-file-document-outline
           </v-icon>
         </template>
         <!-- End Kolom Dokumen -->
-        <template v-slot:no-data>
-          <v-btn
-            color="primary"
-            @click="initialize"
-          >
-            Reset
-          </v-btn>
-        </template>
       </v-data-table>
     </v-card>
+    <!-- Start Dialog Buka Dokumen -->
+    <v-dialog v-model="Dokumen_Dialog" max-width="90%">
+      <div id="pdfContainer"></div>
+    </v-dialog>
+    <!-- End Dialog Buka Dokumen -->
     <!-- End Datatables -->
 
     <!-- Start Datatables -->
@@ -227,14 +221,6 @@
           </v-btn>
         </template>
         <!-- End Kolom Status -->
-        <template v-slot:no-data>
-          <v-btn
-            color="primary"
-            @click="initialize"
-          >
-            Reset
-          </v-btn>
-        </template>
       </v-data-table>
     </v-card>
     <!-- End Datatables -->
@@ -260,11 +246,20 @@
 </template>
 
 <script>
+import PDFObject from 'pdfobject';
+import axios from 'axios'
+import { VueEditor } from "vue2-editor";
 export default {
+  components: {
+    VueEditor
+  },
   data() {
     return {
       // Data Form Nama
-      judul_tugas_akhir : "PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME",
+      // judul_tugas_akhir : "PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME",
+      customToolbar: [
+        [ "italic"],
+      ],
       // tanggal_disetujui : '',
       // tanggal_disidangkan : '',
       tanggal_disetujui: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -273,6 +268,13 @@ export default {
         value => !!value || 'Required.',
         // value => (value && value.length >= 3) || 'Min 3 characters',
       ],
+
+      id_KoTA : '',
+      laporan: '',
+
+      //Pop Up dialog Dokumen
+      Dokumen_Dialog : false, 
+      previewUrl : '',
 
       // Data Table
       search_laporan : '',
@@ -316,21 +318,46 @@ export default {
   },
 
   methods: {
-    initialize () {
-        this.Laporan = [
-          {
-            ID_laporan: 'Laporan_402_v1',
-            tanggal_dibuat: '2022-03-02T00:00:00.000Z',
-          },
-          {
-            ID_laporan: 'Laporan_402_Final',
-            tanggal_dibuat: '2022-03-03T00:00:00.000Z',
-          },
-          {
-            ID_laporan: 'Laporan_402_v2',
-            tanggal_dibuat: '2022-03-02T15:00:00.000Z',
-          },
-        ],
+    async initialize () {
+      try {
+        this.id_KoTA = this.$route.params.id
+
+        const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +this.id_KoTA)
+        this.laporan = responseListLaporan.data.data
+
+        this.convertDateDisetujui()
+        this.convertDateDisidangkan()
+        
+        const responseListDokumen = await axios.get('http://localhost:3000/api/dokumenlaporan/'+this.laporan.id_laporan)
+        const list = responseListDokumen.data.data
+
+        this.Laporan = list.map((item) =>({
+          ID_laporan: item.id_dokumen,
+          tanggal_dibuat: item.tgl_unggah,
+          dokumen: item.id_dokumen
+        }))
+
+        console.log(this.Laporan)           
+
+
+      } catch (error) {
+        console.error(error.message);
+      }
+
+        // this.Laporan = [
+        //   {
+        //     ID_laporan: 'Laporan_402_v1',
+        //     tanggal_dibuat: '2022-03-02T00:00:00.000Z',
+        //   },
+        //   {
+        //     ID_laporan: 'Laporan_402_Final',
+        //     tanggal_dibuat: '2022-03-03T00:00:00.000Z',
+        //   },
+        //   {
+        //     ID_laporan: 'Laporan_402_v2',
+        //     tanggal_dibuat: '2022-03-02T15:00:00.000Z',
+        //   },
+        // ],
         this.Pengampu = [
           {
             dosen: 'Aprianti Nanda Sari, S.T., M.Kom.',
@@ -352,14 +379,60 @@ export default {
           },
         ]
     },
-    redirectToDetail(ID_laporan) {
-      this.$router.push(`/koordinator/KoTA/dokumen_detail/${ID_laporan}`);
+    async Open_Dokumen(ID_laporan) {
+      this.Dokumen_Dialog = !this.Dokumen_Dialog
+      // console.log(ID_laporan)
+      const response = await axios.get('http://localhost:3000/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      this.previewUrl = URL.createObjectURL(response.data);
+      // console.log(this.previewUrl)
+      this.showPdf();
     },
 
-    unduhItem () {
+    showPdf() {
+      const pdfContainer = document.getElementById('pdfContainer');
+      PDFObject.embed(this.previewUrl, pdfContainer, {
+        pdfOpenParams: {
+          navpanes: 0,
+          toolbar: 0,
+          statusbar: 1,
+        },
+        callback: this.customizePdfToolbar,
+        width: '100%',
+        height: 'calc(100vh - 100px)', // Mengurangi tinggi toolbar Vuetify
+      });
+    },
+    removePdf() {
+      const pdfContainer = document.getElementById('pdfContainer');
+      pdfContainer.innerHTML = '';
+    },
+
+    async unduhItem(ID_laporan) {
+      const link = document.createElement('a');
+      const response = await axios.get('http://localhost:3000/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      this.previewUrl = URL.createObjectURL(response.data);
+      link.href = this.previewUrl; // Ganti dengan URL dokumen PDF yang ingin diunduh
+      link.download = ID_laporan; // Nama file yang akan diunduh
+      link.target = '_blank';
+      link.click();
       this.snackbar.show = true;
       this.snackbar.color = "primary";
       this.snackbar.message = "Dokumen Laporan TA berhasil diunduh";
+    },
+    
+    convertDateDisetujui() {
+      const date = new Date(this.laporan.tgl_disetujui);
+      const year = date.toISOString().substring(0, 4);
+      const month = date.toISOString().substring(5, 7);
+      const day = date.toISOString().substring(8, 10);
+      this.laporan.tgl_disetujui = year + '-' + month + '-' + day;
+     
+    },
+    convertDateDisidangkan() {
+      const date = new Date(this.laporan.tgl_disidangkan);
+      const year = date.toISOString().substring(0, 4);
+      const month = date.toISOString().substring(5, 7);
+      const day = date.toISOString().substring(8, 10);
+      this.laporan.tgl_disidangkan = year + '-' + month + '-' + day;
     },
 
     shouldShowDownloadIcon(item) {
