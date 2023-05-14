@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
               exclude:['id']
             }
           });
-        if (laporan) {
+        if (dokumen) {
           throw new Error('ID Dokumen must be unique');
         }
         }
@@ -36,24 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     id_laporan: DataTypes.STRING,
     dokumen_laporan: {
-      type: DataTypes.STRING,
-
-      unique: true,
-      validate: {
-        isUnique: async function (value) {
-          const dokumen = await Dokumen.findOne({
-             where: {
-               dokumen_laporan: value 
-              },
-              attributes: {
-                exclude:['id']
-              } 
-            });
-          if (laporan) {
-            throw new Error('Dokumen Laporan must be unique');
-          }
-        },
-      },
+      type: DataTypes.BLOB,
     },
     version: {
       type: DataTypes.STRING,

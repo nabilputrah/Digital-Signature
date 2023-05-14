@@ -174,15 +174,15 @@
           No Data
         </template>
       </v-data-table>
-      <iframe src="https://drive.google.com/viewerng/viewer?embedded=true&url=digital-signature.infinityfreeapp.com/laporan_ta/example.pdf"
+      <!-- <iframe src="https://drive.google.com/viewerng/viewer?embedded=true&url=digital-signature.infinityfreeapp.com/laporan_ta/example.pdf" -->
     
         
        
-        width="75%" height="500px">
-        </iframe>
-     <!-- <v-btn @click="openPage">Buka halaman HTML</v-btn -->
+        <!-- width="75%" height="500px">
+        </iframe> -->
+     <v-btn @click="openPage">Buka halaman HTML</v-btn>
 
-    <!-- <v-dialog v-model="dialogHtml" max-width="1000">
+    <v-dialog v-model="dialogHtml" max-width="1000">
       <v-card>
         <v-card-title>
           <span class="headline">{{ pageTitle }}</span>
@@ -191,7 +191,7 @@
           <iframe :src="pageUrl" style="width:100%; height:70vh;"></iframe>
         </v-card-text>
       </v-card>
-    </v-dialog> -->
+    </v-dialog>
     </v-card>
     <!-- End Datatables -->
     <v-snackbar 
@@ -226,8 +226,10 @@ import axios from 'axios'
       // source1: ('../assets/LaporanTA.pdf'),
       // source2: 'data:application/pdf;base64,<BASE64_ENCODED_PDF>',
       // alamat:require('../assets/LaporanTA.pdf'),
+      duplikatNIMUpdated :false,
+      resultAkhir:'',
       search : '',
-      pageUrl: 'http://127.0.0.1:8081/index.html', // ganti dengan URL halaman HTML Anda
+      pageUrl: 'OpenPDF.html', // ganti dengan URL halaman HTML Anda
       dialogHtml: false,
       dialog: false,
       dialogDelete: false,
@@ -304,8 +306,11 @@ import axios from 'axios'
 
     mounted () {
       this.initialize()
+      // this.$validate()
     },
 
+  
+   
     methods: {
       openPage() {
         this.dialogHtml = true

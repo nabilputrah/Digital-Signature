@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 const path = require('path');
 const fs = require('fs')
+
+
+
 // const pdfjs = requi('pdfjs-dist/build/pdf');
 // const pdfjsWorker = import('pdfjs-dist/build/pdf.worker.entry');
 
@@ -17,8 +20,10 @@ const mahasiswaController = require('../controllers').mahasiswa;
 const relasiController = require('../controllers').relasi_kota;
 const laporanController = require('../controllers').laporan;
 const secretController = require('../controllers').secret_key;
+const dokumenController = require('../controllers').dokumen;
 
-const { verifyTokenAndRoleKoordinator } = require('../controllers/user')
+const { verifyTokenAndRoleKoordinator } = require('../controllers/user');
+
 
 // waktu indonesia 
 
@@ -56,6 +61,17 @@ router.get('/pdf', (req, res) => {
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
+});
+
+router.get('/pdf', (req, res) => {
+  // Menampilkan file PDF pada halaman HTML
+  res.send(`
+    <html>
+      <body>
+        <iframe src="/uploads/img_ttd/2023-05-02-235405-Andika_4034.pdf" width="100%" height="100%" type='application/pdf'>
+      </body>
+    </html>
+  `);
 });
 // // /* GET home page. */
 // router.get('/dashboard', function(req, res, next) {
@@ -151,6 +167,7 @@ router.get('/api/mahasiswakota/:id', mahasiswaController.getAllMahasiswaByKoTA)
 router.get('/api/mahasiswa/nullkotad4', mahasiswaController.getAllMahasiswaNullKoTAD4)
 router.get('/api/mahasiswa/nullkotad3', mahasiswaController.getAllMahasiswaNullKoTAD3)
 router.get('/api/mahasiswa/:id', mahasiswaController.getMahasiswaById)
+router.get('/api/mahasiswa/checkunique/NIM/:id', mahasiswaController.checkUniqueNIM)
 router.post('/api/mahasiswa', mahasiswaController.addMahasiswa)
 router.put('/api/mahasiswa/:id',mahasiswaController.updateMahasiswa)
 router.delete('/api/mahasiswa/:id', mahasiswaController.deleteMahasiswa)
@@ -186,4 +203,8 @@ router.post('/api/secret', secretController.addSecretKey)
 router.put('/api/secret/:id',secretController.updateSecretKey)
 router.delete('/api/secret/:id', secretController.deleteSecretKey)
 
+/* Endpoint Dokumen Controller*/
+router.post('/api/dokumen', dokumenController.addDokumen)
+router.get('/api/dokumen', dokumenController.getAllDokumen)
+router.get('/api/dokumen/:id', dokumenController.getDokumenByID)
 module.exports = router;

@@ -160,6 +160,32 @@ module.exports = {
       })
     }
   },
+
+  async checkUniqueNIM(req, res) {
+    return Mahasiswa
+      .findAll({
+        attributes: { 
+          exclude: ['createdAt', 'updatedAt']
+         },
+         where : {
+          NIM : req.params.id
+         }
+      })
+      .then((mhs) => {
+        if (Object.keys(mhs).length == 0) {
+          return res.status(200).send({
+            message: 'NIM mahasiswa tidak ditemukan',
+            jumlah : mhs.length
+          });
+        }
+        return res.status(200).send({
+          message:'Get mahasiswa  by NIM success',
+          data : mhs,
+          jumlah : mhs.length
+        });
+      })
+      .catch((error) => res.status(400).send(error));
+  },
  
  
   async addMahasiswa(req, res) {
