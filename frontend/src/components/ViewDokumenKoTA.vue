@@ -180,7 +180,7 @@
         :search="search_laporan"
         :headers="headers_laporan"
         :items="Laporan"
-        sort-by="tanggal_dibuat"
+        sort-by="ID_laporan"
         class="elevation-1"
         style="padding-top: 0.5%;"
       >
@@ -467,7 +467,7 @@ export default {
       dialogDelete: false,
       headers_laporan: [
         {
-          text: 'ID Laporan',
+          text: 'ID Dokumen',
           align: 'start',
           value: 'ID_laporan',
         },
@@ -525,6 +525,12 @@ export default {
         this.dataFromToken= payload.user;
       }
     this.initialize()
+
+
+
+    // this.initializeDataDokumen()
+
+  
 
   },
 
@@ -622,27 +628,39 @@ export default {
 
         const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +id_kota)
         this.laporan = responseListLaporan.data.data
+
+       const responseListDokumen = await axios.get('http://localhost:3000/api/dokumenlaporan/'+this.laporan.id_laporan)
+       const list = responseListDokumen.data.data
+
+      this.Laporan = list.map((item) =>({
+        ID_laporan: item.id_dokumen,
+        tanggal_dibuat: item.tgl_unggah,
+        dokumen: item.id_dokumen
+      }))
+      
+      console.log(this.Laporan)
+           
+        
         this.convertDateDisetujui()
         this.convertDateDisidangkan()
-        
 
-        console.log(this.kota)
+       
 
       } catch (error) {
         console.error(error.message);
       }
-      this.Laporan = [
-        {
-          ID_laporan: 'Laporan_402_v1',
-          tanggal_dibuat: '2023-05-04',
-          dokumen : 'LaporanTA.pdf'
-        },
-        {
-          ID_laporan: 'Laporan_402_Final',
-          tanggal_dibuat: '2023-05-05',
-          dokumen : 'LaporanTA.pdf'
-        },
-      ],
+      // this.Laporan = [
+      //   {
+      //     "ID_laporan": 'Laporan_402_v1',
+      //     "tanggal_dibuat": '2023-05-04',
+      //     "dokumen" : 'LaporanTsA'
+      //   },
+      //   {
+      //     ID_laporan: 'Laporan_402_Final',
+      //     tanggal_dibuat: '2023-05-05',
+      //     dokumen : 'LaporanTA.pdf'
+      //   },
+      // ],
       this.Pengampu = [
         {
           dosen: 'Aprianti Nanda Sari, S.T., M.Kom.',
@@ -665,6 +683,13 @@ export default {
       ]
     },
 
+    // async initializeDataDokumen() {
+  
+    //   /
+     
+      
+    // },
+
     convertDateDisetujui() {
       const date = new Date(this.laporan.tgl_disetujui);
       const year = date.toISOString().substring(0, 4);
@@ -679,7 +704,6 @@ export default {
       const month = date.toISOString().substring(5, 7);
       const day = date.toISOString().substring(8, 10);
       this.laporan.tgl_disidangkan = year + '-' + month + '-' + day;
-      console.log(this.laporan.tgl_disetujui)
     },
     redirectToDetail(ID_laporan) {
       this.$router.push(`/KoTA/dokumen_detail/${ID_laporan}`);
