@@ -205,6 +205,7 @@ router.delete('/api/secret/:id', secretController.deleteSecretKey)
 
 /* Endpoint Dokumen Controller*/
 router.post('/api/dokumen', dokumenController.addDokumen)
-router.get('/api/dokumen', dokumenController.getAllDokumen)
+// router.get('/api/dokumen', dokumenController.getAllDokumen)
 router.get('/api/dokumen/:id', dokumenController.getDokumenByID)
+router.get('/api/dokumenlaporan/:id/', dokumenController.getAllDokumenByIdLaporan)
 module.exports = router;
