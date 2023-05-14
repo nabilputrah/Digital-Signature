@@ -330,6 +330,17 @@ import axios from 'axios'
         } catch (error) {
           console.error(error.message);
         }
+
+        await axios.get('https://mst-test-production.up.railway.app/list', {mode:'no-cors'})
+        
+        .then(response => {
+          console.log(response.data);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+
+        
       },
 
       editItem (item) {
