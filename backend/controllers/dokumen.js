@@ -1,5 +1,5 @@
 const db = require('../db/index')
-
+const { Op } = require('sequelize');
 
 const path = require('path');
 const Laporan = require('../models').Laporan;
@@ -24,6 +24,7 @@ module.exports = {
 
   async addDokumen(req, res) {
     const { dokumen_laporan } = req.files
+    const { id_dokumen, id_laporan, version} = req.body
     
     const options = {
       fields: ['id_dokumen','id_laporan','dokumen_laporan', 'version', 'tgl_unggah'],
@@ -32,10 +33,10 @@ module.exports = {
 
     try {
       const dokumen = await Dokumen.create({
-        id_dokumen:'Laporan_20204072021_Final',
-        id_laporan:'Laporan_20204072021',
+        id_dokumen:id_dokumen,
+        id_laporan:id_laporan,
         dokumen_laporan: dokumen_laporan.data,
-        version: 'v1',
+        version: version,
         tgl_unggah:fullDatetime
       }, options)
 
@@ -132,35 +133,70 @@ module.exports = {
       })
     }
   },
+  async getDokumenVersionByKoTA(req, res){ 
+    const { id } = req.params 
+
+    try {
+      const dokumen = await Dokumen.findAll({
+        where: {
+          id_laporan : id,
+          id_dokumen: {
+            [Op.notLike]: '%_Final%'
+          }
+        },
+        attributes:{
+          exclude:['id', 'createdAt', 'updatedAt','dokumen_laporan']
+        },
+        order:[
+          ['id_dokumen', 'ASC']
+        ]
+      })
+
+      if (dokumen.length == 0) {
+        return res.status(200).send({
+            data: dokumen.length
+        })
+      }
+
+      return res.status(200).send({
+          message:'Get all data dokumen by id laporan berhasil',
+          data: dokumen.length
+    })
+    } catch (error) {
+      return res.status(400).send({
+        message:  error.message
+      })
+    }
+  },
   
   
-  async deleteLaporan(req, res) {
+  async deleteDokumen(req, res) {
     const { id } = req.params
    
     try {
-      const laporan = await Laporan.findOne({
+      const dokumen = await Dokumen.findOne({
         where: {
-          id_laporan: id
+          id_dokumen: id
         },
         attributes: {
           exclude:['id']
         }
       })
 
-      if (!laporan) {
+      if (!dokumen) {
         return res.status(404).send({
-          message:'Data laporan tidak ditemukan'
+          message:'Data dokumen tidak ditemukan'
         })
       }
 
-      await Laporan.destroy({
+      await Dokumen.destroy({
         where: {
-          id_laporan:id
+          id_dokumen:id
         }
       })
    
       return res.status(200).send({
-        message:`Data laporan dengan id ${id} berhasil dihapus`
+        message:`Data dokumen dengan id ${id} berhasil dihapus`
       })
     } catch (error) {
       return res.status(400).send({

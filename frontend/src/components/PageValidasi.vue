@@ -256,28 +256,18 @@ export default {
       list_Pengampu: [
         {
           dosen: "Aprianti Nanda Sari, S.T., M.Kom.",
-          peran: "1",
-          timestamp: "1",
+          peran: "Pembimbing 1",
+          timestamp: "9-April-2023 11:20",
         },
         {
           dosen: "Urip Teguh Setijohatmo, BSCS., M.Kom.",
-          peran: "2",
-          timestamp: "2",
+          peran: "Penguji 1",
+          timestamp: "10-April-2023 07:41",
         },
         {
-          dosen: "3",
-          peran: "3",
-          timestamp: "3",
-        },
-        {
-          dosen: "4",
-          peran: "4",
-          timestamp: "4",
-        },
-        {
-          dosen: "5",
-          peran: "5",
-          timestamp: "5",
+          dosen: "Yadhi Adhitia P., S.T.",
+          peran: "Ketua Jurusan",
+          timestamp: "11-April-2023 09:21",
         },
       ],
       
