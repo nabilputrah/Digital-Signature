@@ -100,7 +100,7 @@ const routes = [
 // Role KoTA
   {
   path: '/KoTA/profil',
-  name: 'profil',
+  name: 'profilKoTA',
   component: DataProfilKoTA,
   meta: {
     requiresAuthKoTA: true,
@@ -129,7 +129,7 @@ const routes = [
   },
   {
     path: '/dosen/profil',
-    name: 'profil',
+    name: 'profilDosen',
     component: DataProfilDosen,
     meta: {
       requiresAuthDosen: true,
@@ -205,7 +205,7 @@ const routes = [
   },
   {
     path: '/koordinator/profil',
-    name: 'profil',
+    name: 'profilKoor',
     component: DataProfilKoor,
     meta: {
       requiresAuthKoordinator: true,

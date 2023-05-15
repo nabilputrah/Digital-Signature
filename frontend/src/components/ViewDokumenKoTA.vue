@@ -27,7 +27,6 @@
                   <span 
                   style="font-size:1rem;"
                   >Judul Tugas Akhir</span>
-                  <v-text-field__details></v-text-field__details>
                 </div>
               </v-col>
               <v-col cols="8" >
@@ -56,14 +55,12 @@
                   <span 
                   style="font-size:1rem;"
                   >Tanggal Disetujui</span>
-                  <v-text-field__details></v-text-field__details>
                 </div>
               </v-col>
               <v-col cols="8" >
                 <v-dialog
                   ref="dialog"
                   v-model="menu_disetujui"
-                  :return-value.sync="date"
                   persistent
                   width="290px"
                 >
@@ -112,14 +109,12 @@
                   <span 
                   style="font-size:1rem;"
                   >Tanggal Disidangkan</span>
-                  <v-text-field__details></v-text-field__details>
                 </div>
               </v-col>
               <v-col cols="8" >
                 <v-dialog
                   ref="dialog"
                   v-model="menu_disidangkan"
-                  :return-value.sync="date"
                   persistent
                   width="290px"
                 >
@@ -356,7 +351,6 @@
                         label="Pilih File"
                         accept=".pdf"
                         prepend-icon="mdi-paperclip"
-                        @change="clearValidationErrors"
                       ></v-file-input>
                     </template>
                     <template v-if="item.text === 'Drop'">
@@ -435,6 +429,7 @@ export default {
       dataFromToken: '',
       kota: '',
       laporan: '',
+      id_delete_dokumen :'',
       // Data Form Nama
       judul_tugas_akhir : "",
       customToolbar: [
@@ -530,6 +525,56 @@ export default {
   },
 
   methods: {
+
+    async add_Dokumen_succes(){
+      if (!this.file) {
+        this.validationError = "Mohon pilih file yang akan divalidasi.";
+        return;
+      }
+
+      const response = await axios.get('http://localhost:3000/api/dokumenversion/'+ this.laporan.id_laporan)
+      console.log(response.data.data)
+      const version = response.data.data + 1
+
+      const formData = new FormData();
+      formData.append('dokumen_laporan', this.file);
+      formData.append('id_laporan', this.laporan.id_laporan)
+      formData.append('id_dokumen', this.laporan.id_laporan + '_' + 'v' + version)
+      formData.append('version', 'v' + version)
+
+      await axios.post('http://localhost:3000/api/dokumen/', formData, {
+        headers : {
+          'Content-Type' : 'multipart/form-data'
+        }
+      })
+        .then(response => {
+          console.log(response.data);
+          this.validasiDokumen = !this.validasiDokumen;
+          this.file = null
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Dokumen Laporan TA berhasil ditambahkan";
+        })
+        .catch(error => {
+          console.log(error.message);
+          this.validasiDokumen = !this.validasiDokumen;
+          this.file = null
+          this.snackbar.show = true;
+          this.snackbar.color = "error";
+          this.snackbar.message = "Dokumen Laporan TA gagal ditambahkan";
+        });
+        this.initialize()
+    },
+
+    close_Popup_AddDokumen(){
+      this.validasiDokumen = !this.validasiDokumen;
+      this.file = null
+    },
+
+    async add_Dokumen(){
+      this.validasiDokumen = true;
+    },
+
     validateFile() {
       if (!this.file) {
         this.validationError = "Mohon pilih file yang akan divalidasi.";
@@ -537,11 +582,9 @@ export default {
       }
       if (this.file && this.file.name === 'LaporanTA.pdf'){
         this.validasiDokumen = !this.validasiDokumen
-        this.DokumenValidCard = !this.DokumenValidCard
       } 
       else {
         this.validasiDokumen = !this.validasiDokumen
-        this.DokumenInValidCard = !this.DokumenInValidCard
       }
       // Lakukan validasi dokumen dengan file yang dipilih
       // Misalnya: this.$axios.post('/validate', { file: this.file })
@@ -640,27 +683,6 @@ export default {
       // your save implementation here
     },
 
-    add_Dokumen_succes(){
-      if (!this.file) {
-        this.validationError = "Mohon pilih file yang akan divalidasi.";
-        return;
-      }
-      this.validasiDokumen = !this.validasiDokumen;
-      this.file = null
-      this.snackbar.show = true;
-      this.snackbar.color = "primary";
-      this.snackbar.message = "Dokumen Laporan TA berhasil ditambahkan";
-    },
-
-    close_Popup_AddDokumen(){
-      this.validasiDokumen = !this.validasiDokumen;
-      this.file = null
-    },
-
-    add_Dokumen(){
-      this.validasiDokumen = true;
-    },
-
     async initialize () {
 
     try {
@@ -676,17 +698,12 @@ export default {
 
       this.Laporan = list.map((item) =>({
         ID_laporan: item.id_dokumen,
-        tanggal_dibuat: item.tgl_unggah,
+        tanggal_dibuat:this.convertDateDibuat(item.tgl_unggah),
         dokumen: item.id_dokumen
       }))
-      
-      console.log(this.Laporan)
-           
-        
+                   
         this.convertDateDisetujui()
         this.convertDateDisidangkan()
-
-       
 
       } catch (error) {
         console.error(error.message);
@@ -747,21 +764,47 @@ export default {
       const day = date.toISOString().substring(8, 10);
       this.laporan.tgl_disidangkan = year + '-' + month + '-' + day;
     },
-    redirectToDetail(ID_laporan) {
-      this.$router.push(`/KoTA/dokumen_detail/${ID_laporan}`);
+    convertDateDibuat(tanggal_dibuat) {
+      const dateAsli = new Date(tanggal_dibuat);
+      const durasi = 7 * 60 * 60 * 1000;
+      let date = new Date(dateAsli.getTime() + durasi);
+      const year = date.toISOString().substring(0, 4);
+      const month = date.toISOString().substring(5, 7);
+      const day = date.toISOString().substring(8, 10);
+      const hours = date.toISOString().substring(11, 13);
+      const minute = date.toISOString().substring(14, 16);
+      const second = date.toISOString().substring(17, 19);
+      return tanggal_dibuat = year + '-' + month + '-' + day + ' ' + hours + ':' + minute + ':' + second;
     },
+
     deleteItem (item) {
       this.editedIndex = this.Laporan.indexOf(item)
       this.editedItem = Object.assign({}, item)
+      this.id_delete_dokumen = this.editedItem.ID_laporan
       this.dialogDelete = true
     },
     deleteItemConfirm () {
-      this.Laporan.splice(this.editedIndex, 1)
-      this.snackbar.show = true;
-      this.snackbar.color = "primary";
-      this.snackbar.message = "Data Dokumen Laporan TA berhasil dihapus";
+      axios({
+            method:'delete',
+            url: 'http://localhost:3000/api/dokumen/'+ this.id_delete_dokumen
+            
+          })
+          .then(response => {
+          
+            console.log(response.data)
+            this.snackbar.show = true;
+            this.snackbar.color = "primary";
+            this.snackbar.message = "Data Dokumen Laporan TA berhasil dihapus";
+            this.initialize()
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
+      // this.Laporan.splice(this.editedIndex, 1)
       this.closeDelete()
     },
+
     closeDelete () {
       this.dialogDelete = false
       this.$nextTick(() => {
