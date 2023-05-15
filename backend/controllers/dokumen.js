@@ -32,8 +32,8 @@ module.exports = {
 
     try {
       const dokumen = await Dokumen.create({
-        id_dokumen:'Laporan_20224022023_Final',
-        id_laporan:'Laporan_20224022023',
+        id_dokumen:'Laporan_20204072021_Final',
+        id_laporan:'Laporan_20204072021',
         dokumen_laporan: dokumen_laporan.data,
         version: 'v1',
         tgl_unggah:fullDatetime
