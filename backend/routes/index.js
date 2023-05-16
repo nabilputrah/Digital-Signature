@@ -60,30 +60,11 @@ router.get('/pdf', (req, res) => {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Express', andika:'andika' });
 });
 
-router.get('/pdf', (req, res) => {
-  // Menampilkan file PDF pada halaman HTML
-  res.send(`
-    <html>
-      <body>
-        <iframe src="/uploads/img_ttd/2023-05-02-235405-Andika_4034.pdf" width="100%" height="100%" type='application/pdf'>
-      </body>
-    </html>
-  `);
-});
-// // /* GET home page. */
-// router.get('/dashboard', function(req, res, next) {
-//   pdfjs.getDocument({ data: './uploads/img_ttd/2023-05-02-235405-Andika_4034.pdf' }).promise.then((pdf) => {
-//     // get the first page of the PDF
-//     pdf.getPage(1).then((page) => {
-//       // render the PDF page using an embedded PDF viewer
-//       const embedUrl = `/pdfjs/web/viewer.html?file=data:application/pdf;base64,${btoa(pdfStream)}`;
-//       res.render('pdf', { embedUrl: embedUrl });
-//     });
-//   });
-// });
+
+
 
 /* Exercise upload file. */
 router.post('/api/upload', (req, res) => {
@@ -180,6 +161,7 @@ router.put('/api/mahasiswastatus/:id',mahasiswaController.updateMahasiswaStatusK
 router.get('/api/relasi', relasiController.getAllRelasiKoTA)
 router.get('/api/relasibykota/pembimbing/:id', relasiController.getAllRelasiKoTAByPemKoTA)
 router.get('/api/relasibykota/penguji/:id', relasiController.getAllRelasiKoTAByPenKoTA)
+router.get('/api/relasibynip/:id', relasiController.getAllRelasiByNIP)
 router.get('/api/relasi/:id', relasiController.getRelasiKoTAById)
 router.post('/api/relasi', relasiController.addRelasiKoTA)
 router.put('/api/relasi/:id',relasiController.updateRelasiKoTA)

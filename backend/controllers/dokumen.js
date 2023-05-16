@@ -159,7 +159,9 @@ module.exports = {
       })
     }
   },
-  
+   
+   
+ 
   
   async deleteDokumen(req, res) {
     const { id } = req.params
