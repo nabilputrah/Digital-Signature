@@ -63,8 +63,49 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express', andika:'andika' });
 });
 
+router.get('/emailAccountKoTA', function(req, res, next) {
+  const username = '20224022023';
+  const formattedUsername = 'KoTA ' + username.substr(4, 3);
+  const password = 'abc123';
+  res.render('emailAccountKoTA', { username, password, formattedUsername });
+});
 
+router.get('/emailAccountDosen', function(req, res, next) {
+  const username = '199304262019032028';
+  const formattedUsername = 'Dosen ' + username.substr(4, 3);
+  const password = 'Dosen19932028';
+  res.render('emailAccountDosen', { username, password, formattedUsername });
+});
 
+router.get('/emailShareKey', function(req, res, next) {
+  const username = '199304262019032028';
+  const id_KoTA = '20224022023';
+  const formattedUKoTA = 'Dosen ' + id_KoTA.substr(4, 3);
+  const ShareKey = 'Dosen19932028';
+  res.render('emailShareKey', { username, id_KoTA, ShareKey, formattedUKoTA });
+});
+
+router.get('/pdf', (req, res) => {
+  // Menampilkan file PDF pada halaman HTML
+  res.send(`
+    <html>
+      <body>
+        <iframe src="/uploads/img_ttd/2023-05-02-235405-Andika_4034.pdf" width="100%" height="100%" type='application/pdf'>
+      </body>
+    </html>
+  `);
+});
+// // /* GET home page. */
+// router.get('/dashboard', function(req, res, next) {
+//   pdfjs.getDocument({ data: './uploads/img_ttd/2023-05-02-235405-Andika_4034.pdf' }).promise.then((pdf) => {
+//     // get the first page of the PDF
+//     pdf.getPage(1).then((page) => {
+//       // render the PDF page using an embedded PDF viewer
+//       const embedUrl = `/pdfjs/web/viewer.html?file=data:application/pdf;base64,${btoa(pdfStream)}`;
+//       res.render('pdf', { embedUrl: embedUrl });
+//     });
+//   });
+// });
 
 /* Exercise upload file. */
 router.post('/api/upload', (req, res) => {
