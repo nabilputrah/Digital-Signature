@@ -134,37 +134,28 @@ module.exports = {
     }
   },
   async getDokumenVersionByKoTA(req, res){ 
-    const { id } = req.params 
-
+    const { id } = req.params
+    
     try {
-      const dokumen = await Dokumen.findAll({
-        where: {
-          id_laporan : id,
-          id_dokumen: {
-            [Op.notLike]: '%_Final%'
-          }
-        },
-        attributes:{
-          exclude:['id', 'createdAt', 'updatedAt','dokumen_laporan']
-        },
-        order:[
-          ['id_dokumen', 'ASC']
-        ]
-      })
+      
+      const selectMaxQuery = `SELECT MAX(CAST(SUBSTRING(version, 2) AS INTEGER)) AS max_version FROM "Dokumen"
+                              WHERE "id_laporan" = $1`
 
-      if (dokumen.length == 0) {
+      const paramsQuery = [id]
+
+      const result = await db.query(selectMaxQuery, paramsQuery)
+
+      if (Object.keys(result).length > 0) {
         return res.status(200).send({
-            data: dokumen.length
+          message: `get`,
+          data: result.rows[0].max_version
         })
-      }
+      
+      } 
 
-      return res.status(200).send({
-          message:'Get all data dokumen by id laporan berhasil',
-          data: dokumen.length
-    })
     } catch (error) {
       return res.status(400).send({
-        message:  error.message
+        message: error.message
       })
     }
   },

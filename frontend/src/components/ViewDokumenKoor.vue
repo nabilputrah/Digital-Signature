@@ -48,12 +48,16 @@
                 </div>
               </v-col>
               <v-col cols="8" >
-                <vue-editor
-                v-model="laporan.judul_TA"
-                :rules="rules"
-                :editorToolbar="customToolbar"
-                disabled
-                ></vue-editor>
+                <v-textarea
+                  dense
+                  readonly
+                  outlined
+                  disabled
+                  rows="1"
+                  hide-details
+                  auto-grow
+                  :value="Judul_Tugas_Akhir"
+                ></v-textarea>
               </v-col>
             </v-row>
             <!-- End Form Judul Tugas Akhir -->
@@ -248,18 +252,11 @@
 <script>
 import PDFObject from 'pdfobject';
 import axios from 'axios'
-import { VueEditor } from "vue2-editor";
 export default {
-  components: {
-    VueEditor
-  },
   data() {
     return {
       // Data Form Nama
       // judul_tugas_akhir : "PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME",
-      customToolbar: [
-        [ "italic"],
-      ],
       // tanggal_disetujui : '',
       // tanggal_disidangkan : '',
       tanggal_disetujui: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -271,6 +268,7 @@ export default {
 
       id_KoTA : '',
       laporan: '',
+      Judul_Tugas_Akhir:'',
 
       //Pop Up dialog Dokumen
       Dokumen_Dialog : false, 
@@ -337,6 +335,9 @@ export default {
           dokumen: item.id_dokumen
         }))
 
+        const tempElement = document.createElement('div');
+        tempElement.innerHTML = this.laporan.judul_TA;
+        this.Judul_Tugas_Akhir = tempElement.innerText;
         console.log(this.Laporan)           
 
 
