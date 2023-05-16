@@ -60,7 +60,7 @@ router.get('/pdf', (req, res) => {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Express', andika:'andika' });
 });
 
 router.get('/emailAccountKoTA', function(req, res, next) {
@@ -202,6 +202,7 @@ router.put('/api/mahasiswastatus/:id',mahasiswaController.updateMahasiswaStatusK
 router.get('/api/relasi', relasiController.getAllRelasiKoTA)
 router.get('/api/relasibykota/pembimbing/:id', relasiController.getAllRelasiKoTAByPemKoTA)
 router.get('/api/relasibykota/penguji/:id', relasiController.getAllRelasiKoTAByPenKoTA)
+router.get('/api/relasibynip/:id', relasiController.getAllRelasiByNIP)
 router.get('/api/relasi/:id', relasiController.getRelasiKoTAById)
 router.post('/api/relasi', relasiController.addRelasiKoTA)
 router.put('/api/relasi/:id',relasiController.updateRelasiKoTA)

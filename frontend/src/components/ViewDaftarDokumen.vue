@@ -82,17 +82,20 @@
 </template>
 
 <script>
+import axios from 'axios'
   export default {
     data: () => ({
+      dataFromToken: '',
+      dosen:'',
       search : '',
       headers: [
         {
           text: 'ID KoTA',
           align: 'start',
-          value: 'ID_KoTA',
+          value: 'id_KoTA',
         },
-        { text: 'Judul Laporan', value: 'judul_laporan' ,width:'40%'},
-        { text: 'Peran', value: 'peran'},
+        { text: 'Judul Laporan', value: 'judul_TA' ,width:'40%'},
+        { text: 'Peran', value: 'role'},
         { text: 'Urutan', value: 'urutan'},
         { text: 'Dokumen Laporan', value: 'dokumen', sortable: false },
         { text: 'Status', value: 'status', sortable: false },
@@ -100,28 +103,69 @@
       KoTA: [],
     }),
 
-    created () {
+    mounted () {
+      const token = localStorage.getItem('token');
+
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.dataFromToken= payload.user;
+      }
       this.initialize()
     },
 
     methods: {
-      initialize () {
-        this.KoTA = [
-          {
-            ID_KoTA: 402,
-            judul_laporan: 'PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME',
-            peran : 'Pembimbing',
-            urutan : 1,
-            status : false
-          },
-          {
-            ID_KoTA: 403,
-            judul_laporan: 'PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME',
-            peran : 'Penguji',
-            urutan : 2,
-            status : true
-          },
-        ]
+      async initialize () {
+        // this.KoTA = [
+        //   {
+        //     ID_KoTA: 402,
+        //     judul_laporan: 'PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME',
+        //     peran : 'Pembimbing',
+        //     urutan : 1,
+        //     status : false
+        //   },
+        //   {
+        //     ID_KoTA: 403,
+        //     judul_laporan: 'PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME',
+        //     peran : 'Penguji',
+        //     urutan : 2,
+        //     status : true
+        //   },
+        // ]
+
+         try {
+            const response = await axios.get(`http://localhost:3000/api/getdosendata/${this.dataFromToken.id_user}`)
+            this.dosen = response.data.data[0]
+          } catch (error) {
+            console.error(error.message);
+          }
+
+          try {
+            const responseRelasiDosen = await axios.get('http://localhost:3000/api/relasibynip/'+ this.dosen.NIP)
+            const regex = /^(\d{4})(\d{3})(\d{4})$/;
+            const list = responseRelasiDosen.data.data
+
+            // const div = document.createElement('div');
+
+          this.KoTA = list.map((item) => {
+          const div = document.createElement('div');
+          div.innerHTML = item.judul_TA;
+          const judulTAText = div.innerText;
+
+          return {
+            id_KoTA: item.id_KoTA ? item.id_KoTA.replace(regex, "$2-$1/$3") : null,
+            judul_TA: judulTAText,
+            role: item.role,
+            status: item.status,
+            urutan: item.urutan
+          };
+        });
+
+        
+          } catch (error) {
+            console.log(error.message.request)
+          }
+
+        
       },
 
       getButtonStyle(item) {
