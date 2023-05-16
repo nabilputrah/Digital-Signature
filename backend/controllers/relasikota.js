@@ -88,6 +88,34 @@ module.exports = {
    
 
   },
+
+  async getAllRelasiByNIP(req, res) {
+    const { id } = req.params
+
+    try {
+      const selectQuery = `SELECT r.role, r.urutan, r.status, l."judul_TA", l."id_KoTA",r."NIP" FROM "Relasi_KoTA" as r
+                          JOIN "Laporan" as l
+                          ON r."id_KoTA" = l."id_KoTA"
+                          WHERE r."NIP" = $1`
+      const paramsQuery = [id]
+
+      const result = await db.query(selectQuery,paramsQuery)
+
+      
+      if (Object.keys(result).length > 0) {
+        return res.status(200).send({
+          message: `Tampil succes`,
+          data: result.rows
+        })
+      } 
+  
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
+
   
   async getRelasiKoTAById(req, res) {
     const { id } = req.params
