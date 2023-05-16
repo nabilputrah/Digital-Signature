@@ -63,6 +63,28 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+router.get('/emailAccountKoTA', function(req, res, next) {
+  const username = '20224022023';
+  const formattedUsername = 'KoTA ' + username.substr(4, 3);
+  const password = 'abc123';
+  res.render('emailAccountKoTA', { username, password, formattedUsername });
+});
+
+router.get('/emailAccountDosen', function(req, res, next) {
+  const username = '199304262019032028';
+  const formattedUsername = 'Dosen ' + username.substr(4, 3);
+  const password = 'Dosen19932028';
+  res.render('emailAccountDosen', { username, password, formattedUsername });
+});
+
+router.get('/emailShareKey', function(req, res, next) {
+  const username = '199304262019032028';
+  const id_KoTA = '20224022023';
+  const formattedUKoTA = 'Dosen ' + id_KoTA.substr(4, 3);
+  const ShareKey = 'Dosen19932028';
+  res.render('emailShareKey', { username, id_KoTA, ShareKey, formattedUKoTA });
+});
+
 router.get('/pdf', (req, res) => {
   // Menampilkan file PDF pada halaman HTML
   res.send(`

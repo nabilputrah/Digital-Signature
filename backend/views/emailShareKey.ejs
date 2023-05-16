@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Email Template</title>
+    <style>
+        .copy-button {
+            color: white;
+            height: 100%;
+            padding: 5px;
+            border: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>ShareKey D-SIGN JTK POLBAN</h2>
+    <hr>
+    <h3>Halo, <%= username %>!</h3>
+    <p>Ini adalah email yang berisi informasi ShareKey yang digunakan untuk akses tanda tangan dokumen laporan KoTA.</p>
+    <p>KoTA : <%= formattedUKoTA %></p>
+    <p>ShareKey: <%= ShareKey %> <button style="background-color: #1a5f7a;border-radius: 5px;" class="copy-button" onclick="copyPassword()">Copy</button></p>
+    <p>ShareKey ini hanya dapat digunakan oleh anda.</p>
+    <p>Namun harap tetap jaga informasi ini dengan baik dan jangan berikan kepada orang lain.</p>
+    <p>Jika Anda memiliki pertanyaan atau membutuhkan bantuan, jangan ragu untuk menghubungi Koordinator.</p>
+    <p>Terima kasih!</p>
+
+    <script>
+        function copyPassword() {
+            const password = '<%= ShareKey %>';
+            navigator.clipboard.writeText(password).then(function() {
+                alert('Password telah disalin ke clipboard!');
+            }).catch(function(error) {
+                console.error('Tidak dapat menyalin password: ', error);
+            });
+        }
+    </script>
+</body>
+</html>
