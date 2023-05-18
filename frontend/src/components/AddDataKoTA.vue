@@ -390,7 +390,7 @@ export default {
         try {
           const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
           this.loggedIn = response.data.data[0]
-          console.log(this.loggedIn.nama_prodi)
+          // console.log(this.loggedIn.nama_prodi)
          
         } catch (error) {
           console.error(error.message);

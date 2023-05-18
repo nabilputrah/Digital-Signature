@@ -1,5 +1,6 @@
 const db = require('../db/index')
 const { Op } = require("sequelize");
+
 const KoTA = require('../models').KoTA;
 const User = require('../models').User;
 const Mahasiswa = require('../models').Mahasiswa;
@@ -36,6 +37,32 @@ module.exports = {
     }
    
 
+  },
+
+  async getAllKoTAByIdProdi (req, res) {
+    const { id } = req.params
+
+    try {
+        const selectQuery = `SELECT DISTINCT (m."id_KoTA"), k."tahun_ajaran" FROM "Mahasiswa" as m 
+                              JOIN "Koordinator" as k ON 
+                              m."id_prodi" = k."id_prodi"
+                              WHERE k."id_prodi" = $1 AND m."id_KoTA" IS NOT NULL 
+                            `
+        const paramsQuery = [id]
+
+        const result = await db.query(selectQuery,paramsQuery)
+
+        if (Object.keys(result).length > 0) {
+          return res.status(200).send({
+            message: `get kota by prodi sukses`,
+            data: result.rows
+          })
+        } 
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
   },
   
   async getKoTAById(req, res) {

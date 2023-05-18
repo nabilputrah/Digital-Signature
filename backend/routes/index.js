@@ -180,6 +180,7 @@ router.delete('/api/koordinator/:id', koordinatorController.deleteKoordinator)
 /* Endpoint KoTA Controller*/
 router.get('/api/KoTA', koTAController.getAllKoTA)
 router.get('/api/KoTA/:id', koTAController.getKoTAById)
+router.get('/api/KoTA/Prodi/:id', koTAController.getAllKoTAByIdProdi)
 router.post('/api/KoTA', koTAController.addKoTA)
 router.put('/api/KoTA/:id',koTAController.updateKoTA)
 router.delete('/api/KoTA/:id', koTAController.deleteKoTA)
