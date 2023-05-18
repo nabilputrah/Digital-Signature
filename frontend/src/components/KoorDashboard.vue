@@ -1,71 +1,160 @@
 <template>
-    <!-- Header Component -->
-    <!-- <v-app-bar app color="primary">
-      <v-toolbar-title>My Website</v-toolbar-title>
-    </v-app-bar> -->
+  <div>
+    <!-- <v-data-table
+      :headers="headers"
+      :items="items"
+      item-key="id"
+      show-expand
+      :expanded.sync="expandedItems"
+    >
+      <template v-slot:expanded-item="{ headers, item }">
+          <td :colspan="headers.length">
+            <div class="detail-container">
+              <span><strong>ID:</strong> {{ item.id }}</span>
+              <br>
+              <span><strong>Nama:</strong> {{ item.name }}</span>
+              <br>
+              <span><strong>Alamat:</strong> {{ item.address }}</span>
+              <br>
+              <span><strong>Detail:</strong></span>
+              <ul>
+                <li v-for="detail in item.details" :key="detail.detailId">
+                  <strong>ID Detail:</strong> {{ detail.detailId }}
+                  <br>
+                  <strong>Nama Detail:</strong> {{ detail.detailName }}
+                </li>
+              </ul>
+            </div>
+          </td>
+      </template>
+    </v-data-table> -->
 
-    <!-- Sidebar Component -->
-    <!-- <v-navigation-drawer app color="white" width="240">
-      <v-list>
-        <v-list-item v-for="(item, i) in items" :key="i">
-          <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer> -->
+    <div class="drop-area" @dragenter="dragEnter" @dragover="dragOver" @dragleave="dragLeave" @drop="dropFile">
+      <p v-if="!file" class="placeholder">Drag and drop file here</p>
+      <div v-else class="file-info">
+        <p class="file-name">{{ file.name }}</p>
+        <button class="remove-button" @click="removeFile">Remove</button>
+      </div>
+    </div>
 
-    <!-- Main Content Area -->
-    <v-main>
-      <v-container fluid>
-        <h1>Welcome to my website!</h1>
-        <p>Here is some content for the main area of the page.</p>
-
-         <embed v-if="previewUrl" :src="previewUrl" type="application/pdf" width="100%" height="500px" />
-      </v-container>
-    </v-main>
+  </div>
 </template>
 
 <script>
-import axios from 'axios'
 export default {
-  data: () => ({
+  // data() {
+  //   return {
+  //     headers: [
+  //       { text: 'ID', value: 'id' },
+  //       { text: 'Nama', value: 'name' },
+  //       { text: 'Alamat', value: 'address' },
+  //     ],
+  //     items: [
+  //       {
+  //         id: 1,
+  //         name: 'Item 1',
+  //         address: 'Alamat 1',
+  //         details: [
+  //           { detailId: 1, detailName: 'Detail 1' },
+  //           { detailId: 2, detailName: 'Detail 2' },
+  //         ],
+  //       },
+  //       {
+  //         id: 2,
+  //         name: 'Item 2',
+  //         address: 'Alamat 2',
+  //         details: [
+  //           { detailId: 1, detailName: 'Detail 1' },
+  //           { detailId: 2, detailName: 'Detail 2' },
+  //           { detailId: 3, detailName: 'Detail 3' },
+  //         ],
+  //       },
+  //     ],
+  //     expandedItems: [],
+  //   };
+  // },
 
-    dokumen:'',
-    previewUrl:'',
-
-    items: [
-      { title: 'Home', icon: 'mdi-home' },
-      { title: 'About', icon: 'mdi-information' },
-      { title: 'Contact', icon: 'mdi-email' },
-    ],
-  }),
-
-  mounted(){
-    this.initizialize()
+  data() {
+    return {
+      file: null
+    };
   },
-  methods:{
-    async initizialize() {
-      try {
-        const response = await axios.get('http://localhost:3000/api/dokumen/Dokumen_testing2',{responseType:'blob'})
-       
 
-        this.previewUrl = URL.createObjectURL(response.data);
-        console.log(this.previewUrl)
-      } catch (error) {
-        console.log(error.message.request)
+  methods: {
+    dragEnter(e) {
+      e.preventDefault();
+      e.target.classList.add('highlight');
+    },
+    dragOver(e) {
+      e.preventDefault();
+    },
+    dragLeave(e) {
+      e.preventDefault();
+      e.target.classList.remove('highlight');
+    },
+    dropFile(e) {
+      e.preventDefault();
+      e.target.classList.remove('highlight');
+
+      const files = e.dataTransfer.files;
+      this.handleFiles(files);
+    },
+    handleFiles(files) {
+      if (files.length > 0) {
+        this.file = files[0];
+        console.log(this.file)
       }
-    
-
-    
+    },
+    removeFile() {
+      this.file = null;
     }
   }
-}
+
+};
 </script>
 
-<style>
-/* Add your custom styles here */
+<style scoped>
+.detail-container {
+  margin: 1% 2%;
+}
+
+.drop-area {
+  width: 300px;
+  height: 200px;
+  border: 2px dashed #ccc;
+  text-align: center;
+  padding: 30px;
+  font-size: 20px;
+}
+
+.highlight {
+  background: lightgray;
+}
+
+.placeholder {
+  color: #888;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+}
+
+.file-name {
+  margin: 0;
+}
+
+.remove-button {
+  background-color: #ff5555;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
 </style>
