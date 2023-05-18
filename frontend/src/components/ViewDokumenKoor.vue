@@ -331,7 +331,7 @@ export default {
 
         this.Laporan = list.map((item) =>({
           ID_laporan: item.id_dokumen,
-          tanggal_dibuat: item.tgl_unggah,
+          tanggal_dibuat:this.convertDateDibuat(item.tgl_unggah),
           dokumen: item.id_dokumen
         }))
 
@@ -434,6 +434,19 @@ export default {
       const month = date.toISOString().substring(5, 7);
       const day = date.toISOString().substring(8, 10);
       this.laporan.tgl_disidangkan = year + '-' + month + '-' + day;
+    },
+
+    convertDateDibuat(tanggal_dibuat) {
+      const dateAsli = new Date(tanggal_dibuat);
+      const durasi = 7 * 60 * 60 * 1000;
+      let date = new Date(dateAsli.getTime() + durasi);
+      const year = date.toISOString().substring(0, 4);
+      const month = date.toISOString().substring(5, 7);
+      const day = date.toISOString().substring(8, 10);
+      const hours = date.toISOString().substring(11, 13);
+      const minute = date.toISOString().substring(14, 16);
+      const second = date.toISOString().substring(17, 19);
+      return tanggal_dibuat = year + '-' + month + '-' + day + ' ' + hours + ':' + minute + ':' + second;
     },
 
     shouldShowDownloadIcon(item) {

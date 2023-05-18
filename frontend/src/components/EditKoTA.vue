@@ -310,7 +310,10 @@ export default {
       id_laporan:'',
       id_user:'',
       statusAddKota: false,
+      loggedIn:'',
+      navbar:'',
       statusDeleteKota: false,
+      MahasiswaFiltered:'',
       
       detailKoTA:'',
       mahasiswaKoTA:'',
@@ -359,6 +362,12 @@ export default {
     }
   },
   mounted() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      this.navbar= payload.user;
+    }
+    this.initializeNavbarLoggedIn()
     this.generateListTahunAjaran();
     this.initializeDetailKoTA();
     this.initializeMahasiswaList();
@@ -410,6 +419,20 @@ export default {
   },
 
   methods: {
+    async initializeNavbarLoggedIn (){
+        const token = localStorage.getItem('token'); 
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        try {
+          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
+          this.loggedIn = response.data.data[0]
+          console.log(this.loggedIn.nama_prodi)
+         
+        } catch (error) {
+          console.error(error.message);
+        }
+     },
+
     async initializeMahasiswaList(){
       
     try {
@@ -420,15 +443,37 @@ export default {
       const response = await axios.get('http://localhost:3000/api/mahasiswakota/'+ this.$route.params.id)
       this.mahasiswaKoTA= response.data.data
     
-    
+      if (this.loggedIn.nama_prodi === 'D4') {
+          this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD001");
+
+          const mappedData = this.MahasiswaFiltered.map((item) => {
+            if (item.id_prodi === "PRD001") {
+              item.id_prodi = "D4";
+            }
+            return item;
+          })
+
+        this.MahasiswaFiltered = mappedData
+      } else{
+        this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD002");
+
+          const mappedData = this.MahasiswaFiltered.map((item) => {
+            if (item.id_prodi === "PRD002") {
+              item.id_prodi = "D3";
+            }
+            return item;
+          })
+              this.MahasiswaFiltered = mappedData
+      }
+      
       const selectedItem = this.mahasiswaKoTA.map((item) => ({
         selectedItem: item.NIM,
-        items: listMahasiswa.map((mhs) =>({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` })),
+        items: this.MahasiswaFiltered.map((mhs) =>({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` })),
         search: ""
       }));
       this.form = selectedItem;
 
-      
+
       } catch (error) {
         console.error(error.message);
       }

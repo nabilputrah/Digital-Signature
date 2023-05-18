@@ -18,6 +18,7 @@
         :search="search"
         :headers="headers"
         :items="KoTA"
+        sort-by="id_KoTA"
         class="elevation-1"
         style="padding-top: 0.5%;"
       >

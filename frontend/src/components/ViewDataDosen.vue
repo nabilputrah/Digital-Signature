@@ -26,9 +26,11 @@
     class="custom-card"
     >
       <div style="width: 97%;margin-left: auto;margin-right: auto;">
-        <v-card-title>Data Laporan TA</v-card-title>
+        <v-card-title>Data Jurusan</v-card-title>
         <v-card-text >
-          <v-form>
+          <v-form
+            v-model="PimpinanValid"
+            >
             <!-- Start Form Ketua Jurusan -->
             <v-row>
               <v-col cols="4">
@@ -42,6 +44,7 @@
                 <v-select
                   v-model="formKajur.selectedItem"
                   :items="filteredKajur()"
+                  :rules="[validateSelection('formKajur')]"
                   clearable
                   outlined
                   dense
@@ -74,6 +77,7 @@
                 <v-select
                   v-model="formKaprodiD3.selectedItem"
                   :items="filteredKaprodiD3()"
+                  :rules="[validateSelection('formKaprodiD3')]"
                   clearable
                   outlined
                   dense
@@ -106,6 +110,7 @@
                 <v-select
                   v-model="formKaprodiD4.selectedItem"
                   :items="filteredKaprodiD4()"
+                  :rules="[validateSelection('formKaprodiD4')]"
                   clearable
                   outlined
                   dense
@@ -128,7 +133,11 @@
             <!-- Start Button Simpan Perubahan -->
             <v-row >
               <v-col class="text-right" >
-                <v-btn color="primary" @click="saveDataPimpinan">Simpan Perubahan</v-btn>
+                <v-btn 
+                  color="primary" 
+                  @click="saveDataPimpinan"
+                  :disabled="!PimpinanValid"
+                  >Simpan Perubahan</v-btn>
               </v-col>
             </v-row>
             <!-- End Button Simpan Perubahan -->
@@ -407,25 +416,26 @@ import axios from 'axios'
       ],
 
       formKajur: {
-        selectedItem: 'Nanda',
-        items: ['Nanda', 'Jajang'],
+        selectedItem: '',
+        items: ['Dosen 1', 'Dosen 2'],
         search: '',
       },
 
       formKaprodiD3: {
-        selectedItem: 'Nanda',
-        items: ['Nanda', 'Jajang'],
+        selectedItem: '',
+        items: ['Dosen 1', 'Dosen 2'],
         search: '',
       },
 
       formKaprodiD4: {
-        selectedItem: 'Nanda',
-        items: ['Nanda', 'Jajang'],
+        selectedItem: '',
+        items: ['Dosen 1', 'Dosen 2'],
         search: '',
       },
 
       // Data validasi Input
       valid: false,
+      PimpinanValid:false,
       rules: {
         nip: [
           v => !!v || "NIP wajib diisi",
@@ -441,6 +451,9 @@ import axios from 'axios'
           v =>
             /.+@.+\..+/.test(v) ||
             "Format email tidak valid"
+        ],
+        form:[
+          v => !!v || "Form wajib diisi",
         ]
       },
       MessageError :'',
@@ -527,6 +540,34 @@ import axios from 'axios'
     },
 
     methods: {
+      validateSelection(target) {
+        return (value) => {
+          if (!value) return 'Form wajib diisi';
+          // Lakukan validasi di sini
+          if (target === 'formKajur') {
+            if (value && value === this.formKaprodiD3.selectedItem) {
+              return 'Tidak dapat memilih Dosen Kaprodi D3.';
+            }
+            if (value && value === this.formKaprodiD4.selectedItem) {
+              return 'Tidak dapat memilih Dosen Kaprodi D4.';
+            }
+          } else if (target === 'formKaprodiD3') {
+            if (value && value === this.formKajur.selectedItem) {
+              return 'Tidak dapat memilih Ketua Jurusan.';
+            }
+            if (value && value === this.formKaprodiD4.selectedItem) {
+              return 'Tidak dapat memilih Dosen Kaprodi D4.';
+            }
+          } else if (target === 'formKaprodiD4') {
+            if (value && value === this.formKajur.selectedItem) {
+              return 'Tidak dapat memilih Ketua Jurusan.';
+            }
+            if (value && value === this.formKaprodiD3.selectedItem) {
+              return 'Tidak dapat memilih Dosen Kaprodi D3.';
+            }
+          }
+        };
+      },
 
       async initializeDosenList () {
         try {
