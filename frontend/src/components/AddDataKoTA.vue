@@ -268,7 +268,8 @@ import axios from 'axios'
 export default {
   data() {
     return {
-
+      kaprodiData:'',
+      kajurData:'',
       statusAddKota: false,
       loggedIn:'',
       navbar:'',
@@ -332,6 +333,7 @@ export default {
     }
    this.initializeNavbarLoggedIn()
    this.generateListTahunAjaran();
+   this.initializePimpinanList()
    this.initializeMahasiswaList();
    this.initializePembimbingList();
    this.initializePengujiList();
@@ -382,6 +384,13 @@ export default {
   },
 
   methods: {
+  
+     async initializePimpinanList() {
+        const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
+        this.kajurData = responseKajur.data.data[0]
+        const responseKaprodi = await axios.get('http://localhost:3000/api/prodi')
+        this.kaprodiData = responseKaprodi.data.data
+     },
 
      async initializeNavbarLoggedIn (){
         const token = localStorage.getItem('token'); 
@@ -867,7 +876,73 @@ export default {
             console.log(error.request.response)
         })
       }
+
+      // relasi Kaprodi
+      if (this.loggedIn.id_prodi === 'PRD001') {
+        await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.kaprodiData[0].NIP,
+            role:'Kaprodi',
+            urutan: null
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
       }
+
+      else if (this.loggedIn.id_prodi === 'PRD002') {
+        await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.kaprodiData[1].NIP,
+            role:'Kaprodi',
+            urutan: null
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+      }
+      // relasi Kajur
+      await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/relasi/',
+          data: {
+            id_KoTA: generatedIdKota,
+            NIP: this.kajurData.NIP,
+            role:'Kajur',
+            urutan: null
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
+      
+        
+
+    }
      
 
       this.$router.push('/koordinator/KoTA')
