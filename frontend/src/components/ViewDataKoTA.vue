@@ -183,6 +183,9 @@
 import axios from 'axios'
   export default {
     data: () => ({
+      id_prodiBaru:'',
+      loggedIn:'',
+      navbar:'',
       search : '',
       dialogEmail: false,
       dialogAllEmail : false,
@@ -220,10 +223,31 @@ import axios from 'axios'
     }),
 
     mounted () {
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      this.navbar= payload.user;
+    }
+      this.initializeNavbarLoggedIn()
       this.initialize()
     },
 
     methods: {
+      async initializeNavbarLoggedIn (){
+        const token = localStorage.getItem('token'); 
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        try {
+          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
+          this.loggedIn = response.data.data[0]
+          
+          this.id_prodiBaru = this.loggedIn.id_prodi
+         
+        } catch (error) {
+          console.error(error.message);
+        }
+     },
       async initialize () {
         // this.KoTA = [
         //   {
@@ -236,8 +260,12 @@ import axios from 'axios'
         //   },
         // ]
         try {
-          const response = await axios.get('http://localhost:3000/api/KoTA')
+       
+          const response = await axios.get('http://localhost:3000/api/KoTA/')
           this.KoTA = response.data.data
+          console.log(this.KoTA)
+                 
+                  console.log(this.loggedIn.id_prodi)
 
         } catch (error) {
           console.log(error.message)
