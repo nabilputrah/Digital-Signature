@@ -115,22 +115,7 @@ import axios from 'axios'
 
     methods: {
       async initialize () {
-        // this.KoTA = [
-        //   {
-        //     ID_KoTA: 402,
-        //     judul_laporan: 'PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME',
-        //     peran : 'Pembimbing',
-        //     urutan : 1,
-        //     status : false
-        //   },
-        //   {
-        //     ID_KoTA: 403,
-        //     judul_laporan: 'PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME',
-        //     peran : 'Penguji',
-        //     urutan : 2,
-        //     status : true
-        //   },
-        // ]
+        
 
          try {
             const response = await axios.get(`http://localhost:3000/api/getdosendata/${this.dataFromToken.id_user}`)
