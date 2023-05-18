@@ -36,7 +36,7 @@ module.exports = {
       },
       isKetua: {
         type: Sequelize.BOOLEAN,
-        allowNull: false
+     
       },
     });
   },

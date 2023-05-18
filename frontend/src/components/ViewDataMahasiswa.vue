@@ -421,7 +421,7 @@ import axios from 'axios'
        
           axios({
             method:'put',
-            url: 'http://localhost:3000/api/mahasiswa/'+ this.editedItem.NIM,
+            url: 'http://localhost:3000/api/mahasiswaWithoutIsKetua/'+ this.editedItem.NIM,
             data: this.editedItem
           })
           .then(response => {
