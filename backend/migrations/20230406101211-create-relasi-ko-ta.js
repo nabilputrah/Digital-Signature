@@ -33,7 +33,7 @@ module.exports = {
       },
       urutan: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        
       },
       status: {
         type: Sequelize.BOOLEAN,
