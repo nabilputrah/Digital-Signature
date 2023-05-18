@@ -255,6 +255,46 @@ module.exports = {
       })
     }
   },
+  async updateMahasiswaWithoutIsKetua(req, res) {
+    const { id } = req.params
+    const { NIM, id_KoTA, nama, email} = req.body
+
+    try {
+      const mahasiswa = await Mahasiswa.findOne({
+        where: {
+          NIM: id
+        },
+        attributes: {
+          exclude:['id']
+        }
+      })
+
+      if (!mahasiswa) {
+        return res.status(404).send({
+          message:'Data mahasiswa tidak ditemukan'
+        })
+      }
+
+      const updateQuery = `UPDATE "Mahasiswa" SET "NIM" = $1, "id_KoTA" = $2, "nama"=$3,
+                           "email"=$4 
+                           WHERE "NIM"= $5 RETURNING *`
+
+      const paramsQuery = [ NIM, id_KoTA, nama, email, id]
+
+      const result = await db.query(updateQuery, paramsQuery)
+
+      if (Object.keys(result).length > 0) {
+        return res.status(200).send({
+          message: `Update data mahasiswa dengan id mahasiswa ${id} berhasil`,
+          data: result.rows
+        })
+      } 
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
   async updateMahasiswaStatusKoTA(req, res) {
     const { id } = req.params
     const { id_KoTA, isKetua} = req.body
