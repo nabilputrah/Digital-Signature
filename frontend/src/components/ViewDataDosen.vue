@@ -21,8 +21,125 @@
     </v-breadcrumbs>
     <!-- End Breadcrumbs -->
 
+    <!-- Start Form Detail Laporan -->
+    <v-card
+    class="custom-card"
+    >
+      <div style="width: 97%;margin-left: auto;margin-right: auto;">
+        <v-card-title>Data Laporan TA</v-card-title>
+        <v-card-text >
+          <v-form>
+            <!-- Start Form Ketua Jurusan -->
+            <v-row>
+              <v-col cols="4">
+                <div class="justify-center">
+                  <span 
+                  style="font-size:1rem;"
+                  >Ketua Jurusan</span>
+                </div>
+              </v-col>
+              <v-col cols="8" >
+                <v-select
+                  v-model="formKajur.selectedItem"
+                  :items="filteredKajur()"
+                  clearable
+                  outlined
+                  dense
+                  :menu-props="{ offsetY: true}"
+                  :placeholder="'Pilih Ketua Jurusan'"
+                >
+                  <template v-slot:prepend-item>
+                    <v-text-field
+                    style="width: 97%;margin-left: auto;margin-right: auto;"
+                      v-model="formKajur.search"
+                      :label="'Cari Dosen'"
+                      hide-details
+                      @input="onSearchKajur()"
+                    />
+                  </template>
+                </v-select>
+              </v-col>
+            </v-row>
+            <!-- End Form Ketua Jurusan -->
+            <!-- Start Form Ketua Prodi D3 -->
+            <v-row>
+              <v-col cols="4">
+                <div class="justify-center">
+                  <span 
+                  style="font-size:1rem;"
+                  >Ketua Prodi D3</span>
+                </div>
+              </v-col>
+              <v-col cols="8" >
+                <v-select
+                  v-model="formKaprodiD3.selectedItem"
+                  :items="filteredKaprodiD3()"
+                  clearable
+                  outlined
+                  dense
+                  :menu-props="{ offsetY: true}"
+                  :placeholder="'Pilih Ketua Prodi D3'"
+                >
+                  <template v-slot:prepend-item>
+                    <v-text-field
+                    style="width: 97%;margin-left: auto;margin-right: auto;"
+                      v-model="formKaprodiD3.search"
+                      :label="'Cari Dosen'"
+                      hide-details
+                      @input="onSearchKaprodiD3()"
+                    />
+                  </template>
+                </v-select>
+              </v-col>
+            </v-row>
+            <!-- End Form Ketua Prodi D3 -->
+            <!-- Start Form Ketua Prodi D4 -->
+            <v-row>
+              <v-col cols="4">
+                <div class="justify-center">
+                  <span 
+                  style="font-size:1rem;"
+                  >Ketua Prodi D4</span>
+                </div>
+              </v-col>
+              <v-col cols="8" >
+                <v-select
+                  v-model="formKaprodiD4.selectedItem"
+                  :items="filteredKaprodiD4()"
+                  clearable
+                  outlined
+                  dense
+                  :menu-props="{ offsetY: true}"
+                  :placeholder="'Pilih Ketua Prodi D4'"
+                >
+                  <template v-slot:prepend-item>
+                    <v-text-field
+                    style="width: 97%;margin-left: auto;margin-right: auto;"
+                      v-model="formKaprodiD4.search"
+                      :label="'Cari Dosen'"
+                      hide-details
+                      @input="onSearchKaprodiD4()"
+                    />
+                  </template>
+                </v-select>
+              </v-col>
+            </v-row>
+            <!-- End Form Ketua Prodi D4 -->
+            <!-- Start Button Simpan Perubahan -->
+            <v-row >
+              <v-col class="text-right" >
+                <v-btn color="primary" @click="saveDataPimpinan">Simpan Perubahan</v-btn>
+              </v-col>
+            </v-row>
+            <!-- End Button Simpan Perubahan -->
+          </v-form>
+        </v-card-text>
+    </div>
+    </v-card>
+    <!-- End Form Detail Laporan -->
+
     <!-- Start Datatables -->
-    <v-card class="custom-card">
+    <v-card class="custom-card" style="margin-top: 2%;margin-bottom: 2%;">
       <v-data-table
         :search="search"
         :headers="headers"
@@ -111,7 +228,7 @@
                     @click="save"
                     :disabled="!valid"
                   >
-                    Save
+                    Simpan
                   </v-btn>
                 </v-card-actions>
               </v-card>
@@ -287,6 +404,24 @@ import axios from 'axios'
         { text: 'Actions', value: 'actions', sortable: false },
       ],
 
+      formKajur: {
+        selectedItem: 'Nanda',
+        items: ['Nanda', 'Jajang'],
+        search: '',
+      },
+
+      formKaprodiD3: {
+        selectedItem: 'Nanda',
+        items: ['Nanda', 'Jajang'],
+        search: '',
+      },
+
+      formKaprodiD4: {
+        selectedItem: 'Nanda',
+        items: ['Nanda', 'Jajang'],
+        search: '',
+      },
+
       // Data validasi Input
       valid: false,
       rules: {
@@ -334,6 +469,45 @@ import axios from 'axios'
       formTitle () {
         return this.editedIndex === -1 ? 'Tambah Dosen' : 'Sunting Data Dosen'
       },
+      filteredKajur() {
+        return () => {
+          const items = this.formKajur.items;
+          const search = this.formKajur.search;
+          if (search.length === 0) {
+            return items;
+          } else {
+            return items.filter((item) =>
+              item.text.toLowerCase().includes(search.toLowerCase())
+            );
+          }
+        };
+      },
+      filteredKaprodiD4() {
+        return () => {
+          const items = this.formKaprodiD4.items;
+          const search = this.formKaprodiD4.search;
+          if (search.length === 0) {
+            return items;
+          } else {
+            return items.filter((item) =>
+              item.text.toLowerCase().includes(search.toLowerCase())
+            );
+          }
+        };
+      },
+      filteredKaprodiD3() {
+        return () => {
+          const items = this.formKaprodiD3.items;
+          const search = this.formKaprodiD3.search;
+          if (search.length === 0) {
+            return items;
+          } else {
+            return items.filter((item) =>
+              item.text.toLowerCase().includes(search.toLowerCase())
+            );
+          }
+        };
+      },
     },
 
     watch: {
@@ -346,10 +520,49 @@ import axios from 'axios'
     },
 
     mounted () {
+      this.initializeDosenList();
       this.initialize()
     },
 
     methods: {
+
+      async initializeDosenList () {
+        try {
+          const response = await axios.get(`http://localhost:3000/api/dosen`);
+          const dosen = response.data.data
+        
+          this.formKajur.items = dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
+          this.formKaprodiD3.items = dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
+          this.formKaprodiD4.items = dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
+        } catch (error) {
+          console.error(error.message);
+        }
+      },
+
+      onSearchKajur() {
+        if (this.formKajur.search.length > 0) {
+          this.formKajur.selectedItem = null;
+        }
+      },
+
+      onSearchKaprodiD3(){
+        if (this.formKaprodiD3.search.length > 0) {
+          this.formKaprodiD3.selectedItem = null;
+        }
+      },
+
+      onSearchKaprodiD4(){
+        if (this.formKaprodiD4.search.length > 0) {
+          this.formKaprodiD4.selectedItem = null;
+        }
+      },
+
+      saveDataPimpinan () {
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Data Ketua Jurusan dan Ketua Prodi Berhasil Disimpan!";
+      },
+
       async initialize () {
          try {
           const response = await axios.get(`http://localhost:3000/api/dosen`);
