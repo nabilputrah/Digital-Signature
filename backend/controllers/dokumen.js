@@ -6,23 +6,22 @@ const Laporan = require('../models').Laporan;
 const Dokumen = require('../models').Dokumen;
 const crypto = require('crypto');
 
-const moment = require('moment-timezone');
-moment.tz.setDefault('Asia/Jakarta');
 
-
-const now = moment();
-
-const formattedDate = now.format('YYYY-MM-DD');
-// Format time for file
-// const formattedTime = now.format('HHmmss');
-// Format time for saving to database
-const formattedTimeFull = now.format('HH:mm:ss');
-
- const fullDatetime = formattedDate + " " + formattedTimeFull
 
 module.exports = {
 
   async addDokumen(req, res) {
+    const moment = require('moment-timezone');
+    moment.tz.setDefault('Asia/Jakarta');
+
+
+    const now = moment();
+
+    const formattedDate = now.format('YYYY-MM-DD');
+
+    const formattedTimeFull = now.format('HH:mm:ss');
+
+ const fullDatetime = formattedDate + " " + formattedTimeFull
     const { dokumen_laporan } = req.files
     const { id_dokumen, id_laporan, version} = req.body
     

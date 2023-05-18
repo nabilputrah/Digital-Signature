@@ -132,6 +132,7 @@ router.post('/api/upload', (req, res) => {
 
 /* Endpoint User Controller */ 
 router.post('/api/signupuser/koordinatord4', userController.signUpUserKoorD4)
+router.post('/api/signupuser/koordinatord3', userController.signUpUserKoorD3)
 router.post('/api/signupuser/dosen', userController.signUpUserDosen)
 router.post('/api/signupuser/kota', userController.signUpUserKoTA)
 router.post('/api/signup', userController.signUpUser)
