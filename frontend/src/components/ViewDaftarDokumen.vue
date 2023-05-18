@@ -60,7 +60,7 @@
         <template v-slot:[`item.dokumen`]="{ item }">
           <v-icon
             class="mr-2"
-            @click="redirectToDetail(item.ID_KoTA)"
+            @click="redirectToDetail(item.id_detailLaporan)"
           >
             mdi-file-document-arrow-right
           </v-icon>
@@ -138,6 +138,7 @@ import axios from 'axios'
 
           return {
             id_KoTA: item.id_KoTA ? item.id_KoTA.replace(regex, "$2-$1/$3") : null,
+            id_detailLaporan : item.id_KoTA,
             judul_TA: judulTAText,
             role: item.role,
             status: item.status,

@@ -95,10 +95,10 @@ export default {
                   this.$router.push('/koordinator/KoTA')
               }
               else if (userRole === 'Dosen') {
-                  this.$router.push('/dosen/profil')
+                  this.$router.push('/dosen/daftar_dokumen')
               }
               else if (userRole === 'KoTA') {
-                  this.$router.push('/KoTA/profil')
+                  this.$router.push('/KoTA/dokumen_detail')
               }
           }
    
