@@ -5,7 +5,7 @@
         <!-- Start Card Utama -->
         <v-card 
           v-if="WelcomeCard" 
-          style="width: 35%;"
+          style="width: 40%;"
           color="white"
           >
             <v-card-title class="headline">Selamat Datang di D-Sign JTK Polban!!!</v-card-title>

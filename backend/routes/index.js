@@ -153,6 +153,7 @@ router.post('/api/dosen', dosenController.addDosen)
 router.get('/api/dosen/:id', dosenController.getDosenByNIP)
 router.put('/api/dosen/:id',dosenController.updateDosen)
 router.delete('/api/dosen/:id', dosenController.deleteDosen);
+router.post('/api/dosenimport/', dosenController.importAllDosenWithUser)
 
 /* Endpoint Jurusan Controller*/
 router.get('/api/jurusan', jurusanController.getAllJurusan)
