@@ -22,7 +22,8 @@
     <!-- End Breadcrumbs -->
 
     <!-- Start Datatables -->
-    <v-card class="custom-card">
+    <v-card class="custom-card"
+    style="margin-bottom: 2%;">
       <v-data-table
         :search="search"
         :headers="headers"

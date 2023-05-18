@@ -33,6 +33,7 @@
     <!-- Start Card -->
     <v-card
     class="custom-card"
+    style="margin-bottom: 2%;"
     >
       <div style="width: 97%;margin-left: auto;margin-right: auto;">
         <v-card-title>Tambah Data KoTA</v-card-title>
