@@ -230,7 +230,7 @@ import axios from 'axios'
       this.navbar= payload.user;
     }
       this.initializeNavbarLoggedIn()
-      this.initialize()
+      // this.initialize()
     },
 
     methods: {
@@ -243,6 +243,9 @@ import axios from 'axios'
           this.loggedIn = response.data.data[0]
           
           this.id_prodiBaru = this.loggedIn.id_prodi
+
+          const responseJoin = await axios.get('http://localhost:3000/api/KoTA/Prodi/' + this.id_prodiBaru)
+          this.KoTA = responseJoin.data.data
          
         } catch (error) {
           console.error(error.message);
@@ -261,8 +264,7 @@ import axios from 'axios'
         // ]
         try {
        
-          const response = await axios.get('http://localhost:3000/api/KoTA/')
-          this.KoTA = response.data.data
+          
           console.log(this.KoTA)
                  
                   console.log(this.loggedIn.id_prodi)
