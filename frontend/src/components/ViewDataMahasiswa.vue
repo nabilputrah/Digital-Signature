@@ -296,7 +296,7 @@ import axios from 'axios'
       }
       // this.$validate()
       this.initializeNavbarLoggedIn()
-            this.initialize()
+      this.initialize()
     },
 
   
