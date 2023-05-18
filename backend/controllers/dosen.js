@@ -1,4 +1,8 @@
 const { sequelize } = require('../models');
+const csv = require('csv-parser');
+const fs = require('fs');
+
+const bcrypt = require('bcrypt');
 const db = require('../db/index')
 const Dosen = require('../models').Dosen;
 const User = require('../models').User;
@@ -151,7 +155,56 @@ module.exports = {
         message: error.message
       })
     }
-  }
+  },
+
+  async importAllDosenWithUser(req,res) {
+    fs.createReadStream('./CSV/DataDosen.tsv')
+    .pipe(csv({
+      separator: '\t'
+    }))
+    .on('data', async (row) => {
+      try {
+        let user = ''
+        const password = "Dosen" + row.NIP.substring(0, 4) + row.NIP.substring(row.NIP.length - 4)
+        const hashPassword = await bcrypt.hash(password, 10)
+
+        const optionsUser = {
+          fields: ['username', 'password', 'role'],
+          returning: false
+        }
+
+        await User.create({
+          username: row.NIP,
+          password: hashPassword,
+          role: 'Dosen'
+        }, optionsUser)
+
+         user = await User.findOne({
+          where: {
+            username: row.NIP
+          },
+          attributes: {
+            exclude: ['id','createdAt','updatedAt']
+          }
+        })
+        // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
+        await Dosen.upsert({
+          NIP: row.NIP,
+          id_user:user.id_user,
+          nama: row.nama,
+          email: row.email,
+        });
+      
+      } catch (err) {
+        console.error(err);
+      }
+    })
+    .on('end', () => {
+      return res.status(200).send({
+        message: 'data berhasil diimpor ke database '
+      })
+    });
+  },
   
 
   // async updateDosen(req, res) {
