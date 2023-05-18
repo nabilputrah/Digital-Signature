@@ -134,7 +134,7 @@
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon
             class="mr-2"
-            @click="redirectToEdit(item.id_KoTA)"
+            @click="redirectToEdit(item.dokumen)"
           >
             mdi-pencil-outline
           </v-icon>
@@ -149,7 +149,7 @@
         <template v-slot:[`item.dokumen`]="{ item }">
           <v-icon
             class="mr-2"
-            @click="redirectToDetail(item.id_KoTA)"
+            @click="redirectToDetail(item.dokumen)"
           >
             mdi-file-document-arrow-right
           </v-icon>
@@ -183,7 +183,6 @@
 import axios from 'axios'
   export default {
     data: () => ({
-      id_prodiBaru:'',
       loggedIn:'',
       navbar:'',
       search : '',
@@ -229,48 +228,31 @@ import axios from 'axios'
       const payload = JSON.parse(atob(token.split('.')[1]));
       this.navbar= payload.user;
     }
-      this.initializeNavbarLoggedIn()
+      this.initialize()
       // this.initialize()
     },
 
     methods: {
-      async initializeNavbarLoggedIn (){
+      async initialize (){
         const token = localStorage.getItem('token'); 
         const headers = { Authorization: `Bearer ${token}` };
         
         try {
           const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
           this.loggedIn = response.data.data[0]
-          
-          this.id_prodiBaru = this.loggedIn.id_prodi
+                   
+          const responseListKoTA = await axios.get('http://localhost:3000/api/KoTA/Prodi/'+this.loggedIn.id_prodi)
+          const list = responseListKoTA.data.data
+          const regex = /^(\d{4})(\d{3})(\d{4})$/;
+          const mappedKoTA = list.map((item) => ({
+            id_KoTA : item.id_KoTA ? item.id_KoTA.replace(regex, "$2-$1/$3") : null,
+            dokumen : item.id_KoTA,
+            tahun_ajaran: item.tahun_ajaran
+          }));
+          this.KoTA = mappedKoTA
 
-          const responseJoin = await axios.get('http://localhost:3000/api/KoTA/Prodi/' + this.id_prodiBaru)
-          this.KoTA = responseJoin.data.data
-         
         } catch (error) {
           console.error(error.message);
-        }
-     },
-      async initialize () {
-        // this.KoTA = [
-        //   {
-        //     id_KoTA: 402,
-        //     tahun_ajaran: '2022/2023',
-        //   },
-        //   {
-        //     id_KoTA: 403,
-        //     tahun_ajaran: '2023/2024',
-        //   },
-        // ]
-        try {
-       
-          
-          console.log(this.KoTA)
-                 
-                  console.log(this.loggedIn.id_prodi)
-
-        } catch (error) {
-          console.log(error.message)
         }
       },
 

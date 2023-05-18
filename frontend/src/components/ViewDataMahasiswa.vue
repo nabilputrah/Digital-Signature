@@ -22,12 +22,13 @@
     <!-- End Breadcrumbs -->
 
     <!-- Start Datatables -->
-    <v-card class="custom-card">
+    <v-card class="custom-card"
+    style="margin-bottom: 2%;">
       <v-data-table
         :search="search"
         :headers="headers"
         :items="mahasiswa"
-        sort-by="calories"
+        sort-by="id_KoTA"
         class="elevation-1"
         style="padding-top: 0.5%;"
       >
@@ -209,6 +210,7 @@ import axios from 'axios'
       navbar:'',
       duplikatNIMUpdated :false,
       resultAkhir:'',
+      ProdiAktif:'',
       search : '',
       dialog: false,
       dialogDelete: false,
@@ -294,7 +296,7 @@ import axios from 'axios'
       }
       // this.$validate()
       this.initializeNavbarLoggedIn()
-            this.initialize()
+      this.initialize()
     },
 
   
@@ -441,7 +443,12 @@ import axios from 'axios'
               }
           })
         } else {
-
+          if (this.loggedIn.nama_prodi === 'D4') {
+            this.ProdiAktif = 'PRD001'
+          }
+          else {
+            this.ProdiAktif = 'PRD002'
+          }
            axios({
             method:'post',
             url: 'http://localhost:3000/api/mahasiswa/',
@@ -449,7 +456,7 @@ import axios from 'axios'
               NIM : this.editedItem.NIM,
               nama : this.editedItem.nama,
               email : this.editedItem.email,
-              id_prodi:'PRD001',
+              id_prodi:this.ProdiAktif,
               isKetua: false
             } 
           })

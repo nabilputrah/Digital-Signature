@@ -33,6 +33,7 @@
     <!-- Start Card -->
     <v-card
     class="custom-card"
+    style="margin-bottom: 2%;"
     >
       <div style="width: 97%;margin-left: auto;margin-right: auto;">
         <v-card-title>Tambah Data KoTA</v-card-title>
@@ -272,6 +273,7 @@ export default {
       statusAddKota: false,
       loggedIn:'',
       navbar:'',
+      ProdiAktif:'',
       // Data Form Nama
       ID_KoTA : '',
 
@@ -449,7 +451,7 @@ export default {
           const response = await axios.get(`http://localhost:3000/api/mahasiswa/`);
           const mahasiswa = response.data.data
 
-             if (this.loggedIn.nama_prodi === 'D4') {
+          if (this.loggedIn.nama_prodi === 'D4') {
              this.MahasiswaFiltered = mahasiswa.filter((item) => item.id_prodi === "PRD001");
 
              const mappedData = this.MahasiswaFiltered.map((item) => {
@@ -515,6 +517,13 @@ export default {
       const tahunAjaranTanpaTanda = tahunAjaran.replace("/", "");
       const generatedIdKota = tahunAjaranTanpaTanda.slice(0, 4) + namaKota + tahunAjaranTanpaTanda.slice(4);
       
+      if (this.loggedIn.nama_prodi === 'D4') {
+        this.ProdiAktif = 'PRD001'
+      }
+      else {
+        this.ProdiAktif = 'PRD002'
+      }
+
       // insert data to kota 
       await axios({
         method:'post',
@@ -523,7 +532,7 @@ export default {
           username: generatedIdKota,
           nama_KoTA: namaKota,
           tahun_ajaran: tahunAjaran,
-          id_prodi: 'PRD001',
+          id_prodi: this.ProdiAktif,
           jumlah_pembimbing: this.formPembimbing.length,
           jumlah_penguji: this.formPenguji.length,
         } 
