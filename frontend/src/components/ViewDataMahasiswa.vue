@@ -206,9 +206,8 @@ import axios from 'axios'
     // pdf,
   },
     data: () => ({
-      // source1: ('../assets/LaporanTA.pdf'),
-      // source2: 'data:application/pdf;base64,<BASE64_ENCODED_PDF>',
-      // alamat:require('../assets/LaporanTA.pdf'),
+      loggedIn:'',
+      navbar:'',
       duplikatNIMUpdated :false,
       resultAkhir:'',
       search : '',
@@ -222,6 +221,7 @@ import axios from 'axios'
         },
         { text: 'Nama', value: 'nama' },
         { text: 'Email', value: 'email' },
+        { text: 'Prodi', value: 'id_prodi' },
         { text: 'KoTA', value: 'id_KoTA' },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
@@ -287,8 +287,15 @@ import axios from 'axios'
     },
 
     mounted () {
-      this.initialize()
+
+      const token = localStorage.getItem('token');
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.navbar= payload.user;
+      }
       // this.$validate()
+      this.initializeNavbarLoggedIn()
+            this.initialize()
     },
 
   
@@ -297,6 +304,22 @@ import axios from 'axios'
       openPage() {
         this.dialogHtml = true
       },
+
+      async initializeNavbarLoggedIn (){
+        const token = localStorage.getItem('token'); 
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        try {
+          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
+          this.loggedIn = response.data.data[0]
+          console.log(this.loggedIn.nama_prodi)
+         
+        } catch (error) {
+          console.error(error.message);
+        }
+      },
+    
+      
       async initialize () {
         try {
           const response = await axios.get(`http://localhost:3000/api/mahasiswa`);
@@ -306,9 +329,37 @@ import axios from 'axios'
             NIM: item.NIM,
             nama: item.nama,
             email: item.email,
+            id_prodi: item.id_prodi,
             id_KoTA : item.id_KoTA ? item.id_KoTA.replace(regex, "$2-$1/$3") : null
           }));
           this.mahasiswa = mappedMahasiswa
+          
+          if (this.loggedIn.nama_prodi === 'D4') {
+             this.mahasiswa = this.mahasiswa.filter((item) => item.id_prodi === "PRD001");
+
+             const mappedData = this.mahasiswa.map((item) => {
+                if (item.id_prodi === "PRD001") {
+                  item.id_prodi = "D4";
+                }
+                return item;
+              })
+
+            this.mahasiswa = mappedData
+          } else{
+            this.mahasiswa = this.mahasiswa.filter((item) => item.id_prodi === "PRD002");
+
+              const mappedData = this.mahasiswa.map((item) => {
+                if (item.id_prodi === "PRD002") {
+                  item.id_prodi = "D3";
+                }
+                return item;
+              })
+
+            this.mahasiswa = mappedData
+          }
+
+         
+         
         } catch (error) {
           console.error(error.message);
         }

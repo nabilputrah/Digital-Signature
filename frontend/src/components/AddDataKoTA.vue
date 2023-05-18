@@ -270,12 +270,16 @@ export default {
     return {
 
       statusAddKota: false,
+      loggedIn:'',
+      navbar:'',
       // Data Form Nama
       ID_KoTA : '',
 
       // Data Tahun Ajaran
       tahunAjaran: '',
       listTahunAjaran: [],
+
+      MahasiswaFiltered:'',
 
       //Maksimal dan minimal pilihan form
       MahasiswaMinItems: 1,
@@ -319,6 +323,13 @@ export default {
     }
   },
   mounted() {
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      this.navbar= payload.user;
+    }
+   this.initializeNavbarLoggedIn()
    this.generateListTahunAjaran();
    this.initializeMahasiswaList();
    this.initializePembimbingList();
@@ -370,6 +381,20 @@ export default {
   },
 
   methods: {
+
+     async initializeNavbarLoggedIn (){
+        const token = localStorage.getItem('token'); 
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        try {
+          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
+          this.loggedIn = response.data.data[0]
+          console.log(this.loggedIn.nama_prodi)
+         
+        } catch (error) {
+          console.error(error.message);
+        }
+     },
     // Start Validasi Input
     uniqueMahasiswaRule(index) {
       return v => {
@@ -413,11 +438,34 @@ export default {
 
     async initializeMahasiswaList () {
         try {
-          const response = await axios.get(`http://localhost:3000/api/mahasiswa/nullkotad4`);
+          const response = await axios.get(`http://localhost:3000/api/mahasiswa/`);
           const mahasiswa = response.data.data
+
+             if (this.loggedIn.nama_prodi === 'D4') {
+             this.MahasiswaFiltered = mahasiswa.filter((item) => item.id_prodi === "PRD001");
+
+             const mappedData = this.MahasiswaFiltered.map((item) => {
+                if (item.id_prodi === "PRD001") {
+                  item.id_prodi = "D4";
+                }
+                return item;
+              })
+
+            this.MahasiswaFiltered = mappedData
+          } else{
+            this.MahasiswaFiltered = mahasiswa.filter((item) => item.id_prodi === "PRD002");
+
+              const mappedData = this.MahasiswaFiltered.map((item) => {
+                if (item.id_prodi === "PRD002") {
+                  item.id_prodi = "D3";
+                }
+                return item;
+              })
+                  this.MahasiswaFiltered = mappedData
+          }
         
           this.form.forEach((item) => {
-            item.items = mahasiswa.map((mhs) => ({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` }));
+            item.items = this.MahasiswaFiltered.map((mhs) => ({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` }));
           
           });
         } catch (error) {
