@@ -388,6 +388,8 @@
 import axios from 'axios'
   export default {
     data: () => ({
+      kajurData: '',
+      kaprodiData: '',
       search : '',
       dialog: false,
       dialogDelete: false,
@@ -528,9 +530,17 @@ import axios from 'axios'
 
       async initializeDosenList () {
         try {
+          const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
+          this.kajurData = responseKajur.data.data[0]
+          const responseKaprodi = await axios.get('http://localhost:3000/api/prodi')
+          this.kaprodiData = responseKaprodi.data.data
           const response = await axios.get(`http://localhost:3000/api/dosen`);
           const dosen = response.data.data
-        
+          
+          this.formKajur.selectedItem = this.kajurData.NIP
+          this.formKaprodiD4.selectedItem = this.kaprodiData[0].NIP
+          this.formKaprodiD3.selectedItem = this.kaprodiData[1].NIP
+          this.formKajur.selectedItem = responseKajur.data.data[0].NIP
           this.formKajur.items = dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
           this.formKaprodiD3.items = dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
           this.formKaprodiD4.items = dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
@@ -557,10 +567,70 @@ import axios from 'axios'
         }
       },
 
-      saveDataPimpinan () {
+      async saveDataPimpinan () {
+        
+        await axios({
+            method:'put',
+            url: 'http://localhost:3000/api/jurusan/'+ this.kajurData.id_jurusan,
+            data: {
+              id_jurusan : this.kajurData.id_jurusan,
+              NIP: this.formKajur.selectedItem,
+              nama_jurusan: this.kajurData.nama_jurusan
+            }
+          })
+          .then(response => {
+          
+            console.log(response.data)
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
+
+        await axios({
+            method:'put',
+            url: 'http://localhost:3000/api/prodi/'+ this.kaprodiData[0].id_prodi,
+            data: {
+              id_prodi: this.kaprodiData[0].id_prodi,
+              NIP: this.formKaprodiD4.selectedItem,
+              nama_prodi: this.kaprodiData[0].nama_prodi
+            }
+          })
+          .then(response => {
+          
+            console.log(response.data)
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
+        await axios({
+            method:'put',
+            url: 'http://localhost:3000/api/prodi/'+ this.kaprodiData[1].id_prodi,
+            data: {
+              id_prodi: this.kaprodiData[1].id_prodi,
+              NIP: this.formKaprodiD3.selectedItem,
+              nama_prodi: this.kaprodiData[1].nama_prodi
+            }
+          })
+          .then(response => {
+          
+            console.log(response.data)
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
+
+
         this.snackbar.show = true;
         this.snackbar.color = "primary";
         this.snackbar.message = "Data Ketua Jurusan dan Ketua Prodi Berhasil Disimpan!";
+        
+        setTimeout(() => {
+          this.initializeDosenList()
+        }, 1000);
+
       },
 
       async initialize () {
