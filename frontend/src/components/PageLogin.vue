@@ -26,6 +26,11 @@
                 color="primary"
               ></v-checkbox>
               <v-btn color="primary" block @click="login">Login</v-btn>
+              <div dense class="text-right">
+                <router-link to="/" class="back-to-portal-link">
+                  <v-icon dense>mdi-arrow-left-thin</v-icon>
+                  Back to Portal</router-link>
+              </div>
             </v-form>
           </v-card-text>
         </v-card>
@@ -66,8 +71,18 @@ export default {
       this.password = atob(credentials.password)
       this.rememberMe = true
     }
+    document.addEventListener('keydown', this.handleEnterKey);
+  },
+  destroyed() {
+    document.removeEventListener('keydown', this.handleEnterKey);
   },
   methods: {
+    handleEnterKey(event) {
+      if (event.key === 'Enter') {
+        this.login();
+      }
+    },
+
     async login() {
 
       await axios({
@@ -137,7 +152,9 @@ export default {
 </script>
 
 <style scoped>
-
+.back-to-portal-link {
+  text-decoration: none; /* Menghilangkan garis bawah */
+}
 .theme--light.v-sheet{
   color: #1a5f7a;
 }

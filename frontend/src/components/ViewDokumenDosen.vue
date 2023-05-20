@@ -245,6 +245,39 @@
       </v-data-table>
     </v-card>
     <!-- End Datatables -->
+
+    <!-- Start Dialog input Sharekey  -->
+    <v-dialog v-model="dialogShareKey" max-width="500px">
+      <v-card>
+        <v-card-title>
+          Input Share Key
+        </v-card-title>
+
+          <v-card-text>
+            <v-form ref="form" v-model="ShareKeyValid" @submit.prevent>
+            <v-text-field
+              v-model="shareKey"
+              :rules="rules"
+              label="Share Key"
+              @keyup.enter="validateShareKey"
+            >
+            </v-text-field>
+            <div class="note">
+              *Periksa email anda untuk mendapatkan share key
+            </div>
+            </v-form>
+          </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" @click="closeDialog">Batal</v-btn>
+          <v-btn color="primary" :disabled="!ShareKeyValid" @click="validateShareKey">Simpan</v-btn>
+        </v-card-actions>
+      </v-card>
+
+    </v-dialog>
+    <!-- End Dialog input Sharekey  -->
+
+    <!-- Snackbar -->
     <v-snackbar 
       v-model="snackbar.show" 
       :color="snackbar.color" 
@@ -317,6 +350,11 @@ export default {
       ],
       Laporan: [],
       Pengampu : [],
+      
+      // Dialog Input Share Key
+      dialogShareKey: false,
+      ShareKeyValid:false,
+      shareKey: '',
 
       // Notifikasi Berhasil
       snackbar: {
@@ -479,9 +517,26 @@ export default {
     },
 
     SignDocument (){
+      this.dialogShareKey = true;
+    },
+
+    closeDialog() {
+      this.dialogShareKey = false;
+    },
+
+    validateShareKey() {
+      // Lakukan sesuatu dengan shareKey
+      if (this.ShareKeyValid){
+      console.log('Share Key:', this.shareKey);
+
+      this.dialogShareKey = false;
       this.snackbar.show = true;
       this.snackbar.color = "primary";
       this.snackbar.message = "Dokumen Laporan TA berhasil ditandatangani";
+      this.shareKey = null
+
+      }
+
     },
 
     shouldShowSignatureIcon(item, Laporan) {
@@ -523,6 +578,10 @@ export default {
 
 <style scoped>
 
+.note {
+  font-size: 12px;
+  color: gray;
+}
 .theme--light.v-sheet{
   color: #1a5f7a;
 }

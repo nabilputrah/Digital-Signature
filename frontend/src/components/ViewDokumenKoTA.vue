@@ -354,22 +354,20 @@
                       ></v-file-input>
                     </template>
                     <template v-if="item.text === 'Drop'">
-                      <v-alert
-                        :value="dragging"
-                        class="mt-4"
-                        type="info"
-                      >
-                        Seret dan lepaskan file di sini
-                      </v-alert>
-                      <div
-                        class="mt-2"
-                        @dragover.prevent
-                        @dragenter.prevent="dragging = true"
-                        @dragleave.prevent="dragging = false"
-                        @drop.prevent="onDrop"
-                      >
-                        <v-icon class="mr-2">mdi-folder-outline</v-icon>
-                        <span class="caption grey--text">{{ dropMessage }}</span>
+                      <div 
+                        class="drop-area" 
+                        @dragenter="dragEnter" 
+                        @dragover="dragOver" 
+                        @dragleave="dragLeave" 
+                        @drop="dropFile">
+                        <div v-if="!file">
+                          <v-icon class="mr-2" style="color: rgba(145, 187, 203, 1);">mdi-folder-outline</v-icon>
+                          <span class="placeholder">Drag and drop file here</span>
+                        </div>
+                        <div v-else class="file-info">
+                          <span class="file-name">{{ file.name }}</span>
+                          <button class="remove-button" @click="removeFile">Remove</button>
+                        </div>
                       </div>
                     </template>
                     <v-alert
@@ -498,15 +496,6 @@ export default {
     }
   },
 
-  computed: {
-    dropMessage() {
-      if (this.dragging) {
-        return "Lepaskan file di sini";
-      }
-      return "Seret dan lepaskan file di sini";
-    },
-  },
-
   mounted () {
      const token = localStorage.getItem('token');
 
@@ -515,7 +504,6 @@ export default {
         this.dataFromToken= payload.user;
       }
     this.initialize()
-
   },
 
   methods: {
@@ -584,18 +572,6 @@ export default {
       // Misalnya: this.$axios.post('/validate', { file: this.file })
       // Jika validasi sukses, lakukan aksi yang diperlukan
     },
-    
-    onDrop(event) {
-      event.preventDefault();
-      this.dragging = false;
-      const files = event.dataTransfer.files;
-      if (files.length > 0) {
-        this.file = files[0];
-      } else {
-        this.file = null;
-      }
-    },
-
 
     async Open_Dokumen(ID_laporan) {
       this.Dokumen_Dialog = !this.Dokumen_Dialog
@@ -637,15 +613,6 @@ export default {
       this.snackbar.message = "Dokumen Laporan TA berhasil diunduh";
     },
 
-    // unduhItem () {
-
-    //   window.open(this.previewUrl, '_blank');
-    //   this.snackbar.show = true;
-    //   this.snackbar.color = "primary";
-    //   this.snackbar.message = "Dokumen Laporan TA berhasil diunduh";
-    // },
-
-
     async save() {
       // 
       await axios({
@@ -670,11 +637,7 @@ export default {
               this.snackbar.color = "error";
               this.snackbar.message = "Email Sudah Terdaftar!!!";
             }
-        })
-   
-
-    
-      // your save implementation here
+        })   
     },
 
    
@@ -742,13 +705,6 @@ export default {
       // ]
     },
 
-    // async initializeDataDokumen() {
-  
-    //   /
-     
-      
-    // },
-
     convertDateDisetujui() {
       const date = new Date(this.laporan.tgl_disetujui);
       const year = date.toISOString().substring(0, 4);
@@ -813,7 +769,6 @@ export default {
       })
     },
 
-
     getButtonStyle(item) {
       if (!item.status) {
         return {
@@ -829,6 +784,36 @@ export default {
         };
       }
     },
+
+    // Methods Drag n Drop zone
+    dragEnter(e) {
+      e.preventDefault();
+      e.target.classList.add('highlight');
+    },
+    dragOver(e) {
+      e.preventDefault();
+    },
+    dragLeave(e) {
+      e.preventDefault();
+      e.target.classList.remove('highlight');
+    },
+    dropFile(e) {
+      e.preventDefault();
+      e.target.classList.remove('highlight');
+
+      const files = e.dataTransfer.files;
+      this.handleFiles(files);
+    },
+    handleFiles(files) {
+      if (files.length > 0) {
+        this.file = files[0];
+        console.log(this.file)
+      }
+    },
+    removeFile() {
+      this.file = null;
+    }
+
   },
 }
 </script>
@@ -874,6 +859,48 @@ export default {
 
 .v-card__subtitle, .v-card__text{
   line-height: 2.5rem;
+}
+
+ /* Drag and Drop Zone */
+ .drop-area {
+  display: flex;
+  justify-content: center; /* Menengahkan konten secara horizontal */
+  align-items: center; /* Menengahkan konten secara vertical */
+  border: 2px dashed rgba(145, 187, 203, 1);
+  text-align: center;
+  padding: 30px;
+  font-size: 20px;
+}
+
+.highlight {
+  background: rgba(145, 187, 203, 0.2);
+}
+
+.placeholder {
+  color: rgba(145, 187, 203, 1);
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: rgba(145, 187, 203, 0.35);
+  border-radius: 5px;
+}
+
+.file-name {
+  margin: 0;
+}
+
+.remove-button {
+  background-color: #ff5555;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-left: 10px;
 }
 
 </style>

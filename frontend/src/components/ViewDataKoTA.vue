@@ -21,16 +21,52 @@
     </v-breadcrumbs>
     <!-- End Breadcrumbs -->
 
-    <!-- Start Datatables -->
     <v-card class="custom-card">
       <v-data-table
-        :search="search"
         :headers="headers"
+        :search="search"
         :items="KoTA"
-        sort-by="calories"
+        item-key="id_KoTA"
+        sort-by="id_KoTA"
+        show-expand
         class="elevation-1"
+        :expanded.sync="expandedItems"
         style="padding-top: 0.5%;"
       >
+        <template v-slot:expanded-item="{ headers, item }">
+            <td :colspan="headers.length">
+              <div class="detail-container" style="color: #1a5f7a;">
+                <v-row>
+                  <v-col>
+                    <span><strong>ID KoTA :</strong> {{ item.id_KoTA }}</span>
+                    <br>
+                    <span><strong>Tahun Ajaran :</strong> {{ item.tahun_ajaran }}</span>
+                  </v-col>
+                  <v-col>
+                    <ul>
+                      <li v-for="(item, index) in item.anggota" :key="index" style="list-style-type:none;">
+                        <strong>Anggota {{ index + 1 }} :</strong> {{ item.nama }}
+                      </li>
+                    </ul>
+                  </v-col>
+                  <v-col>
+                    <ul>
+                      <li v-for="(item, index) in item.pembimbing" :key="index" style="list-style-type:none;">
+                        <strong>Pembimbing {{ index + 1 }} :</strong> {{ item.nama }}
+                      </li>
+                    </ul>
+                  </v-col>
+                  <v-col>
+                    <ul>
+                      <li v-for="(item, index) in item.penguji" :key="index" style="list-style-type:none;">
+                        <strong>Penguji {{ index + 1 }} :</strong> {{ item.nama }}
+                      </li>
+                    </ul>
+                  </v-col>
+                </v-row>
+              </div>
+            </td>
+        </template>
         <template v-slot:top>
           <v-toolbar
             dense
@@ -45,7 +81,7 @@
             <v-spacer></v-spacer>
             <v-btn
               color="primary"
-              @click="sendAllEmail(item)"
+              @click="sendAllEmail"
               style="margin-top: auto;margin-bottom: auto; margin-right: 1%;" 
             >
               Email All
@@ -139,7 +175,7 @@
             mdi-pencil-outline
           </v-icon>
           <v-icon
-            @click="sendEmail(item)"
+            @click="sendEmail(item.dokumen)"
           >
             mdi-email-outline
           </v-icon>
@@ -158,6 +194,7 @@
       </v-data-table>
     </v-card>
     <!-- End Datatables -->
+
     <v-snackbar 
       v-model="snackbar.show" 
       :color="snackbar.color" 
@@ -200,11 +237,7 @@ import axios from 'axios'
       ],
       KoTA: [],
       editedIndex: -1,
-      editedItem: {
-        NIP: '',
-        nama: '',
-        email: '',
-      },
+      sendEmailTo: '',
       defaultItem: {
         NIP: '',
         nama: '',
@@ -217,6 +250,38 @@ import axios from 'axios'
         message: "",
         color: "",
       },
+      mahasiswaKoTA:[],
+      pembimbingKoTA:[],
+      pengujiKoTA:[],
+
+      //Data Detail Table
+      headersData2: [
+        { text: 'ID', value: 'id' },
+        { text: 'Nama', value: 'name' },
+        { text: 'Alamat', value: 'address' },
+      ],      
+      items: [
+        {
+          id: 1,
+          name: 'Item 1',
+          address: 'Alamat 1',
+          details: [
+            { detailId: 1, detailName: 'Detail 1' },
+            { detailId: 2, detailName: 'Detail 2' },
+          ],
+        },
+        {
+          id: 2,
+          name: 'Item 2',
+          address: 'Alamat 2',
+          details: [
+            { detailId: 1, detailName: 'Detail 1' },
+            { detailId: 2, detailName: 'Detail 2' },
+            { detailId: 3, detailName: 'Detail 3' },
+          ],
+        },
+      ],
+      expandedItems: [],
 
 
     }),
@@ -240,20 +305,56 @@ import axios from 'axios'
         try {
           const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
           this.loggedIn = response.data.data[0]
-                   
+          //Get All Mahasiswa
+          // const responseList = await axios.get(`http://localhost:3000/api/mahasiswa/`);
+          // const listMahasiswa = responseList.data.data
           const responseListKoTA = await axios.get('http://localhost:3000/api/KoTA/Prodi/'+this.loggedIn.id_prodi)
           const list = responseListKoTA.data.data
           const regex = /^(\d{4})(\d{3})(\d{4})$/;
           const mappedKoTA = list.map((item) => ({
-            id_KoTA : item.id_KoTA ? item.id_KoTA.replace(regex, "$2-$1/$3") : null,
+            id_KoTA : item.id_KoTA ? item.id_KoTA.replace(regex, "$2") : null,
             dokumen : item.id_KoTA,
             tahun_ajaran: item.tahun_ajaran
           }));
           this.KoTA = mappedKoTA
+          console.log(this.KoTA[0].id_KoTA)
 
         } catch (error) {
           console.error(error.message);
         }
+
+        this.KoTA.forEach(async (item, index) => {
+          try {
+            //Get Anggota
+            const response = await axios.get('http://localhost:3000/api/mahasiswakota/' + item.dokumen);
+            this.mahasiswaKoTA[index] = response.data.data;
+            console.log(this.mahasiswaKoTA[index])
+            //Get Pembimbing
+            const responsePembimbing = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ item.dokumen)
+            this.pembimbingKoTA[index] = responsePembimbing.data.data
+
+            const responsePenguji = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ item.dokumen)
+            this.pengujiKoTA[index] = responsePenguji.data.data
+
+            const selectedItem = this.mahasiswaKoTA[index].map((item) => ({
+              nama: item.nama,
+            }));
+            const selectedItemPembimbing = this.pembimbingKoTA[index].map((item) => ({
+              nama: item.nama,
+            }));
+            const selectedItemPenguji = this.pengujiKoTA[index].map((item) => ({
+              nama: item.nama,
+            }));
+
+            item.anggota = selectedItem;
+            item.pembimbing = selectedItemPembimbing;
+            item.penguji = selectedItemPenguji;
+          } catch (error) {
+            console.error(error.message);
+          }
+        });
+
+
       },
 
       redirectToDetail(id_KoTA) {
@@ -264,7 +365,8 @@ import axios from 'axios'
         this.$router.push(`/koordinator/KoTA/detail_KoTA/${id_KoTA}`);
       },
 
-      sendEmail () {
+      sendEmail (id_KoTA) {
+        this.sendEmailTo = id_KoTA
         this.dialogEmail = true
       },
 
@@ -273,16 +375,42 @@ import axios from 'axios'
       },
       
       sendEmailConfirm () {
-        this.snackbar.show = true;
-        this.snackbar.color = "primary";
-        this.snackbar.message = "Email berhasil dikirimkan!";
+        console.log(this.sendEmailTo)
+        axios({
+          method:'post',
+          url: 'http://localhost:3000/api/mahasiswa/sendemail/'+ this.sendEmailTo,
+        })
+        .then(response => {
+          console.log(response.data)
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Email berhasil dikirimkan!";  
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
         this.closeEmail()
       },
 
       sendAllEmailConfirm () {
+
+        this.KoTA.forEach(async (item) => {
+          // console.log(item.dokumen)
+          axios({
+            method:'post',
+            url: 'http://localhost:3000/api/mahasiswa/sendemail/'+ item.dokumen,
+          })
+          .then(response => {
+            console.log(response.data)
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
+        });
         this.snackbar.show = true;
         this.snackbar.color = "primary";
-        this.snackbar.message = "Email berhasil dikirimkan!";
+        this.snackbar.message = "Email berhasil dikirimkan!";  
         this.closeAllEmail()
       },
 
@@ -302,6 +430,9 @@ import axios from 'axios'
 
 <style scoped>
 
+.detail-container {
+  margin: 1% 1%;
+}
 .theme--light.v-sheet{
   color: #1a5f7a;
 }

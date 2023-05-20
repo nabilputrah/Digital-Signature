@@ -45,7 +45,7 @@ module.exports = {
             const mailOptions = {
               from: 'hello@example.com',
               to: dataKoTA.email,
-              subject: 'Cek Notifikasi',
+              subject: 'Akun D-SIGN JTK Polban',
               html: renderedHtml
             };
         
@@ -489,7 +489,7 @@ module.exports = {
             nama: row[1],
             email: row[2],
             id_KoTA: null,
-            id_prodi: row[3],
+            id_prodi: 'PRD001',
             isKetua: false
           });
         } catch (err) {
@@ -533,7 +533,7 @@ module.exports = {
             nama: row[1],
             email: row[2],
             id_KoTA: null,
-            id_prodi: row[3],
+            id_prodi: 'PRD002',
             isKetua: false
           });
         } catch (err) {
