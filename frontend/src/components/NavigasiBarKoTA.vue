@@ -15,13 +15,14 @@
               >
               KoTA-{{ loggedIn.nama_KoTA }}  {{ loggedIn.tahun_ajaran }}</span>
             </template>
-            <v-list >
-              <v-list-item
-                v-for="(item, index) in items"
-                :key="index"
-                :to="item.link"
-              >
-                <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <v-list>
+              <v-list-item v-for="(item, index) in items" :key="index" :to="item.link">
+                <v-list-item-title v-if="item.title === 'Keluar'" @click="logoutAction">
+                  {{ item.title }}
+                </v-list-item-title>
+                <v-list-item-title v-else>
+                  {{ item.title }}
+                </v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -74,7 +75,11 @@ import axios from 'axios'
         } catch (error) {
           console.error(error.message);
         }
-      }
+      },
+
+      logoutAction() {
+        localStorage.removeItem('token');
+      },
     },
   }
 </script>

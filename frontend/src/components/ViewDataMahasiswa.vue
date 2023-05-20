@@ -602,12 +602,12 @@ import axios from 'axios'
           .catch(error => {
             console.log(error.request.response)
             this.MessageError = error.request.response
-            if (this.MessageError.includes('email')){
+            if (this.MessageError.includes('Email')){
               this.snackbar.show = true;
               this.snackbar.color = "error";
               this.snackbar.message = "Email Sudah Terdaftar!!!";
             }
-            if (this.MessageError.includes('NIM')){
+            if (this.MessageError.includes('Validation')){
               this.snackbar.show = true;
               this.snackbar.color = "error";
               this.snackbar.message = "NIM Sudah Terdaftar!!!";

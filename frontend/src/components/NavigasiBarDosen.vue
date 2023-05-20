@@ -9,19 +9,18 @@
         <v-row no-gutters style="justify-content: end;">
           <v-menu offset-y>
             <template v-slot:activator="{ on, attrs }">
-              <span               
-              v-bind="attrs"
-              v-on="on"
-              >
-              {{ loggedIn.nama }}</span>
+              <span v-bind="attrs" v-on="on">
+                {{ loggedIn.nama }}
+              </span>
             </template>
-            <v-list >
-              <v-list-item
-                v-for="(item, index) in items"
-                :key="index"
-                :to="item.link"
-              >
-                <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <v-list>
+              <v-list-item v-for="(item, index) in items" :key="index" :to="item.link">
+                <v-list-item-title v-if="item.title === 'Keluar'" @click="logoutAction">
+                  {{ item.title }}
+                </v-list-item-title>
+                <v-list-item-title v-else>
+                  {{ item.title }}
+                </v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -73,7 +72,11 @@ import axios from 'axios'
           } catch (error) {
             console.error(error.message);
           }
-        }
+        },
+
+      logoutAction() {
+        localStorage.removeItem('token')
+      },
         
 
       }

@@ -467,9 +467,9 @@ export default {
         {
           text: 'Dosen',
           align: 'start',
-          value: 'dosen',
+          value: 'nama',
         },
-        { text: 'Peran', value: 'peran'},
+        { text: 'Peran', value: 'role'},
         { text: 'Urutan', value: 'urutan', sortable: false },
         { text: 'Status Tanda Tangan', value: 'status', sortable: false },
       ],
@@ -640,12 +640,18 @@ export default {
         })   
     },
 
+   
+
+
     async initialize () {
 
     try {
         const response = await axios.get(`http://localhost:3000/api/getkotadata/${this.dataFromToken.id_user}`)
         this.kota = response.data.data[0]
         const id_kota = response.data.data[0].id_KoTA
+
+        const responseRelasi = await axios.get('http://localhost:3000/api/relasi/KoTA/' + id_kota)
+        this.Pengampu = responseRelasi.data.data
 
         const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +id_kota)
         this.laporan = responseListLaporan.data.data
@@ -665,26 +671,38 @@ export default {
       } catch (error) {
         console.error(error.message);
       }
-      this.Pengampu = [
-        {
-          dosen: 'Aprianti Nanda Sari, S.T., M.Kom.',
-          peran: 'Pembimbing',
-          urutan : 1,
-          status : true
-        },
-        {
-          dosen: 'Ghifari Munawar, S.Kom., M.T',
-          peran: 'Pembimbing',
-          urutan : 2,
-          status : true
-        },
-        {
-          dosen: 'Yadhi Adhitia P., S.T.',
-          peran: 'Ketua Jurusan',
-          urutan : '',
-          status : false
-        },
-      ]
+      // this.Laporan = [
+      //   {
+      //     "ID_laporan": 'Laporan_402_v1',
+      //     "tanggal_dibuat": '2023-05-04',
+      //     "dokumen" : 'LaporanTsA'
+      //   },
+      //   {
+      //     ID_laporan: 'Laporan_402_Final',
+      //     tanggal_dibuat: '2023-05-05',
+      //     dokumen : 'LaporanTA.pdf'
+      //   },
+      // ],
+      // this.Pengampu = [
+      //   {
+      //     dosen: 'Aprianti Nanda Sari, S.T., M.Kom.',
+      //     peran: 'Pembimbing',
+      //     urutan : 1,
+      //     status : true
+      //   },
+      //   {
+      //     dosen: 'Ghifari Munawar, S.Kom., M.T',
+      //     peran: 'Pembimbing',
+      //     urutan : 2,
+      //     status : true
+      //   },
+      //   {
+      //     dosen: 'Yadhi Adhitia P., S.T.',
+      //     peran: 'Ketua Jurusan',
+      //     urutan : '',
+      //     status : false
+      //   },
+      // ]
     },
 
     convertDateDisetujui() {

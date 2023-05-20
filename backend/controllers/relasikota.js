@@ -33,6 +33,30 @@ module.exports = {
     }
    
 },
+
+  async getRelasiPerKoTA(req, res) {
+    const { id } = req.params
+
+    try {
+      const selectQuery = `SELECT r."role", r."status", r."urutan", d."nama" FROM "Relasi_KoTA" as r
+                              JOIN "Dosen" as d ON d."NIP" = r."NIP" 
+                              WHERE r."id_KoTA" = $1
+                          `
+      const paramsQuery = [id]
+
+      const result = await db.query(selectQuery,paramsQuery)
+
+      if (Object.keys(result).length > 0) {
+        return res.status(200).send({
+          message: `Tampil succes`,
+          data: result.rows
+        })
+      } 
+    } catch (error) {
+      
+    }
+  },
+
   async getAllRelasiKoTAByPenKoTA(req, res) {
     const { id } = req.params
     try {

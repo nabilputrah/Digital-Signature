@@ -615,8 +615,10 @@ import axios from 'axios'
     },
 
     mounted () {
-      this.initializeDosenList();
+     
       this.initialize()
+      this.initializeKajurList()
+      this.initializeKaprodiList()
     },
 
     methods: {
@@ -699,26 +701,44 @@ import axios from 'axios'
         };
       },
 
-      async initializeDosenList () {
+      async initializeKajurList() {
         try {
           const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
           this.kajurData = responseKajur.data.data[0]
+
+          this.formKajur.selectedItem = this.kajurData.NIP
+        
+        } catch (error) {
+          console.log(error.message.request)
+        }
+      
+      },
+
+      async initializeKaprodiList(){
+        try {
           const responseKaprodi = await axios.get('http://localhost:3000/api/prodi')
           this.kaprodiData = responseKaprodi.data.data
-          const response = await axios.get(`http://localhost:3000/api/dosen`);
-          const dosen = response.data.data
-          
-          this.formKajur.selectedItem = this.kajurData.NIP
-          this.formKaprodiD4.selectedItem = this.kaprodiData[0].NIP
-          this.formKaprodiD3.selectedItem = this.kaprodiData[1].NIP
-          this.formKajur.selectedItem = responseKajur.data.data[0].NIP
-          this.formKajur.items = dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
-          this.formKaprodiD3.items = dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
-          this.formKaprodiD4.items = dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
+ 
         } catch (error) {
-          console.error(error.message);
+          console.log(error.message.request)
         }
+
+        try {
+           this.formKaprodiD4.selectedItem = this.kaprodiData[0].NIP
+        } catch (error) {
+          console.log(error.message.request) 
+        }
+
+        try {
+          this.formKaprodiD3.selectedItem = this.kaprodiData[1].NIP
+
+        } catch (error) {
+          console.log(error.message.request)
+        }
+       
       },
+
+   
 
       onSearchKajur() {
         if (this.formKajur.search.length > 0) {
@@ -740,7 +760,29 @@ import axios from 'axios'
 
       async saveDataPimpinan () {
         
-        await axios({
+        // console.log(this.kajurData.length === 0 ) 
+
+        if (this.kajurData.length === 0 ) {
+           await axios({
+            method:'post',
+            url: 'http://localhost:3000/api/jurusan/',
+            data: {
+              id_jurusan : 'JRS001',
+              NIP: this.formKajur.selectedItem,
+              nama_jurusan: 'Teknik Komputer dan Informatika'
+            }
+          })
+          .then(response => {
+          
+            console.log(response.data)
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
+          
+        } else {
+            await axios({
             method:'put',
             url: 'http://localhost:3000/api/jurusan/'+ this.kajurData.id_jurusan,
             data: {
@@ -757,6 +799,9 @@ import axios from 'axios'
           .catch(error => {
               console.log(error.request.response)
           })
+        }
+
+      
 
         await axios({
             method:'put',
@@ -799,7 +844,9 @@ import axios from 'axios'
         this.snackbar.message = "Data Ketua Jurusan dan Ketua Prodi Berhasil Disimpan!";
         
         setTimeout(() => {
-          this.initializeDosenList()
+          this.initialize()
+          this.initializeKajurList()
+          this.initializeKaprodiList()
         }, 1000);
 
       },
@@ -808,6 +855,10 @@ import axios from 'axios'
          try {
           const response = await axios.get(`http://localhost:3000/api/dosen`);
           this.dosen = response.data.data
+
+          this.formKajur.items = this.dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
+          this.formKaprodiD4.items = this.dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
+          this.formKaprodiD3.items = this.dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
         } catch (error) {
           console.error(error.message);
         }
