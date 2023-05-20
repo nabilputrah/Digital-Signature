@@ -1,5 +1,6 @@
 const { sequelize } = require('../models');
 const csv = require('csv-parser');
+const XlsxPopulate = require('xlsx-populate');
 const fs = require('fs');
 
 const bcrypt = require('bcrypt');
@@ -157,54 +158,116 @@ module.exports = {
     }
   },
 
-  async importAllDosenWithUser(req,res) {
-    fs.createReadStream('./CSV/DataDosen.tsv')
-    .pipe(csv({
-      separator: '\t'
-    }))
-    .on('data', async (row) => {
-      try {
-        let user = ''
-        const password = "Dosen" + row.NIP.substring(0, 4) + row.NIP.substring(row.NIP.length - 4)
-        const hashPassword = await bcrypt.hash(password, 10)
-
-        const optionsUser = {
-          fields: ['username', 'password', 'role'],
-          returning: false
-        }
-
-        await User.create({
-          username: row.NIP,
-          password: hashPassword,
-          role: 'Dosen'
-        }, optionsUser)
-
-         user = await User.findOne({
-          where: {
-            username: row.NIP
-          },
-          attributes: {
-            exclude: ['id','createdAt','updatedAt']
-          }
-        })
-        // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
-        await Dosen.upsert({
-          NIP: row.NIP,
-          id_user:user.id_user,
-          nama: row.nama,
-          email: row.email,
+  async importAllDosenWithUser(req, res) {
+    try {
+      if (!req.files || !req.files.file) {
+        return res.status(400).json({
+          message: 'File tidak ditemukan'
         });
-      
-      } catch (err) {
-        console.error(err);
       }
-    })
-    .on('end', () => {
-      return res.status(200).send({
-        message: 'data berhasil diimpor ke database '
-      })
-    });
-  },
+  
+      const file = req.files.file;
+  
+      const workbook = await XlsxPopulate.fromDataAsync(file.data);
+      const sheet = workbook.sheet(0);
+  
+      const data = sheet.usedRange().value();
+  
+      for (const row of data) {
+        try {
+          const password = "Dosen" + row[0].substring(0, 4) + row[0].substring(row[0].length - 4);
+          const hashPassword = await bcrypt.hash(password, 10);
+  
+          const optionsUser = {
+            fields: ['username', 'password', 'role'],
+            returning: false
+          };
+  
+          const createdUser = await User.create({
+            username: row[0],
+            password: hashPassword,
+            role: 'Dosen'
+          }, optionsUser);
+  
+          const user = await User.findOne({
+            where: {
+              username: row[0]
+            },
+            attributes: ['id_user']
+          });
+  
+          await Dosen.upsert({
+            NIP: row[0],
+            id_user: user.id_user,
+            nama: row[1],
+            email: row[2]
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+  
+      res.status(200).json({
+        message: 'Data berhasil diimpor ke database'
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        message: 'Terjadi kesalahan dalam membaca file Excel'
+      });
+    }
+  }
+  
+  
+
+  // async importAllDosenWithUser(req,res) {
+  //   fs.createReadStream('./CSV/DataDosen.tsv')
+  //   .pipe(csv({
+  //     separator: '\t'
+  //   }))
+  //   .on('data', async (row) => {
+  //     try {
+  //       let user = ''
+  //       const password = "Dosen" + row.NIP.substring(0, 4) + row.NIP.substring(row.NIP.length - 4)
+  //       const hashPassword = await bcrypt.hash(password, 10)
+
+  //       const optionsUser = {
+  //         fields: ['username', 'password', 'role'],
+  //         returning: false
+  //       }
+
+  //       await User.create({
+  //         username: row.NIP,
+  //         password: hashPassword,
+  //         role: 'Dosen'
+  //       }, optionsUser)
+
+  //        user = await User.findOne({
+  //         where: {
+  //           username: row.NIP
+  //         },
+  //         attributes: {
+  //           exclude: ['id','createdAt','updatedAt']
+  //         }
+  //       })
+  //       // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
+  //       await Dosen.upsert({
+  //         NIP: row.NIP,
+  //         id_user:user.id_user,
+  //         nama: row.nama,
+  //         email: row.email,
+  //       });
+      
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   })
+  //   .on('end', () => {
+  //     return res.status(200).send({
+  //       message: 'data berhasil diimpor ke database '
+  //     })
+  //   });
+  // },
   
 
   // async updateDosen(req, res) {

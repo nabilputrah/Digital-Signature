@@ -305,13 +305,13 @@ export default {
         { text: 'Dokumen Laporan', value: 'dokumen', sortable: false },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
-      headers_pengampu: [
+       headers_pengampu: [
         {
           text: 'Dosen',
           align: 'start',
-          value: 'dosen',
+          value: 'nama',
         },
-        { text: 'Peran', value: 'peran'},
+        { text: 'Peran', value: 'role'},
         { text: 'Urutan', value: 'urutan', sortable: false },
         { text: 'Status Tanda Tangan', value: 'status', sortable: false },
       ],
@@ -345,6 +345,9 @@ export default {
 
         const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +this.id_KoTA)
         this.laporan = responseListLaporan.data.data
+
+         const responseRelasi = await axios.get('http://localhost:3000/api/relasi/KoTA/' +  this.id_KoTA)
+        this.Pengampu = responseRelasi.data.data
 
         this.convertDateDisetujui()
         this.convertDateDisidangkan()
@@ -384,26 +387,26 @@ export default {
         // ],
 
 
-        this.Pengampu = [
-          {
-            dosen: 'Aprianti Nanda Sari, S.T., M.Kom.',
-            peran: 'Pembimbing',
-            urutan : 1,
-            status : true
-          },
-          {
-            dosen: 'Ghifari Munawar, S.Kom., M.T',
-            peran: 'Pembimbing',
-            urutan : 2,
-            status : true
-          },
-          {
-            dosen: 'Yadhi Adhitia P., S.T.',
-            peran: 'Ketua Jurusan',
-            urutan : '',
-            status : false
-          },
-        ]
+        // this.Pengampu = [
+        //   {
+        //     dosen: 'Aprianti Nanda Sari, S.T., M.Kom.',
+        //     peran: 'Pembimbing',
+        //     urutan : 1,
+        //     status : true
+        //   },
+        //   {
+        //     dosen: 'Ghifari Munawar, S.Kom., M.T',
+        //     peran: 'Pembimbing',
+        //     urutan : 2,
+        //     status : true
+        //   },
+        //   {
+        //     dosen: 'Yadhi Adhitia P., S.T.',
+        //     peran: 'Ketua Jurusan',
+        //     urutan : '',
+        //     status : false
+        //   },
+        // ]
     },
 
     async Open_Dokumen(ID_laporan) {

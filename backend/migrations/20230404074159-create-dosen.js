@@ -16,7 +16,8 @@ module.exports = {
         },
         unique:true,
         onDelete:'cascade',
-        onUpdate:'cascade'
+        onUpdate:'cascade',
+        allowNull:false
       },
       nama: {
         allowNull:false,

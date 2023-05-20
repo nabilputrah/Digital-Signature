@@ -1,9 +1,76 @@
 const db = require('../db/index')
+const nodemailer = require('nodemailer');
+// var express = require('express');
+// var app = express();
 const Mahasiswa = require('../models').Mahasiswa;
 const csv = require('csv-parser');
 const fs = require('fs');
 
+require('dotenv').config()
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.AUTH_USERNAME,
+    pass: process.env.AUTH_PASSWORD
+  }
+});
+
+const XlsxPopulate = require('xlsx-populate');
+
 module.exports = {
+  async sendEmailtoKoTA(req, res){
+    const { id } = req.params
+
+    try {
+      const selectQuery = `SELECT m."email",m."id_KoTA", k."jumlah_pembimbing", k."jumlah_penguji" FROM "Mahasiswa" as m
+                        JOIN "KoTA" as k ON m."id_KoTA" = k."id_KoTA"
+                        WHERE m."id_KoTA" = $1 AND m."isKetua" = true` 
+      const paramsQuery = [id]
+
+      const result = await db.query(selectQuery,paramsQuery)
+      const dataKoTA = result.rows[0]
+      const formattedNamaKoTA = 'KoTA ' + dataKoTA.id_KoTA.substr(4, 3)
+      const FormattedPassword = 'KoTA' + dataKoTA.id_KoTA + dataKoTA.jumlah_pembimbing + dataKoTA.jumlah_penguji
+
+
+
+
+      
+      if (Object.keys(result).length > 0) {
+        res.render('emailAccountKota', { formattedUsername: formattedNamaKoTA, username: dataKoTA.id_KoTA, password: FormattedPassword }, function (err, renderedHtml) {
+          if (err) {
+            console.log(err);
+          } else {
+            const mailOptions = {
+              from: 'hello@example.com',
+              to: dataKoTA.email,
+              subject: 'Cek Notifikasi',
+              html: renderedHtml
+            };
+        
+            transporter.sendMail(mailOptions, function (error, info) {
+              if (error) {
+                console.log(error);
+              } else {
+                return res.status(200).send({
+                  message:'Email terkirim' + info.response
+                })
+             
+              }
+            });
+          }
+        });
+        
+      } 
+      
+    } catch (error) {
+       return res.status(400).send({
+          message: error.message
+       })
+    }
+  },
+
   async getAllMahasiswaByKoTA(req, res) {
     const {id} = req.params
     try {
@@ -370,57 +437,146 @@ module.exports = {
     }
   },
 
-  async importMahasiswaD4(req,res) {
-    fs.createReadStream('./CSV/D4Mahasiswa.csv')
-    .pipe(csv())
-    .on('data', async (row) => {
-      try {
-        // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
-        await Mahasiswa.upsert({
-          NIM: row.nim,
-          nama: row.nama,
-          email: row.email,
-          id_KoTA: null,
-          id_prodi:row.id_prodi,
-          isKetua: false
-        });
+  // async importMahasiswaD4(req,res) {
+  //   fs.createReadStream('./CSV/D4Mahasiswa.csv')
+  //   .pipe(csv())
+  //   .on('data', async (row) => {
+  //     try {
+  //       // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
+  //       await Mahasiswa.upsert({
+  //         NIM: row.nim,
+  //         nama: row.nama,
+  //         email: row.email,
+  //         id_KoTA: null,
+  //         id_prodi:row.id_prodi,
+  //         isKetua: false
+  //       });
       
-      } catch (err) {
-        console.error(err);
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   })
+  //   .on('end', () => {
+  //     return res.status(200).send({
+  //       message: 'data berhasil diimpor ke database '
+  //     })
+  //   });
+  // },
+
+  async importMahasiswaD4(req, res) {
+    try {
+      if (!req.files || !req.files.file) {
+        return res.status(400).json({
+          message: 'File not found'
+        });
       }
-    })
-    .on('end', () => {
-      return res.status(200).send({
-        message: 'data berhasil diimpor ke database '
-      })
-    });
+  
+      const file = req.files.file;
+  
+      // const filePath = `CSV/${file.name}`;
+  
+      // await file.mv(filePath);
+  
+      const workbook = await XlsxPopulate.fromDataAsync(file.data);
+      const sheet = workbook.sheet(0); 
+  
+      const data = sheet.usedRange().value();
+      for (const row of data) {
+        try {
+          // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
+          await Mahasiswa.upsert({
+            NIM: row[0],
+            nama: row[1],
+            email: row[2],
+            id_KoTA: null,
+            id_prodi: row[3],
+            isKetua: false
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+  
+      res.status(200).json({
+        message: 'Data berhasil diimpor ke database'
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        message: 'Terjadi kesalahan dalam membaca file Excel'
+      });
+    }
+  },
+  async importMahasiswaD3(req, res) {
+    try {
+      if (!req.files || !req.files.file) {
+        return res.status(400).json({
+          message: 'File not found'
+        });
+      }
+  
+      const file = req.files.file;
+  
+      // const filePath = `CSV/${file.name}`;
+  
+      // await file.mv(filePath);
+  
+      const workbook = await XlsxPopulate.fromDataAsync(file.data);
+      const sheet = workbook.sheet(0); 
+  
+      const data = sheet.usedRange().value();
+      for (const row of data) {
+        try {
+          // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
+          await Mahasiswa.upsert({
+            NIM: row[0],
+            nama: row[1],
+            email: row[2],
+            id_KoTA: null,
+            id_prodi: row[3],
+            isKetua: false
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+  
+      res.status(200).json({
+        message: 'Data berhasil diimpor ke database'
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        message: 'Terjadi kesalahan dalam membaca file Excel'
+      });
+    }
   },
 
-  async importMahasiswaD3(req,res) {
-    fs.createReadStream('./CSV/D3Mahasiswa.csv')
-    .pipe(csv())
-    .on('data', async (row) => {
-      try {
-        // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
-        await Mahasiswa.upsert({
-          NIM: row.nim,
-          nama: row.nama,
-          email: row.email,
-          id_KoTA: null,
-          id_prodi:row.id_prodi,
-          isKetua: false
-        });
+  // async importMahasiswaD3(req,res) {
+  //   fs.createReadStream('./CSV/D3Mahasiswa.csv')
+  //   .pipe(csv())
+  //   .on('data', async (row) => {
+  //     try {
+  //       // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
+  //       await Mahasiswa.upsert({
+  //         NIM: row.nim.toString(),
+  //         nama: row.nama.toString(),
+  //         email: row.email.toString(),
+  //         id_KoTA: null,
+  //         id_prodi:row.id_prodi.toString(),
+  //         isKetua: false
+  //       });
       
-      } catch (err) {
-        console.error(err);
-      }
-    })
-    .on('end', () => {
-      return res.status(200).send({
-        message: 'data berhasil diimpor ke database '
-      })
-    });
-  },
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   })
+  //   .on('end', () => {
+  //     return res.status(200).send({
+  //       message: 'data berhasil diimpor ke database '
+  //     })
+  //   });
+  // },
 
 
 
