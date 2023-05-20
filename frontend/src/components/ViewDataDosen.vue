@@ -773,7 +773,7 @@ import axios from 'axios'
           .catch(error => {
               console.log(error.request.response)
           })
-          
+
         } else {
             await axios({
             method:'put',
@@ -806,7 +806,9 @@ import axios from 'axios'
             }
           })
           .then(response => {
-          
+            
+            console.log(this.kaprodiData)
+
             console.log(response.data)
     
           })

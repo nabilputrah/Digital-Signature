@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     secret_key: {
-      type: DataTypes.STRING,
+      type: DataTypes.BLOB,
       allowNull: false
     },
   }, {
