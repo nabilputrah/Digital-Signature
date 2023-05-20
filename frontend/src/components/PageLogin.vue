@@ -27,7 +27,9 @@
               ></v-checkbox>
               <v-btn color="primary" block @click="login">Login</v-btn>
               <div dense class="text-right">
-                <router-link to="/" class="back-to-portal-link">Back to Portal</router-link>
+                <router-link to="/" class="back-to-portal-link">
+                  <v-icon dense>mdi-arrow-left-thin</v-icon>
+                  Back to Portal</router-link>
               </div>
             </v-form>
           </v-card-text>

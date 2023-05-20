@@ -210,7 +210,7 @@
     color="white"
     >
     <v-card >
-        <v-card-title class="headline">Validasi Dokumen</v-card-title>
+        <v-card-title class="headline">Import Data Mahasiswa</v-card-title>
         <v-card-text>
           <v-tabs v-model="tab">
             <v-tab v-for="(item, index) in InputFile" :key="index">{{ item.text }}</v-tab>
@@ -223,7 +223,7 @@
                       <v-file-input
                         v-model="file"
                         label="Pilih File"
-                        accept=".pdf"
+                        accept=".xlsx"
                         prepend-icon="mdi-paperclip"
                       ></v-file-input>
                     </template>
@@ -390,38 +390,57 @@ import axios from 'axios'
         return;
       }
 
-      // const response = await axios.get('http://localhost:3000/api/dokumenversion/'+ this.laporan.id_laporan)
-      // console.log(response.data.data)
-      // const version = response.data.data + 1
+      const formData = new FormData();
+      formData.append('file', this.file);
 
-      // const formData = new FormData();
-      // formData.append('dokumen_laporan', this.file);
-      // formData.append('id_laporan', this.laporan.id_laporan)
-      // formData.append('id_dokumen', this.laporan.id_laporan + '_' + 'v' + version)
-      // formData.append('version', 'v' + version)
+      if (this.loggedIn.nama_prodi === 'D4'){
+        await axios.post('http://localhost:3000/api/mahasiswad4import/', formData, {
+          headers : {
+            'Content-Type' : 'multipart/form-data'
+          }
+        })
+          .then(response => {
+            console.log(response.data);
+            this.validasiDokumen = !this.validasiDokumen;
+            this.file = null
+            this.snackbar.show = true;
+            this.snackbar.color = "primary";
+            this.snackbar.message = "Data Mahasiswa berhasil diimport";
+          })
+          .catch(error => {
+            console.log(error.message);
+            this.validasiDokumen = !this.validasiDokumen;
+            this.file = null
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Data Mahasiswa TA gagal diimport";
+          });
+      } else if (this.loggedIn.nama_prodi === 'D3'){
+        await axios.post('http://localhost:3000/api/mahasiswad3import/', formData, {
+          headers : {
+            'Content-Type' : 'multipart/form-data'
+          }
+        })
+          .then(response => {
+            console.log(response.data);
+            this.validasiDokumen = !this.validasiDokumen;
+            this.file = null
+            this.snackbar.show = true;
+            this.snackbar.color = "primary";
+            this.snackbar.message = "Data Mahasiswa berhasil diimport";
+          })
+          .catch(error => {
+            console.log(error.message);
+            this.validasiDokumen = !this.validasiDokumen;
+            this.file = null
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Data Mahasiswa TA gagal diimport";
+          });
+      }
 
-      // await axios.post('http://localhost:3000/api/dokumen/', formData, {
-      //   headers : {
-      //     'Content-Type' : 'multipart/form-data'
-      //   }
-      // })
-      //   .then(response => {
-      //     console.log(response.data);
-      //     this.validasiDokumen = !this.validasiDokumen;
-      //     this.file = null
-      //     this.snackbar.show = true;
-      //     this.snackbar.color = "primary";
-      //     this.snackbar.message = "Dokumen Laporan TA berhasil ditambahkan";
-      //   })
-      //   .catch(error => {
-      //     console.log(error.message);
-      //     this.validasiDokumen = !this.validasiDokumen;
-      //     this.file = null
-      //     this.snackbar.show = true;
-      //     this.snackbar.color = "error";
-      //     this.snackbar.message = "Dokumen Laporan TA gagal ditambahkan";
-      //   });
-      //   this.initialize()
+
+        this.initialize()
     },
 
     close_Popup_AddDokumen(){

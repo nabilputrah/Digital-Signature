@@ -579,7 +579,7 @@ export default {
       if (this.loggedIn.nama_prodi === 'D4') {
         this.ProdiAktif = 'PRD001'
       }
-      else {
+      else if (this.loggedIn.nama_prodi === 'D3'){
         this.ProdiAktif = 'PRD002'
       }
 
@@ -1090,10 +1090,10 @@ export default {
 
     async addForm() {
    
-      const responseList = await axios.get(`http://localhost:3000/api/mahasiswa/`);
-      const listMahasiswa = responseList.data.data
-
-      this.form.push({ selectedItem: null, items: listMahasiswa.map((mhs) =>({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` })), search: '' });
+      this.form.push({ 
+        selectedItem: null, 
+        items: this.MahasiswaFiltered.map((mhs) =>({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` })), 
+        search: '' });
   
     },
 

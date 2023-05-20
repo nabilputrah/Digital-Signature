@@ -81,7 +81,7 @@
             <v-spacer></v-spacer>
             <v-btn
               color="primary"
-              @click="sendAllEmail(item)"
+              @click="sendAllEmail"
               style="margin-top: auto;margin-bottom: auto; margin-right: 1%;" 
             >
               Email All
@@ -175,7 +175,7 @@
             mdi-pencil-outline
           </v-icon>
           <v-icon
-            @click="sendEmail(item)"
+            @click="sendEmail(item.dokumen)"
           >
             mdi-email-outline
           </v-icon>
@@ -237,11 +237,7 @@ import axios from 'axios'
       ],
       KoTA: [],
       editedIndex: -1,
-      editedItem: {
-        NIP: '',
-        nama: '',
-        email: '',
-      },
+      sendEmailTo: '',
       defaultItem: {
         NIP: '',
         nama: '',
@@ -369,7 +365,8 @@ import axios from 'axios'
         this.$router.push(`/koordinator/KoTA/detail_KoTA/${id_KoTA}`);
       },
 
-      sendEmail () {
+      sendEmail (id_KoTA) {
+        this.sendEmailTo = id_KoTA
         this.dialogEmail = true
       },
 
@@ -378,16 +375,42 @@ import axios from 'axios'
       },
       
       sendEmailConfirm () {
-        this.snackbar.show = true;
-        this.snackbar.color = "primary";
-        this.snackbar.message = "Email berhasil dikirimkan!";
+        console.log(this.sendEmailTo)
+        axios({
+          method:'post',
+          url: 'http://localhost:3000/api/mahasiswa/sendemail/'+ this.sendEmailTo,
+        })
+        .then(response => {
+          console.log(response.data)
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Email berhasil dikirimkan!";  
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
         this.closeEmail()
       },
 
       sendAllEmailConfirm () {
+
+        this.KoTA.forEach(async (item) => {
+          // console.log(item.dokumen)
+          axios({
+            method:'post',
+            url: 'http://localhost:3000/api/mahasiswa/sendemail/'+ item.dokumen,
+          })
+          .then(response => {
+            console.log(response.data)
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
+        });
         this.snackbar.show = true;
         this.snackbar.color = "primary";
-        this.snackbar.message = "Email berhasil dikirimkan!";
+        this.snackbar.message = "Email berhasil dikirimkan!";  
         this.closeAllEmail()
       },
 
