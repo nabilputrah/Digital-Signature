@@ -1,8 +1,69 @@
 const db = require('../db/index')
 const SecretKey = require('../models').Secret_Key;
+const sss = require('shamirs-secret-sharing')
 
 
 module.exports = {
+  async createShareKey(req, res) {
+    const { id_laporan } = req.body
+
+    try {
+      const selectQuery = `SELECT  L."id_KoTA", L."private_key" FROM "Laporan" as L 
+                          WHERE L."id_laporan" = $1`
+      const paramsQuery = [id_laporan]
+
+      const resultGetPrivateKey = await db.query(selectQuery, paramsQuery)
+      const id_KoTA = resultGetPrivateKey.rows[0].id_KoTA
+      const privateKey = resultGetPrivateKey.rows[0].private_key
+      
+      // if (Object.keys(resultGetPrivateKey).length > 0) {
+      //   return res.status(200).send({
+      //     message: 'sukses',
+      //     data: resultGetPrivateKey.rows[0]
+      //   })
+      // } 
+
+      const selectQueryRelasi = `SELECT R."NIP" FROM "Relasi_KoTA" as R WHERE R."id_KoTA" = $1
+                                `
+      const paramsQueryRelasi = [id_KoTA]                          
+      const resultGetDosen = await db.query(selectQueryRelasi,paramsQueryRelasi)
+
+      const jumlahRelasi = resultGetDosen.rows.length
+      const dataDosen = resultGetDosen.rows
+
+      const secret = Buffer.from(privateKey)
+      const shares = sss.split(secret, { shares: jumlahRelasi, threshold: jumlahRelasi })
+
+      console.log(shares)
+
+      dataDosen.forEach(async (item, index) => {
+        const options = {
+          fields: ['id_secret','id_laporan','NIP','secret_key'],
+          returning:true
+        }
+
+        const secret_key = await SecretKey.create({
+          id_secret: id_laporan + "_" + item.NIP.substring(0, 4) + item.NIP.substring(item.NIP.length - 4),
+          id_laporan: id_laporan,
+          NIP: item.NIP,
+          secret_key: shares[index]
+        },options)
+
+        console.log(secret_key)
+
+
+      });
+
+
+
+
+                       
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
   async getAllSecretKey(req, res) {
     try {
         const secret_key = await SecretKey.findAll({

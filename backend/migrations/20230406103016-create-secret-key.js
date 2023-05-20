@@ -29,7 +29,7 @@ module.exports = {
         onUpdate:"cascade"
       },
       secret_key: {
-        type: Sequelize.STRING,
+        type: Sequelize.BLOB,
         allowNull: false,
       },
 

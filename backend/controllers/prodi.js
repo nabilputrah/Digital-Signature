@@ -3,6 +3,7 @@ const Prodi = require('../models').Prodi;
 
 
 module.exports = {
+
   async getAllProdi(req, res) {
     try {
         const prodi = await Prodi.findAll({
