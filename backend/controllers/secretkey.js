@@ -2,8 +2,85 @@ const db = require('../db/index')
 const SecretKey = require('../models').Secret_Key;
 const sss = require('shamirs-secret-sharing')
 
+const nodemailer = require('nodemailer');
+
+require('dotenv').config()
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.AUTH_USERNAME,
+    pass: process.env.AUTH_PASSWORD
+  }
+});
+
 
 module.exports = {
+
+  async sendShareKeyToDosen(req, res){
+    const { id_laporan, NIP, role} = req.body
+
+    try {
+      const selectQuery = `SELECT D."nama", D."email", R."id_relasi" FROM "Relasi_KoTA" as R 
+                            JOIN "Dosen" as D ON D."NIP" = R."NIP"
+                            WHERE R."NIP" = $1
+                            AND R."role" = $2
+                           `
+      const paramsQuery =[NIP,role]
+
+      const resultRelasi = await db.query(selectQuery,paramsQuery)
+
+      const id_relasi = id_laporan + "_secretkey_" + resultRelasi.rows[0].id_relasi
+      const namaDosen = resultRelasi.rows[0].nama
+      const emailDosen = resultRelasi.rows[0].email
+      
+      // Get Secret key by ID
+      const selectQueryShare = `SELECT S."secret_key" FROM "Secret_Key" as S 
+            WHERE S."id_secret" = $1
+            `
+      const paramsQueryShare =[id_relasi]
+
+      const resultRelasiShare = await db.query(selectQueryShare,paramsQueryShare)
+      // console.log(resultRelasiShare.rows[0].secret_key)
+      const shareKey =  resultRelasiShare.rows[0].secret_key
+      const formattedNamaKoTA = 'KoTA ' + id_laporan.substr(12, 3)
+
+
+
+      
+      if (Object.keys(result).length > 0) {
+        res.render('emailShareKey', { username: namaDosen , formattedUKoTA:formattedNamaKoTA , ShareKey:shareKey  }, function (err, renderedHtml) {
+          if (err) {
+            console.log(err);
+          } else {
+            const mailOptions = {
+              from: 'hello@example.com',
+              to: emailDosen,
+              subject: 'Share Key Tanda Tangan Laporan ' + formattedNamaKoTA,
+              html: renderedHtml
+            };
+        
+            transporter.sendMail(mailOptions, function (error, info) {
+              if (error) {
+                console.log(error);
+              } else {
+                return res.status(200).send({
+                  message:'Email terkirim' + info.response
+                })
+             
+              }
+            });
+          }
+        });
+        
+      } 
+      
+    } catch (error) {
+       return res.status(400).send({
+          message: error.message
+       })
+    }
+  },
   async getOneShareKey(req, res) {
     const { id_laporan, NIP, role} = req.body
 
