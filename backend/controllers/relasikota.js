@@ -38,7 +38,7 @@ module.exports = {
     const { id } = req.params
 
     try {
-      const selectQuery = `SELECT r."role", r."status", r."urutan", d."nama" FROM "Relasi_KoTA" as r
+      const selectQuery = `SELECT r."NIP",r."role", r."status", r."urutan", d."nama" FROM "Relasi_KoTA" as r
                               JOIN "Dosen" as d ON d."NIP" = r."NIP" 
                               WHERE r."id_KoTA" = $1
                           `

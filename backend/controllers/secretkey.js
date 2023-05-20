@@ -48,7 +48,7 @@ module.exports = {
 
 
       
-      if (Object.keys(result).length > 0) {
+      if (Object.keys(resultRelasiShare).length > 0) {
         res.render('emailShareKey', { username: namaDosen , formattedUKoTA:formattedNamaKoTA , ShareKey:shareKey  }, function (err, renderedHtml) {
           if (err) {
             console.log(err);

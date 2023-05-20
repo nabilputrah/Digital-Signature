@@ -225,7 +225,52 @@
           </v-btn>
         </template>
         <!-- End Kolom Status -->
+        <!-- Start Kolom Action -->
+        <template v-slot:[`item.actions`]="{ item }">
+          <v-tooltip top color="primary">
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
+                v-bind="attrs"
+                v-on="on"
+                @click="sendEmail(item)"
+              >
+              mdi-email-outline
+              </v-icon>
+            </template>
+            <span>Kirim Share Key</span>
+          </v-tooltip>
+        </template>
+        <!-- End Kolom Action -->
       </v-data-table>
+      <!-- Start Card Pop up Email Data KoTA -->
+      <v-dialog v-model="dialogEmail" max-width="350">
+        <v-card>
+          <v-card-title class="headline">
+            Send Email 
+          </v-card-title>
+          <v-card-text>
+            <div>Are you sure you want to send Share Key to this account?</div>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="primary"
+              text
+              @click="sendEmailConfirm"
+            >
+              Yes
+            </v-btn>
+            <v-btn
+              color="primary"
+              text
+              @click="closeEmail"
+            >
+              Cancel
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <!-- End Card Pop up Email Data KoTA -->
     </v-card>
     <!-- End Datatables -->
     <v-snackbar 
@@ -297,9 +342,14 @@ export default {
         { text: 'Peran', value: 'role'},
         { text: 'Urutan', value: 'urutan', sortable: false },
         { text: 'Status Tanda Tangan', value: 'status', sortable: false },
+        { text: 'Actions', value: 'actions', sortable: false },
       ],
       Laporan: [],
       Pengampu : [],
+
+      // Date send Email
+      sendEmailTo: '',
+      dialogEmail: false,
 
       // Notifikasi Berhasil
       snackbar: {
@@ -325,6 +375,7 @@ export default {
 
         const responseRelasi = await axios.get('http://localhost:3000/api/relasi/KoTA/' +  this.id_KoTA)
         this.Pengampu = responseRelasi.data.data
+        console.log(this.Pengampu)
  
 
         this.convertDateDisetujui()
@@ -456,6 +507,40 @@ export default {
     shouldShowDownloadIcon(item) {
       // tampilkan icon unduh jika terdapat kata "Final" di dalam string ID_Laporan
       return item.ID_laporan.includes('Final');
+    },
+
+    sendEmail (NIP) {
+      this.sendEmailTo = NIP
+      this.dialogEmail = true
+    },
+
+    async sendEmailConfirm () {
+      // console.log(this.laporan.id_laporan)
+      // console.log(this.sendEmailTo)
+      await axios({
+        method:'post',
+        url: 'http://localhost:3000/api/secret/sendemail/',
+        data : {
+          NIP : this.sendEmailTo.NIP,
+          role : this.sendEmailTo.role,
+          id_laporan : this.laporan.id_laporan
+        }
+      })
+      .then(response => {
+        console.log(response.data)
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Email berhasil dikirimkan!";  
+      })
+      .catch(error => {
+          console.log(error.request.response)
+      })
+
+      this.closeEmail()
+    },
+
+    closeEmail () {
+      this.dialogEmail = false
     },
 
     getButtonStyle(item) {
