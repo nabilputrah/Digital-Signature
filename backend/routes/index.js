@@ -188,6 +188,7 @@ router.delete('/api/KoTAwithLaporan/:id', koTAController.deleteKoTAWithLaporan)
 
 /* Endpoint Mahasiswa Controller*/
 router.get('/api/mahasiswa', mahasiswaController.getAllMahasiswa)
+
 router.get('/api/mahasiswakota/:id', mahasiswaController.getAllMahasiswaByKoTA)
 router.get('/api/mahasiswa/nullkotad4', mahasiswaController.getAllMahasiswaNullKoTAD4)
 router.get('/api/mahasiswa/nullkotad3', mahasiswaController.getAllMahasiswaNullKoTAD3)
@@ -200,10 +201,13 @@ router.delete('/api/mahasiswa/:id', mahasiswaController.deleteMahasiswa)
 router.post('/api/mahasiswad4import/', mahasiswaController.importMahasiswaD4)
 router.post('/api/mahasiswad3import/', mahasiswaController.importMahasiswaD3)
 
+router.post('/api/mahasiswa/sendemail/:id', mahasiswaController.sendEmailtoKoTA)
+
 router.put('/api/mahasiswastatus/:id',mahasiswaController.updateMahasiswaStatusKoTA)
 
 /* Endpoint Relasi Controller*/
 router.get('/api/relasi', relasiController.getAllRelasiKoTA)
+router.get('/api/relasi/KoTA/:id', relasiController.getRelasiPerKoTA)
 router.get('/api/relasibykota/pembimbing/:id', relasiController.getAllRelasiKoTAByPemKoTA)
 router.get('/api/relasibykota/penguji/:id', relasiController.getAllRelasiKoTAByPenKoTA)
 router.get('/api/relasibynip/:id', relasiController.getAllRelasiByNIP)
