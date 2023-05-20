@@ -309,6 +309,8 @@ export default {
       // judul_tugas_akhir : "PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME",
       // tanggal_disetujui : '',
       // tanggal_disidangkan : '',
+      dataFromToken: '',
+      dosen:'',
       tanggal_disetujui: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       tanggal_disidangkan : (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       rules: [
@@ -355,6 +357,7 @@ export default {
       dialogShareKey: false,
       ShareKeyValid:false,
       shareKey: '',
+      shareKeyDB:'',
 
       // Notifikasi Berhasil
       snackbar: {
@@ -367,6 +370,13 @@ export default {
   },
 
   mounted () {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      this.dataFromToken= payload.user;
+    }
+    this.initializeToken()
     this.initialize()
   },
 
@@ -377,6 +387,15 @@ export default {
     add_Dokumen(){
       // your save implementation here
     },
+    async initializeToken() {
+       try {
+            const response = await axios.get(`http://localhost:3000/api/getdosendata/${this.dataFromToken.id_user}`)
+            this.dosen = response.data.data[0]
+          } catch (error) {
+            console.error(error.message);
+          }
+    },
+    
     async initialize () {
       try {
         this.id_KoTA = this.$route.params.id
@@ -524,16 +543,43 @@ export default {
       this.dialogShareKey = false;
     },
 
-    validateShareKey() {
+    async validateShareKey() {
       // Lakukan sesuatu dengan shareKey
       if (this.ShareKeyValid){
       console.log('Share Key:', this.shareKey);
+      console.log(this.dosen.NIP)
+      console.log(this.$route.params.id)
+      console.log(this.$route.params.role)
 
-      this.dialogShareKey = false;
-      this.snackbar.show = true;
-      this.snackbar.color = "primary";
-      this.snackbar.message = "Dokumen Laporan TA berhasil ditandatangani";
-      this.shareKey = null
+      await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/getonesharekey/',
+          data: {
+           NIP: this.dosen.NIP,
+           id_laporan: "Laporan_" + this.$route.params.id,
+           role:this.$route.params.role
+          }
+        })
+        .then(response => {
+          console.log(response.data.data)
+          this.shareKeyDB = response.data.data
+        })
+        .catch(error => {
+          console.log(error.request.response)          
+        })
+      if (this.shareKey === this.shareKeyDB){
+        this.dialogShareKey = false;
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Share Key yang diinputkan valid";
+        this.shareKey = null
+      }else{
+        this.dialogShareKey = false;
+        this.snackbar.show = true;
+        this.snackbar.color = "error";
+        this.snackbar.message = "Share Key yang diinputkan tidak valid";
+        this.shareKey = null
+      }
 
       }
 

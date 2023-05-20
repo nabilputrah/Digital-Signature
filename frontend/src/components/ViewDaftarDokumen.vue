@@ -61,7 +61,7 @@
         <template v-slot:[`item.dokumen`]="{ item }">
           <v-icon
             class="mr-2"
-            @click="redirectToDetail(item.id_detailLaporan)"
+            @click="redirectToDetail(item.role, item.id_detailLaporan)"
           >
             mdi-file-document-arrow-right
           </v-icon>
@@ -171,8 +171,8 @@ import axios from 'axios'
         }
       },
 
-      redirectToDetail(ID_KoTA) {
-        this.$router.push(`/dosen/daftar_dokumen/dokumen_detail/${ID_KoTA}`);
+      redirectToDetail(role, ID_KoTA) {
+        this.$router.push(`/dosen/daftar_dokumen/dokumen_detail/${role}/${ID_KoTA}`);
       },
 
     },

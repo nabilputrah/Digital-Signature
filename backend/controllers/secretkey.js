@@ -4,6 +4,38 @@ const sss = require('shamirs-secret-sharing')
 
 
 module.exports = {
+  async getOneShareKey(req, res) {
+    const { id_laporan, NIP, role} = req.body
+
+    try {
+      // Get Id Relasi by NIP and role
+      const selectQuery = `SELECT R."id_relasi" FROM "Relasi_KoTA" as R 
+                          WHERE R."NIP" = $1
+                          AND R."role" = $2
+                          `
+      const paramsQuery =[NIP,role]
+
+      const resultRelasi = await db.query(selectQuery,paramsQuery)
+
+      const id_relasi = id_laporan + "_secretkey_" + resultRelasi.rows[0].id_relasi
+      // Get Secret key by ID
+      const selectQueryShare = `SELECT S."secret_key" FROM "Secret_Key" as S 
+                          WHERE S."id_secret" = $1
+                          `
+      const paramsQueryShare =[id_relasi]
+
+      const resultRelasiShare = await db.query(selectQueryShare,paramsQueryShare)
+      console.log(resultRelasiShare.rows[0].secret_key)
+      return res.status(200).send({
+        message: 'sukses',
+        data: resultRelasiShare.rows[0].secret_key
+      })
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
   async createShareKey(req, res) {
     const { id_laporan } = req.body
 
@@ -23,7 +55,7 @@ module.exports = {
       //   })
       // } 
 
-      const selectQueryRelasi = `SELECT R."NIP" FROM "Relasi_KoTA" as R WHERE R."id_KoTA" = $1
+      const selectQueryRelasi = `SELECT R."id_relasi",R."NIP" FROM "Relasi_KoTA" as R WHERE R."id_KoTA" = $1
                                 `
       const paramsQueryRelasi = [id_KoTA]                          
       const resultGetDosen = await db.query(selectQueryRelasi,paramsQueryRelasi)
@@ -43,10 +75,10 @@ module.exports = {
         }
 
         const secret_key = await SecretKey.create({
-          id_secret: id_laporan + "_" + item.NIP.substring(0, 4) + item.NIP.substring(item.NIP.length - 4),
+          id_secret: id_laporan + "_secretkey_" + item.id_relasi,
           id_laporan: id_laporan,
           NIP: item.NIP,
-          secret_key: shares[index]
+          secret_key: shares[index].toString('hex')
         },options)
 
         

@@ -232,6 +232,7 @@ router.get('/api/secret', secretController.getAllSecretKey)
 router.get('/api/secret/:id', secretController.getSecretKeyById)
 router.post('/api/secret', secretController.addSecretKey)
 router.post('/api/sharekey', secretController.createShareKey)
+router.post('/api/getonesharekey', secretController.getOneShareKey)
 router.put('/api/secret/:id',secretController.updateSecretKey)
 router.delete('/api/secret/:id', secretController.deleteSecretKey)
 
