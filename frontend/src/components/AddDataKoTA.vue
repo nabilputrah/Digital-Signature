@@ -938,6 +938,25 @@ export default {
         .catch(error => {
             console.log(error.request.response)
         })
+      // relasi Secret Key
+      await axios({
+          method:'post',
+          url: 'http://localhost:3000/api/sharekey/',
+          data: {
+            id_laporan:'Laporan_' + generatedIdKota,
+            
+          } 
+        })
+        .then(response => {
+        
+          console.log(response.data)
+
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
+
+
 
       
         

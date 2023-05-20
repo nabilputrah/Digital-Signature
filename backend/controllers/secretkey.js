@@ -49,10 +49,12 @@ module.exports = {
           secret_key: shares[index]
         },options)
 
-        console.log(secret_key)
-
-
+        
       });
+
+      return res.status(200).send({
+        message: 'sukses'
+      })
 
 
 
