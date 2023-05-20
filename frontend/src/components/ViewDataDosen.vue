@@ -367,7 +367,7 @@
             mdi-trash-can-outline
           </v-icon>
           <v-icon
-            @click="sendEmail(item)"
+            @click="sendEmail(item.NIP)"
           >
             mdi-email-outline
           </v-icon>
@@ -475,6 +475,7 @@ import axios from 'axios'
       dialog: false,
       dialogDelete: false,
       dialogEmail: false,
+      sendEmailTo:'',
       dialogAllEmail : false,
       headers: [
         {
@@ -871,7 +872,8 @@ import axios from 'axios'
         this.dialogDelete = true
       },
 
-      sendEmail () {
+      sendEmail (NIP) {
+        this.sendEmailTo = NIP
         this.dialogEmail = true
       },
 
@@ -901,16 +903,40 @@ import axios from 'axios'
       },
 
       sendEmailConfirm () {
-        this.snackbar.show = true;
-        this.snackbar.color = "primary";
-        this.snackbar.message = "Email berhasil dikirimkan!";
+        console.log(this.sendEmailTo)
+        axios({
+          method:'post',
+          url: 'http://localhost:3000/api/dosen/sendemail/'+ this.sendEmailTo,
+        })
+        .then(response => {
+          console.log(response.data)
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Email berhasil dikirimkan!";
+        })
+        .catch(error => {
+            console.log(error.request.response)
+        })
         this.closeEmail()
       },
 
       sendAllEmailConfirm () {
+        this.dosen.forEach(async (item) => {
+          console.log(item.NIP)
+          // axios({
+          //   method:'post',
+          //   url: 'http://localhost:3000/api/dosen/sendemail/'+ item.NIP,
+          // })
+          // .then(response => {
+          //   console.log(response.data)
+          // })
+          // .catch(error => {
+          //     console.log(error.request.response)
+          // })
+        });
         this.snackbar.show = true;
         this.snackbar.color = "primary";
-        this.snackbar.message = "Email berhasil dikirimkan!";
+        this.snackbar.message = "Email berhasil dikirimkan!";  
         this.closeAllEmail()
       },
 

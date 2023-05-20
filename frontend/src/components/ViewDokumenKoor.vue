@@ -227,12 +227,6 @@
         <!-- End Kolom Status -->
         <!-- Start Kolom Action -->
         <template v-slot:[`item.actions`]="{ item }">
-          <!-- <v-icon
-            v-tooltip="'Ini adalah tooltip'"
-            @click="sendEmail(item.NIP)"
-          >
-            mdi-email-outline
-          </v-icon> -->
           <v-tooltip top color="primary">
             <template v-slot:activator="{ on, attrs }">
               <v-icon
