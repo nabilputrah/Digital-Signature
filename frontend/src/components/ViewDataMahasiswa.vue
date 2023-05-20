@@ -44,6 +44,13 @@
               vertical
             ></v-divider>
             <v-spacer></v-spacer>
+            <v-btn
+              color="primary"
+              @click="add_Dokumen"
+              style="margin-top: auto;margin-bottom: auto; margin-right: 1%;" 
+            >
+              Import Mahasiswa
+            </v-btn>
             <v-dialog
               v-model="dialog"
               max-width="500px"
@@ -194,6 +201,70 @@
         </v-btn>
       </template>
     </v-snackbar>
+
+    <!-- Start Card Upload Dokumen -->
+    <v-dialog
+    v-model="validasiDokumen"
+    class="text-center" 
+    max-width="600"
+    color="white"
+    >
+    <v-card >
+        <v-card-title class="headline">Validasi Dokumen</v-card-title>
+        <v-card-text>
+          <v-tabs v-model="tab">
+            <v-tab v-for="(item, index) in InputFile" :key="index">{{ item.text }}</v-tab>
+
+            <v-tab-item v-for="(item, index) in InputFile" :key="index">
+              <v-card flat>
+                <v-card-text>
+                  <v-form ref="form" @submit.prevent="validateFile">
+                    <template v-if="item.text === 'Browse'">
+                      <v-file-input
+                        v-model="file"
+                        label="Pilih File"
+                        accept=".pdf"
+                        prepend-icon="mdi-paperclip"
+                      ></v-file-input>
+                    </template>
+                    <template v-if="item.text === 'Drop'">
+                      <div 
+                        class="drop-area" 
+                        @dragenter="dragEnter" 
+                        @dragover="dragOver" 
+                        @dragleave="dragLeave" 
+                        @drop="dropFile">
+                        <div v-if="!file">
+                          <v-icon class="mr-2" style="color: rgba(145, 187, 203, 1);">mdi-folder-outline</v-icon>
+                          <span class="placeholder">Drag and drop file here</span>
+                        </div>
+                        <div v-else class="file-info">
+                          <span class="file-name">{{ file.name }}</span>
+                          <button class="remove-button" @click="removeFile">Remove</button>
+                        </div>
+                      </div>
+                    </template>
+                    <v-alert
+                      v-if="validationError"
+                      type="error"
+                      dismissible
+                    >
+                      {{ validationError }}
+                    </v-alert>
+                  </v-form>
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
+          </v-tabs>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="close_Popup_AddDokumen">Kembali</v-btn>
+          <v-btn color="primary" @click="add_Dokumen_succes">Unggah Dokumen</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <!-- End Card Upload Dokumen -->
   </div>
 
 </template>
@@ -262,6 +333,17 @@ import axios from 'axios'
         KoTA: '',
       },
 
+      // Data Import Dokumen
+      validasiDokumen: false,
+      tab: 0,
+      InputFile: [
+        { text: "Browse" },
+        { text: "Drop" },
+      ],
+      file: null,
+      dragging: false,
+      validationError: null,
+
       // Notifikasi Berhasil
       snackbar: {
         show: false,
@@ -302,9 +384,54 @@ import axios from 'axios'
   
    
     methods: {
-      openPage() {
-        this.dialogHtml = true
-      },
+      async add_Dokumen_succes(){
+      if (!this.file) {
+        this.validationError = "Mohon pilih file yang akan divalidasi.";
+        return;
+      }
+
+      // const response = await axios.get('http://localhost:3000/api/dokumenversion/'+ this.laporan.id_laporan)
+      // console.log(response.data.data)
+      // const version = response.data.data + 1
+
+      // const formData = new FormData();
+      // formData.append('dokumen_laporan', this.file);
+      // formData.append('id_laporan', this.laporan.id_laporan)
+      // formData.append('id_dokumen', this.laporan.id_laporan + '_' + 'v' + version)
+      // formData.append('version', 'v' + version)
+
+      // await axios.post('http://localhost:3000/api/dokumen/', formData, {
+      //   headers : {
+      //     'Content-Type' : 'multipart/form-data'
+      //   }
+      // })
+      //   .then(response => {
+      //     console.log(response.data);
+      //     this.validasiDokumen = !this.validasiDokumen;
+      //     this.file = null
+      //     this.snackbar.show = true;
+      //     this.snackbar.color = "primary";
+      //     this.snackbar.message = "Dokumen Laporan TA berhasil ditambahkan";
+      //   })
+      //   .catch(error => {
+      //     console.log(error.message);
+      //     this.validasiDokumen = !this.validasiDokumen;
+      //     this.file = null
+      //     this.snackbar.show = true;
+      //     this.snackbar.color = "error";
+      //     this.snackbar.message = "Dokumen Laporan TA gagal ditambahkan";
+      //   });
+      //   this.initialize()
+    },
+
+    close_Popup_AddDokumen(){
+      this.validasiDokumen = !this.validasiDokumen;
+      this.file = null
+    },
+
+    async add_Dokumen(){
+      this.validasiDokumen = true;
+    },
 
       async initializeNavbarLoggedIn (){
         const token = localStorage.getItem('token'); 
@@ -339,20 +466,22 @@ import axios from 'axios'
              this.mahasiswa = this.mahasiswa.filter((item) => item.id_prodi === "PRD001");
 
              const mappedData = this.mahasiswa.map((item) => {
-                if (item.id_prodi === "PRD001") {
-                  item.id_prodi = "D4";
-                }
+                // if (item.id_prodi === "PRD001") {
+                //   item.id_prodi = "D4";
+                // }
+                item.id_prodi = "D4";
                 return item;
               })
 
             this.mahasiswa = mappedData
-          } else{
+          } else if (this.loggedIn.nama_prodi === 'D3'){
             this.mahasiswa = this.mahasiswa.filter((item) => item.id_prodi === "PRD002");
 
               const mappedData = this.mahasiswa.map((item) => {
-                if (item.id_prodi === "PRD002") {
-                  item.id_prodi = "D3";
-                }
+                // if (item.id_prodi === "PRD002") {
+                //   item.id_prodi = "D3";
+                // }
+                item.id_prodi = "D3";
                 return item;
               })
 
@@ -487,6 +616,34 @@ import axios from 'axios'
         }
         this.close()
       },
+      // Methods Drag n Drop zone
+      dragEnter(e) {
+        e.preventDefault();
+        e.target.classList.add('highlight');
+      },
+      dragOver(e) {
+        e.preventDefault();
+      },
+      dragLeave(e) {
+        e.preventDefault();
+        e.target.classList.remove('highlight');
+      },
+      dropFile(e) {
+        e.preventDefault();
+        e.target.classList.remove('highlight');
+
+        const files = e.dataTransfer.files;
+        this.handleFiles(files);
+      },
+      handleFiles(files) {
+        if (files.length > 0) {
+          this.file = files[0];
+          console.log(this.file)
+        }
+      },
+      removeFile() {
+        this.file = null;
+      }
     },
   }
 </script>
@@ -527,6 +684,48 @@ import axios from 'axios'
 
 ::v-deep .theme--light.v-data-table .v-data-table-header th.sortable .v-data-table-header__icon {
     color: rgba(145, 187, 203, 0.35);
+}
+
+ /* Drag and Drop Zone */
+ .drop-area {
+  display: flex;
+  justify-content: center; /* Menengahkan konten secara horizontal */
+  align-items: center; /* Menengahkan konten secara vertical */
+  border: 2px dashed rgba(145, 187, 203, 1);
+  text-align: center;
+  padding: 30px;
+  font-size: 20px;
+}
+
+.highlight {
+  background: rgba(145, 187, 203, 0.2);
+}
+
+.placeholder {
+  color: rgba(145, 187, 203, 1);
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: rgba(145, 187, 203, 0.35);
+  border-radius: 5px;
+}
+
+.file-name {
+  margin: 0;
+}
+
+.remove-button {
+  background-color: #ff5555;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-left: 10px;
 }
 
 </style>
