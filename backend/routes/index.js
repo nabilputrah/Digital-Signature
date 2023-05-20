@@ -155,6 +155,7 @@ router.get('/api/dosen/:id', dosenController.getDosenByNIP)
 router.put('/api/dosen/:id',dosenController.updateDosen)
 router.delete('/api/dosen/:id', dosenController.deleteDosen);
 router.post('/api/dosenimport/', dosenController.importAllDosenWithUser)
+router.post('/api/dosen/sendemail/:id', dosenController.sendEmailAccountDosen)
 
 /* Endpoint Jurusan Controller*/
 router.get('/api/jurusan', jurusanController.getAllJurusan)
