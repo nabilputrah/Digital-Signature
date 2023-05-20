@@ -232,7 +232,7 @@
               <v-icon
                 v-bind="attrs"
                 v-on="on"
-                @click="sendEmail(item.NIP)"
+                @click="sendEmail(item)"
               >
               mdi-email-outline
               </v-icon>
@@ -514,21 +514,27 @@ export default {
       this.dialogEmail = true
     },
 
-    sendEmailConfirm () {
-      console.log(this.sendEmailTo)
-      // axios({
-      //   method:'post',
-      //   url: 'http://localhost:3000/api/mahasiswa/sendemail/'+ this.sendEmailTo,
-      // })
-      // .then(response => {
-      //   console.log(response.data)
-      //   this.snackbar.show = true;
-      //   this.snackbar.color = "primary";
-      //   this.snackbar.message = "Email berhasil dikirimkan!";  
-      // })
-      // .catch(error => {
-      //     console.log(error.request.response)
-      // })
+    async sendEmailConfirm () {
+      // console.log(this.laporan.id_laporan)
+      // console.log(this.sendEmailTo)
+      await axios({
+        method:'post',
+        url: 'http://localhost:3000/api/secret/sendemail/',
+        data : {
+          NIP : this.sendEmailTo.NIP,
+          role : this.sendEmailTo.role,
+          id_laporan : this.laporan.id_laporan
+        }
+      })
+      .then(response => {
+        console.log(response.data)
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Email berhasil dikirimkan!";  
+      })
+      .catch(error => {
+          console.log(error.request.response)
+      })
 
       this.closeEmail()
     },
