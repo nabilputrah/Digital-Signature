@@ -456,24 +456,24 @@ export default {
       if (this.loggedIn.nama_prodi === 'D4') {
           this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD001");
 
-          const mappedData = this.MahasiswaFiltered.map((item) => {
-            if (item.id_prodi === "PRD001") {
-              item.id_prodi = "D4";
-            }
-            return item;
-          })
+        //   const mappedData = this.MahasiswaFiltered.map((item) => {
+        //     if (item.id_prodi === "PRD001") {
+        //       item.id_prodi = "D4";
+        //     }
+        //     return item;
+        //   })
 
-        this.MahasiswaFiltered = mappedData
-      } else{
+        // this.MahasiswaFiltered = mappedData
+      } else if(this.loggedIn.nama_prodi === 'D3'){
         this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD002");
 
-          const mappedData = this.MahasiswaFiltered.map((item) => {
-            if (item.id_prodi === "PRD002") {
-              item.id_prodi = "D3";
-            }
-            return item;
-          })
-              this.MahasiswaFiltered = mappedData
+          // const mappedData = this.MahasiswaFiltered.map((item) => {
+          //   if (item.id_prodi === "PRD002") {
+          //     item.id_prodi = "D3";
+          //   }
+          //   return item;
+          // })
+          //     this.MahasiswaFiltered = mappedData
       }
       
       const selectedItem = this.mahasiswaKoTA.map((item) => ({

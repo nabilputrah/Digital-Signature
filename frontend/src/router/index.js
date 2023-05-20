@@ -136,7 +136,7 @@ const routes = [
     },
   },
   {
-    path: '/dosen/daftar_dokumen/dokumen_detail/:id',
+    path: '/dosen/daftar_dokumen/dokumen_detail/:role/:id',
     name: 'dokumenDosen',
     component: DokumenDosen,
     meta: {
