@@ -2,14 +2,76 @@ const { sequelize } = require('../models');
 const csv = require('csv-parser');
 const XlsxPopulate = require('xlsx-populate');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
+
 
 const bcrypt = require('bcrypt');
 const db = require('../db/index')
 const Dosen = require('../models').Dosen;
 const User = require('../models').User;
+
+require('dotenv').config()
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.AUTH_USERNAME,
+    pass: process.env.AUTH_PASSWORD
+  }
+});
 // const { Op } = require("sequelize");
 
 module.exports = {
+
+  async sendEmailAccountDosen(req, res){
+    const { id } = req.params
+
+    try {
+      const selectQuery = `SELECT D."NIP", D."nama", D."email" FROM "Dosen" as D
+                          WHERE D."NIP" = $1
+                          ` 
+      const paramsQuery = [id]
+
+      const result = await db.query(selectQuery,paramsQuery)
+      const dataKoTA = result.rows[0]
+      const namaDosen = dataKoTA.nama
+      const usernameDosen = dataKoTA.NIP
+      const emailDosen = dataKoTA.email
+      const passwordDosen = "Dosen" + usernameDosen.substring(0, 4) + usernameDosen.substring(usernameDosen.length - 4)
+
+      if (Object.keys(result).length > 0) {
+        res.render('emailAccountDosen', { nama: namaDosen, username: usernameDosen, password: passwordDosen }, function (err, renderedHtml) {
+          if (err) {
+            console.log(err);
+          } else {
+            const mailOptions = {
+              from: 'hello@example.com',
+              to: emailDosen,
+              subject: 'Akun D-SIGN JTK Polban',
+              html: renderedHtml
+            };
+        
+            transporter.sendMail(mailOptions, function (error, info) {
+              if (error) {
+                console.log(error);
+              } else {
+                return res.status(200).send({
+                  message:'Email terkirim' + info.response
+                })
+             
+              }
+            });
+          }
+        });
+        
+      } 
+      
+    } catch (error) {
+       return res.status(400).send({
+          message: error.message
+       })
+    }
+  },
   getAllDosen(req, res) {
     return Dosen
       .findAll({
