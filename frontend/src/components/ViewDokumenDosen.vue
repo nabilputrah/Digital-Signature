@@ -370,7 +370,17 @@ export default {
   },
 
   mounted () {
+    const params = new URLSearchParams(window.location.search);
+    const DialogshareKey = params.get('DialogShareKey');
+    const shareKey = params.get('shareKey');
     const token = localStorage.getItem('token');
+
+    if (DialogshareKey) {
+      this.dialogShareKey = true;
+    }
+    if (shareKey) {
+      this.shareKey = shareKey;
+    }
 
     if (token) {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -561,7 +571,7 @@ export default {
           }
         })
         .then(response => {
-          console.log(response.data.data)
+          // console.log(response.data.data)
           this.shareKeyDB = response.data.data
         })
         .catch(error => {
