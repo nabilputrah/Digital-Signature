@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
      
     },
-    img_ttd: DataTypes.STRING,
+    img_ttd: DataTypes.BLOB,
     tgl_ttd: DataTypes.DATE
   }, {
     sequelize,
