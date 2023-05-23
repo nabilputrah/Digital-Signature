@@ -69,7 +69,7 @@
           <v-col cols="1">
           </v-col>
           <v-col >
-            <p>Ketua Program Studi D3 Teknik Informatika,</p>
+            <p>Ketua Program Studi {{ Prodi }} Teknik Informatika,</p>
             <img width="160px" height="110px" src="../assets/TTD.png">
             <p>{{ Kaprodi.nama }}</p>
           </v-col>
@@ -119,6 +119,7 @@ export default {
         {nama:'Muhammad Rizqi Sholahuddin, S.Si., M.T.', NIP:'197201061999031002', TTD:''},
       ],
 
+      Prodi:'',
       Kaprodi : {
         nama:'Djoko Cahyo Utomo L., S.Kom., M.MT.', NIP:'197201061999031555', TTD:'',
       },
@@ -149,6 +150,10 @@ export default {
         console.log(this.kota)
         const id_kota = response.data.data[0].id_KoTA
 
+        const responseAnggota = await axios.get('http://localhost:3000/api/mahasiswakota/' + id_kota);
+        this.Anggota = responseAnggota.data.data;
+        console.log(this.Anggota)
+
         const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +id_kota)
         this.laporan = responseListLaporan.data.data
         console.log(this.laporan)
@@ -157,15 +162,31 @@ export default {
         this.Pembimbing = responsePembimbing.data.data
         console.log(this.Pembimbing)
 
-        const responseRelasi = await axios.get('http://localhost:3000/api/relasi/KoTA/' + id_kota)
-        this.Pengampu = responseRelasi.data.data
-        console.log(this.Pengampu)
+        // const responseRelasi = await axios.get('http://localhost:3000/api/relasi/KoTA/' + id_kota)
+        // this.Pengampu = responseRelasi.data.data
+        // console.log(this.Pengampu)
 
-        // const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
-        // this.Kajur = responseKajur.data.data[0]
-        // const DataKajur = await axios.get('http://localhost:3000/api/dosen/'+ this.Kajur.NIP,)
-        // console.log(DataKajur.data.data)
-        // this.Kajur = DataKajur.data.data
+        const responseKaprodi = await axios.get('http://localhost:3000/api/prodi/'+this.Anggota[0].id_prodi)
+        this.kaprodiData = responseKaprodi.data.data
+        console.log(this.kaprodiData)
+
+        if (this.Anggota[0].id_prodi === 'PRD001'){
+          this.Prodi = 'D4'
+        }else if (this.Anggota[0].id_prodi === 'PRD002'){
+          this.Prodi = 'D3'
+        }
+
+        const DataKaprodi = await axios.get('http://localhost:3000/api/dosen/'+ this.kaprodiData.NIP,)
+        console.log(DataKaprodi.data.data)
+        this.Kaprodi = DataKaprodi.data.data
+
+
+        const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
+        this.Kajur = responseKajur.data.data[0]
+
+        const DataKajur = await axios.get('http://localhost:3000/api/dosen/'+ this.Kajur.NIP,)
+        console.log(DataKajur.data.data)
+        this.Kajur = DataKajur.data.data
 
         this.convertDateDisetujui()
         // this.convertDateDisidangkan()
