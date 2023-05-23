@@ -44,19 +44,20 @@ module.exports = {
       // console.log(resultRelasiShare.rows[0].secret_key)
       const shareKey =  resultRelasiShare.rows[0].secret_key
       const formattedNamaKoTA = 'KoTA ' + id_laporan.substr(12, 3)
+      const id_KoTA = id_laporan.substr(8);
 
 
 
       
       if (Object.keys(resultRelasiShare).length > 0) {
-        res.render('emailShareKey', { username: namaDosen , formattedUKoTA:formattedNamaKoTA , ShareKey:shareKey  }, function (err, renderedHtml) {
+        res.render('emailShareKey', {role:role, id_KoTA:id_KoTA, username: namaDosen , formattedUKoTA:formattedNamaKoTA , ShareKey:shareKey  }, function (err, renderedHtml) {
           if (err) {
             console.log(err);
           } else {
             const mailOptions = {
               from: 'hello@example.com',
               to: emailDosen,
-              subject: 'Share Key Tanda Tangan Laporan ' + formattedNamaKoTA,
+              subject: 'Share Key Tanda Tangan Laporan Tugas Akhir' + formattedNamaKoTA,
               html: renderedHtml
             };
         

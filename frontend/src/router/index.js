@@ -24,6 +24,7 @@ import DokumenDosen from '../views/DetailDokumenDosen.vue'
 //Role KoTA
 import DataProfilKoTA from '../views/DataProfilKoTA.vue'
 import DokumenKoTA from '../views/DetailDokumenKoTA.vue'
+import LembarPengesahan from '../views/CreateLembarPengesahan.vue'
 
 Vue.use(VueRouter)
 
@@ -110,6 +111,14 @@ const routes = [
     path: '/KoTA/dokumen_detail',
     name: 'dokumenKoTA',
     component: DokumenKoTA,
+    meta: {
+      requiresAuthKoTA: true,
+    },
+  },
+  {
+    path: '/KoTA/lembar_pengesahan',
+    name: 'lembarPengesahan',
+    component: LembarPengesahan,
     meta: {
       requiresAuthKoTA: true,
     },
