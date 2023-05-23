@@ -40,7 +40,8 @@ module.exports = {
     try {
       const selectQuery = `SELECT r."NIP",r."role", r."status", r."urutan", d."nama" FROM "Relasi_KoTA" as r
                               JOIN "Dosen" as d ON d."NIP" = r."NIP" 
-                              WHERE r."id_KoTA" = $1
+                              WHERE r."id_KoTA" = $1 
+                              ORDER BY r."role" ASC
                           `
       const paramsQuery = [id]
 
@@ -231,63 +232,96 @@ module.exports = {
       })
     }
   },
-  
-  async doSignature(req, res) {
-    const { id } = req.params
-    const { img_ttd } = req.files
+  async doSignatureDosen(req, res){
+    const  { img_ttd } = req.files
+    const  { NIP, role, id_KoTA} = req.body
 
-    const now = moment();
-
-    const formattedDate = now.format('YYYY-MM-DD');
-    // Format time for file
-    const formattedTime = now.format('HHmmss');
-    // Format time for saving to database
-    const formattedTimeFull = now.format('HH:mm:ss');
-    
+    const now = moment()
+    const formattedDate = now.format('YYYY-MM-DD')
+    const formattedTimeFull = now.format('HH:mm:ss')
     const fullDatetime = formattedDate + " " + formattedTimeFull
 
+    
     try {
-      const relasi_KoTA = await Relasi_KoTA.findOne({
+      const relasi  = await Relasi_KoTA.findOne({
         where: {
-          id_relasi: id
+          NIP: NIP,
+          role: role,
+          id_KoTA: id_KoTA
         },
         attributes:{
-          exclude:['createdAt','updatedAt']
+          exclude:['createdAt','updatedAt','id']
         }
       })
 
-      if (!relasi_KoTA) {
+      if(!relasi) {
         return res.status(404).send({
-          message:'Data relasi kota tidak ditemukan'
+          message: 'data relasi tidak ditemukan'
+        })
+      }
+      
+
+      const updateQuery = `UPDATE "Relasi_KoTA" SET "status" = true, "img_ttd" = $1, "tgl_ttd"=$2
+                           WHERE "id_relasi"= $3 RETURNING *
+                          `
+      const paramsQuery = [img_ttd, fullDatetime, relasi.id_relasi]
+
+      const resultQuery = await db.query(updateQuery, paramsQuery)
+
+      if (Object.keys(resultQuery).length > 0) {
+  
+          return res.status(200).send({
+            message: `Do signature berhasil`,
+            data: resultQuery.rows
+          })
+        } 
+
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
+
+  async getGambarTTDRelasi(req,res) {
+    const  { NIP, role, id_KoTA} = req.body
+
+    try {
+      const relasi  = await Relasi_KoTA.findOne({
+        where: {
+          NIP: NIP,
+          role: role,
+          id_KoTA: id_KoTA
+        },
+        attributes:{
+          exclude:['createdAt','updatedAt','id']
+        }
+      })
+
+      if(!relasi) {
+        return res.status(404).send({
+          message: 'data relasi tidak ditemukan'
         })
       }
 
-      const imagePath = formattedDate + "-" + formattedTime + '-' + img_ttd.name
+      res.set({
+        'Content-Type': 'image/png'
+      });
 
-      const updateQuery = `UPDATE "Relasi_KoTA" SET "status" = true, "img_ttd" = $1, "tgl_ttd"=$2
-                           WHERE "id_relasi"= $3 RETURNING *`
+      res.send(relasi.img_ttd)
 
-      const paramsQuery = [ imagePath, fullDatetime, id ]
-
-      const result = await db.query(updateQuery, paramsQuery)
-
-      if (Object.keys(result).length > 0) {
-      
-        img_ttd.mv(path.resolve('./uploads/img_ttd/', formattedDate + '-' + formattedTime + '-' + img_ttd.name))
-        
-        return res.status(200).send({
-          message: `Do signature berhasil`,
-          data: result.rows
-        })
-      } 
-
+      // return res.status(200).send({
+      //   message: 'get data gambar sukses',
+      //   data: relasi.img_ttd
+      // })
     } catch (error) {
       return res.status(400).send({
         message:error.message
       })
     }
-   
   },
+
+
   async deleteRelasiKoTA(req, res) {
     const { id } = req.params
    
