@@ -1,7 +1,5 @@
 <template>
     <div>
-  
-  
       <!-- End HTML Lembar Pengesahan Halaman 2 -->
       <!-- End HTML Lembar Pengesahan Halaman 2 -->
       <div 
@@ -161,7 +159,12 @@
                     <p>NIP. {{ dosen.NIP }}</p>
                   </v-col>
                   <v-col cols="3" >
-                    <img width="100px" height="70px" :src="imageURL">
+                    <!-- <img width="100px" height="70px" src="../assets/uploads/img_ttd/20224022023/Penguji_234234234234234232.png"> -->
+                    <img 
+                      width="100px" 
+                      height="70px" 
+                      :src="imageURL"
+                      >
                     <!-- <img src="imageURL" alt=""> -->
                   </v-col>
                 </v-row>
@@ -298,7 +301,7 @@
           nama:'Djoko Cahyo Utomo L., S.Kom., M.MT.', NIP:'197201061999031999', TTD:'',
         },
   
-        imageURL:null,
+        imageURL:'',
         tanggal_disetujui: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
 
         validasiDokumen: false,
@@ -329,7 +332,7 @@
         }
       this.initialize()
     },
-  
+
     methods: {
       async initialize () {
   
@@ -345,29 +348,11 @@
             const responsePembimbing = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ this.laporan.id_KoTA)
             this.Pembimbing = responsePembimbing.data.data
     
-            await axios({
-                method:'post',
-                url: 'http://localhost:3000/api/relasi/gambarttd/',
-                responseType:'blob',
-                data: {
-                NIP: '234234234234234232',
-                id_KoTA: this.laporan.id_KoTA,
-                role:'Penguji'
-                }
-                })
-                .then(response => {
-                    // console.log(response.data)
-                    // const buffer = Buffer.from(response.data, 'base64');
-                    // const blob = new Blob([buffer], { type: 'image/png' });
-                    const uint8Array = new Uint8Array(response.data);
-                    const blob = new Blob([uint8Array], { type: "image/png" });
-                    this.imageURL = URL.createObjectURL(blob);
-                    // this.imageURL = URL.createObjectURL(response.data);
-                    console.log(this.imageURL)
-                })
-                .catch(error => {
-                console.log(error.request.response)          
-                })
+            try {
+              this.imageURL = 'http://localhost:3000/api/relasi/gambarttd/234234234234234232/Penguji/20224022023'
+            } catch (error) {
+              console.error(error);
+            }
 
             const responsePenguji = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ this.laporan.id_KoTA)
             this.Penguji = responsePenguji.data.data
@@ -424,38 +409,39 @@
       },
   
         async add_Dokumen_succes(){
-            if (!this.file) {
-                this.validationError = "Mohon pilih file yang akan divalidasi.";
-                return;
-            }
-            const formData = new FormData();
-            formData.append('img_ttd', this.file);
-            formData.append('NIP', '234234234234234232')
-            formData.append('id_KoTA', this.laporan.id_KoTA)
-            formData.append('role', 'Penguji')
+          if (!this.file) {
+              this.validationError = "Mohon pilih file yang akan divalidasi.";
+              return;
+          }
+          console.log(this.file)
+          const formData = new FormData();
+          formData.append('img_ttd', this.file);
+          formData.append('NIP', '234234234234234232')
+          formData.append('id_KoTA', this.laporan.id_KoTA)
+          formData.append('role', 'Penguji')
 
-            await axios.post('http://localhost:3000/api/relasi/doSignature/', formData, {
-                headers : {
-                'Content-Type' : 'multipart/form-data'
-                }
-            })
-                .then(response => {
-                console.log(response.data);
-                this.validasiDokumen = !this.validasiDokumen;
-                this.file = null
-                this.snackbar.show = true;
-                this.snackbar.color = "primary";
-                this.snackbar.message = "Tanda Tangan Berhasil dibubuhkan";
-                })
-                .catch(error => {
-                console.log(error.message);
-                this.validasiDokumen = !this.validasiDokumen;
-                this.file = null
-                this.snackbar.show = true;
-                this.snackbar.color = "error";
-                this.snackbar.message = "Tanda Tangan gagal dibubuhkan";
-                });
-                this.initialize()
+          await axios.post('http://localhost:3000/api/relasi/doSignature/', formData, {
+              headers : {
+              'Content-Type' : 'multipart/form-data'
+              }
+          })
+          .then(response => {
+          console.log(response.data);
+          this.validasiDokumen = !this.validasiDokumen;
+          this.file = null
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Tanda Tangan Berhasil dibubuhkan";
+          })
+          .catch(error => {
+          console.log(error.message);
+          this.validasiDokumen = !this.validasiDokumen;
+          this.file = null
+          this.snackbar.show = true;
+          this.snackbar.color = "error";
+          this.snackbar.message = "Tanda Tangan gagal dibubuhkan";
+          });
+          this.initialize()
         },
 
         close_Popup_AddDokumen(){
@@ -487,22 +473,8 @@
             const htmlContent = document.getElementById('pdf-content');
             const htmlContentHal2 = document.getElementById('pdf-hal2');
     
-            // const img = new Image()
-            // img.src = '../assets/logo-polban-81.png'
-            
-            // var img = new Image();
-            // img.src = path.resolve('./assets/logo-polban-81.png');
-    
-            // const srcImg = "../assets/logo-polban-81.png";
-    
-            // const width = doc.internal.pageSize.getWidth();
-            // const height = doc.internal.pageSize.getHeight();
-    
-            // doc.addImage(srcImg, 'PNG', 0, 0, width, height)
-    
             doc.html(htmlContentHal2, {
             callback: () => {
-                // doc.addImage(img, 'png', 0, 0, width, height)
                 doc.insertPage(1);
                 doc.html(htmlContent, {
                 callback: () => {

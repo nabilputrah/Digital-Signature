@@ -40,7 +40,7 @@ module.exports = {
         defaultValue:false,
       },
       img_ttd: {
-        type: Sequelize.BLOB
+        type: Sequelize.TEXT
       },
       tgl_ttd: {
         type: Sequelize.DATE
