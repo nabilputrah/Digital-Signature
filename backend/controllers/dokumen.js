@@ -1,5 +1,7 @@
 const db = require('../db/index')
 const { Op } = require('sequelize');
+const { degrees, PDFDocument, rgb, StandardFonts } = require('pdf-lib')
+const fs = require('fs')
 
 const path = require('path');
 const Laporan = require('../models').Laporan;
@@ -10,6 +12,44 @@ const crypto = require('crypto');
 
 module.exports = {
 
+  async mergePDF(req, res) {
+  // const cover = await PDFDocument.load(fs.readFileSync('./pdf/KoTA108LaporanTA.pdf'));
+  // const content = await PDFDocument.load(fs.readFileSync('./pdf/contoh3.pdf'));
+  const cover = await PDFDocument.load(req.files.cover.data);
+  const content = await PDFDocument.load(req.files.content.data);
+
+  const doc = await PDFDocument.create();
+
+  const coverPages = await doc.copyPages(cover, [0]); // Menyalin halaman pertama dari dokumen pertama
+  for (const page of coverPages) {
+    doc.addPage(page);
+  }
+
+  const contentPages = await doc.copyPages(content, [0, 1]); // Mengambil halaman ke-2 dan ke-3 dari dokumen kedua
+  for (const page of contentPages) {
+    doc.addPage(page);
+  }
+
+  const contentPages1 = await doc.copyPages(cover, cover.getPageIndices())
+  for (const page of contentPages1) {
+  
+    doc.addPage(page)
+
+  }
+
+  doc.removePage(3)
+  doc.removePage(3)
+  doc.removePage(3)
+
+
+  const mergedBytes = await doc.save();
+  fs.writeFileSync('./pdf/merged.pdf', mergedBytes);
+    if(Object.keys(doc).length > 0){
+      res.status(200).send({
+        message:'success',
+      })
+    }
+  },
   async addDokumen(req, res) {
     const moment = require('moment-timezone');
     moment.tz.setDefault('Asia/Jakarta');
