@@ -1057,7 +1057,7 @@ export default {
     },
 
     BackToDetail () {
-      this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.$route.params.id}`);
+      this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.ID_KoTA}`);
     },
 
     generateListTahunAjaran() {

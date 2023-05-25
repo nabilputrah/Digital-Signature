@@ -43,7 +43,9 @@ module.exports = {
     const { id } = req.params
 
     try {
-        const selectQuery = `SELECT DISTINCT (m."id_KoTA"), k."tahun_ajaran" FROM "Mahasiswa" as m 
+        const selectQuery = `SELECT DISTINCT (m."id_KoTA"), kt."tahun_ajaran" FROM "Mahasiswa" as m 
+                              JOIN "KoTA" as kt ON
+                              m."id_KoTA" = kt."id_KoTA"
                               JOIN "Koordinator" as k ON 
                               m."id_prodi" = k."id_prodi"
                               WHERE k."id_prodi" = $1 AND m."id_KoTA" IS NOT NULL 

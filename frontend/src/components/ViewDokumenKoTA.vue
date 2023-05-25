@@ -426,12 +426,16 @@ export default {
 
       dataFromToken: '',
       kota: '',
-      laporan: '',
+      laporan: {
+        tgl_disidangkan : (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+      },
+      
       id_delete_dokumen :'',
       // Data Form Nama
       judul_tugas_akhir : "",
       customToolbar: [
         [ "italic"],
+        [ { align: "center" }]
       ],
 
       //Pop Up dialog Dokumen
@@ -664,9 +668,19 @@ export default {
         tanggal_dibuat:this.convertDateDibuat(item.tgl_unggah),
         dokumen: item.id_dokumen
       }))
-                   
-        this.convertDateDisetujui()
-        this.convertDateDisidangkan()
+
+        if (this.laporan.tgl_disidangkan){
+            this.convertDateDisidangkan()
+        }
+        else {
+          this.laporan.tgl_disidangkan = ''
+        }
+        if (this.laporan.tgl_disetujui){
+            this.convertDateDisetujui()
+        }
+        else {
+          this.laporan.tgl_disetujui = ''
+        }
 
       } catch (error) {
         console.error(error.message);
