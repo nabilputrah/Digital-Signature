@@ -247,4 +247,6 @@ router.get('/api/dokumen/:id', dokumenController.getDokumenByID)
 router.delete('/api/dokumen/:id', dokumenController.deleteDokumen)
 router.get('/api/dokumenlaporan/:id/', dokumenController.getAllDokumenByIdLaporan)
 router.get('/api/dokumenversion/:id/', dokumenController.getDokumenVersionByKoTA)
+
+router.post('/api/dokumen/merge/', dokumenController.mergePDF)
 module.exports = router;
