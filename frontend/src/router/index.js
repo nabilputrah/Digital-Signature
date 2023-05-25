@@ -20,6 +20,7 @@ import DokumenKoor from '../views/DetailDokumenKoor.vue'
 import DaftarDokumen from '../views/DaftarDokumen.vue'
 import DataProfilDosen from '../views/DataProfilDosen.vue'
 import DokumenDosen from '../views/DetailDokumenDosen.vue'
+import SignDosen from '../views/DosenSign.vue'
 
 //Role KoTA
 import DataProfilKoTA from '../views/DataProfilKoTA.vue'
@@ -148,6 +149,14 @@ const routes = [
     path: '/dosen/daftar_dokumen/dokumen_detail/:role/:id',
     name: 'dokumenDosen',
     component: DokumenDosen,
+    meta: {
+      requiresAuthDosen: true,
+    },
+  },
+  {
+    path: '/dosen/daftar_dokumen/dokumen_detail/do_sign/:role/:id',
+    name: 'signDosen',
+    component: SignDosen,
     meta: {
       requiresAuthDosen: true,
     },

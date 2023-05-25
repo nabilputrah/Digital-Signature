@@ -583,6 +583,9 @@ export default {
         this.snackbar.color = "primary";
         this.snackbar.message = "Share Key yang diinputkan valid";
         this.shareKey = null
+
+        this.$router.push(`/dosen/daftar_dokumen/dokumen_detail/do_sign/${this.$route.params.role}/${this.$route.params.id}`);
+
       }else{
         this.dialogShareKey = false;
         this.snackbar.show = true;
