@@ -54,48 +54,11 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
     },
-    judul_TA: DataTypes.STRING,
-    // dokumen_laporan: {
-    //   type: DataTypes.STRING,
-    //   allowNull: false,
-    //   unique: true,
-    //   validate: {
-    //     isUnique: async function (value) {
-    //       const laporan = await Laporan.findOne({
-    //          where: {
-    //            dokumen_laporan: value 
-    //           },
-    //           attributes: {
-    //             exclude:['id']
-    //           } 
-    //         });
-    //       if (laporan) {
-    //         throw new Error('Dokumen Laporan must be unique');
-    //       }
-    //     },
-    //   },
-    // },
-    lembar_pengesahan: {
-      type: DataTypes.STRING,
-      unique: true,
-      validate: {
-        isUnique: async function (value) {
-          const laporan = await Laporan.findOne({
-             where: {
-               lembar_pengesahan: value 
-              },
-              attributes: {
-                exclude:['id']
-              } 
-            });
-          if (laporan) {
-            throw new Error('Lembar Pengesahan must be unique');
-          }
-        },
-      },
-    },
+    judul_TA: DataTypes.BLOB,
+    lembar_pengesahan: DataTypes.BLOB,
+
     digital_signature: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
     
       unique: true,
       validate: {

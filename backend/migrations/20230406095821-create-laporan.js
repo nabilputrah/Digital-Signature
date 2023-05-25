@@ -19,19 +19,15 @@ module.exports = {
         unique:true
       },
       judul_TA: {
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
       },
-      // dokumen_laporan: {
-      //   type: Sequelize.STRING,
-      //   unique:true
-      // },
+  
       lembar_pengesahan: {
-        type: Sequelize.STRING,
-        unique:true,
+        type: Sequelize.BLOB,
        
       },
       digital_signature: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         unique: true
       },
       tgl_disetujui: {
@@ -40,9 +36,7 @@ module.exports = {
       tgl_disidangkan: {
         type: Sequelize.DATE
       },
-      // version: {
-      //   type: Sequelize.STRING
-      // },
+   
       private_key: {
         type: Sequelize.TEXT,
         unique: true,
@@ -53,10 +47,6 @@ module.exports = {
         unique: true,
         allowNull:false
       },
-      // tgl_unggah: {
-      //   allowNull: false,
-      //   type: Sequelize.DATE
-      // },
     });
   },
   async down(queryInterface, Sequelize) {
