@@ -100,6 +100,7 @@ import axios from 'axios'
         { text: 'Urutan', value: 'urutan'},
         { text: 'Dokumen Laporan', value: 'dokumen', sortable: false },
         { text: 'Status', value: 'status', sortable: false },
+        { text: 'Keterangan', value: 'keterangan', sortable: false },
       ],
       KoTA: [],
     }),
@@ -132,26 +133,43 @@ import axios from 'axios'
 
             // const div = document.createElement('div');
 
-          this.KoTA = list.map((item) => {
-          const div = document.createElement('div');
-          div.innerHTML = item.judul_TA;
-          const judulTAText = div.innerText;
+            this.KoTA = list.map((item) => {
+            const div = document.createElement('div');
+            div.innerHTML = item.judul_TA;
+            const judulTAText = div.innerText;
 
-          return {
-            id_KoTA: item.id_KoTA ? item.id_KoTA.replace(regex, "$2-$1/$3") : null,
-            id_detailLaporan : item.id_KoTA,
-            judul_TA: judulTAText,
-            role: item.role,
-            status: item.status,
-            urutan: item.urutan
-          };
-        });
+            return {
+              id_KoTA: item.id_KoTA ? item.id_KoTA.replace(regex, "$2-$1/$3") : null,
+              id_detailLaporan : item.id_KoTA,
+              judul_TA: judulTAText,
+              role: item.role,
+              status: item.status,
+              urutan: item.urutan,
+              keterangan:'Dokumen dapat ditandatangani'
+            };
+          });
 
-        
           } catch (error) {
             console.log(error.message.request)
           }
 
+          this.KoTA.forEach(async (item) => {
+            try {
+              const response = await axios.get(`http://localhost:3000/api/relasi/accessttd/${item.role}/${item.id_detailLaporan}`)
+              const akses = response.data.data
+              console.log(akses)
+              if (akses > 0 && (item.role==='Kaprodi')){
+                item.keterangan = 'Dokumen sedang ditandatangani oleh penguji dan pembimbing'
+              } else if (akses === 1 && (item.role==='Kajur')){
+                item.keterangan = 'Dokumen sedang ditandatangani Kaprodi'
+              } else if (akses > 1 && (item.role==='Kajur')){
+                item.keterangan = 'Dokumen sedang ditandatangani oleh penguji dan pembimbing'
+              }
+            } catch (error) {
+              console.error(error.message);
+            }
+          });
+          console.log(this.KoTA)
         
       },
 

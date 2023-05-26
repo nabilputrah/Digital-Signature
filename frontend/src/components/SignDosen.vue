@@ -244,10 +244,16 @@
                       outlined
                       disabled
                     ></v-text-field>
-                    <v-text-field v-model="tanggal" label="Tanggal Tanda Tangan" required type="date"></v-text-field>
+                    <v-text-field 
+                      v-model="tanggal_TTD"
+                      label="Tanggal Tanda Tangan"
+                      dense
+                      outlined
+                      disabled
+                    ></v-text-field>
                     <v-row >
                       <v-col class="text-right" >
-                        <v-btn color="primary" @click="SignDocument">Tambah Tanda Tangan</v-btn>
+                        <v-btn color="primary" :disabled="AksesTTD" @click="SignDocument">Tambah Tanda Tangan</v-btn>
                       </v-col>
                     </v-row>
                   </form>
@@ -383,6 +389,7 @@
     data: () => ({
 
         // Start Data HTML Lembar Pengesahan
+        AksesTTD:false,
         dataFromToken: '',
         Judul_TA: '',
         kota:'',
@@ -417,7 +424,7 @@
         idKota: '',
         nip: '',
         nama: 'Dr. Transmissia Semiawan, BSCS., M.IT.,',
-        tanggal: '',
+        tanggal_TTD: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
         pdfUrl: 'https://example.com/path-to-your-pdf.pdf',
         // End Data Halaman TTD
 
@@ -471,10 +478,37 @@
           const payload = JSON.parse(atob(token.split('.')[1]));
           this.dataFromToken= payload.user;
         }
+      this.checkLembarPengesahan()
       this.initialize()
+      this.initializeAksesTTD()
     },
 
     methods: {
+      async checkLembarPengesahan(){
+        const response = await axios.get(`http://localhost:3000/api/ceklembarpengesahan/Laporan_${this.$route.params.id}`)
+        const message = response.data.message
+
+        console.log(message)
+        if (message === 'lembar pengesahaan tidak ada'){
+          this.BackToDetail()
+        }
+      },
+
+      async initializeAksesTTD() {
+          if (this.$route.params.role === "Kaprodi" || this.$route.params.role === "Kajur"){
+            try {
+              const response = await axios.get(`http://localhost:3000/api/relasi/accessttd/${this.$route.params.role}/${this.$route.params.id}`)
+              const akses = response.data.data
+              console.log(akses)
+              if (akses > 0){
+                this.AksesTTD = true
+              }
+            } catch (error) {
+              console.error(error.message);
+            }
+          }
+      },
+
       async initialize () {
   
       try {
@@ -488,6 +522,11 @@
   
             const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +id_kota)
             this.laporan = responseListLaporan.data.data
+
+            
+            // Get Tanggal TTD
+            const responseTgl_TTD = await axios.get('http://localhost:3000/api/tglttd/relasi/'+ this.dosen.NIP+'/'+this.$route.params.role+'/'+this.laporan.id_KoTA)
+            this.tanggal_TTD = responseTgl_TTD.data.data
 
             // Get Data Pembimbing
             const responsePembimbing = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ this.laporan.id_KoTA)
@@ -543,10 +582,10 @@
             }
             
             this.convertDateDisetujui()
+            this.convertDateDibuat()
             this.convertDateDisidangkan()
   
             const responsePDF = await axios.get('http://localhost:3000/api/lembarpengesahan/'+ this.laporan.id_laporan,{responseType:'blob'})
-            // const responsePDF = await axios.get('http://localhost:3000/api/dokumen/Laporan_20224022023_v1' ,{responseType:'blob'})
             this.pdfUrl = URL.createObjectURL(responsePDF.data);
             this.showPdf();
 
@@ -562,6 +601,7 @@
             navpanes: 0,
             toolbar: 0,
             statusbar: 1,
+            zoom:90,
           },
           callback: this.customizePdfToolbar,
           width: '100%',
@@ -589,10 +629,28 @@
         this.laporan.tgl_disidangkan = year + '-' + month + '-' + day;
         const parsedDate = parseISO(this.laporan.tgl_disidangkan);
         const formatted = format(parsedDate, 'd MMMM yyyy', { locale: idLocale });
-        this.laporan.tgl_disidangkan = formatted
-       
+        this.laporan.tgl_disidangkan = formatted     
       },
   
+      convertDateDibuat() {
+        if (this.tanggal_TTD){
+          const dateAsli = new Date(this.tanggal_TTD);
+          const durasi = 7 * 60 * 60 * 1000;
+          let date = new Date(dateAsli.getTime() + durasi);
+          const year = date.toISOString().substring(0, 4);
+          const month = date.toISOString().substring(5, 7);
+          const day = date.toISOString().substring(8, 10);
+          const hours = date.toISOString().substring(11, 13);
+          const minute = date.toISOString().substring(14, 16);
+          const second = date.toISOString().substring(17, 19);
+          return this.tanggal_TTD = year + '-' + month + '-' + day + ' ' + hours + ':' + minute + ':' + second;
+        }
+        else {
+          return ''
+        }
+      },
+
+      
         async add_Dokumen_succes(){
           if (!this.file) {
               this.validationError = "Mohon pilih file yang akan divalidasi.";
@@ -612,21 +670,11 @@
           })
           .then(response => {
             console.log(response.data);
-            this.validasiDokumen = !this.validasiDokumen;
-            this.file = null
-            this.snackbar.show = true;
-            this.snackbar.color = "primary";
-            this.snackbar.message = "Tanda Tangan Berhasil dibubuhkan";
           })
           .catch(error => {
             console.log(error.message);
-            this.validasiDokumen = !this.validasiDokumen;
-            this.file = null
-            this.snackbar.show = true;
-            this.snackbar.color = "error";
-            this.snackbar.message = "Tanda Tangan gagal dibubuhkan";
           });
-          window.location.reload()
+          this.generatePDF()
         },
 
         close_Popup_AddDokumen(){
@@ -729,11 +777,21 @@
                     })
                       .then(response => {
                         console.log(response.data);
+                        this.validasiDokumen = !this.validasiDokumen;
+                        this.file = null
+                        this.snackbar.show = true;
+                        this.snackbar.color = "primary";
+                        this.snackbar.message = "Tanda Tangan Berhasil dibubuhkan";
                       })
                       .catch(error => {
                         console.log(error.message);
+                        this.validasiDokumen = !this.validasiDokumen;
+                        this.file = null
+                        this.snackbar.show = true;
+                        this.snackbar.color = "error";
+                        this.snackbar.message = "Tanda Tangan gagal dibubuhkan";
                       });
-
+                      this.initialize()
                     // doc.save('report.pdf');
                 },
                 x: 0, // Mengatur margin kiri (4 cm = 0 pt)

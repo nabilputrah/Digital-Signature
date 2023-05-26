@@ -213,12 +213,14 @@ router.get('/api/relasibykota/pembimbing/:id', relasiController.getAllRelasiKoTA
 router.get('/api/relasibykota/penguji/:id', relasiController.getAllRelasiKoTAByPenKoTA)
 router.get('/api/relasibynip/:id', relasiController.getAllRelasiByNIP)
 router.get('/api/relasi/:id', relasiController.getRelasiKoTAById)
+router.get('/api/tglttd/relasi/:NIP/:role/:id_KoTA', relasiController.getTglTTDRelasi)
 router.post('/api/relasi', relasiController.addRelasiKoTA)
 router.put('/api/relasi/:id',relasiController.updateRelasiKoTA)
 router.delete('/api/relasi/:id', relasiController.deleteRelasiKoTA)
 // router.put('/api/relasi/doSignature/:id', relasiController.doSignature)
 router.post('/api/relasi/doSignature/', relasiController.doSignatureDosen)
 router.get('/api/relasi/gambarttd/:NIP/:role/:id_KoTA', relasiController.getGambarTTDRelasi)
+router.get('/api/relasi/accessttd/:role/:id_KoTA', relasiController.getAccessTTD)
 
 /* Endpoint Laporan Controller*/
 router.get('/api/laporan', laporanController.getAllLaporan)

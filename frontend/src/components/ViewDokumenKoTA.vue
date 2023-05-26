@@ -427,7 +427,8 @@ export default {
       dataFromToken: '',
       kota: '',
       laporan: {
-        tgl_disidangkan : (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+        tgl_disidangkan : (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+        tgl_disetujui : (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       },
       
       id_delete_dokumen :'',
