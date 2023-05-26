@@ -6,7 +6,7 @@
         <v-img src="../assets/Logo_DSign_text.png" max-width="400"></v-img>
       </v-col>
       <v-col cols="12" md="4" class="d-flex justify-center align-center">
-        <v-card>
+        <v-card v-if="!showForgotPassword">
           <v-card-title class="text-center">
             Selamat Datang di D-Sign JTK POLBAN!
           </v-card-title>
@@ -26,12 +26,39 @@
                 color="primary"
               ></v-checkbox>
               <v-btn color="primary" block @click="login">Login</v-btn>
-              <div dense class="text-right">
+              <div dense class="button-container">
                 <router-link to="/" class="back-to-portal-link">
                   <v-icon dense>mdi-arrow-left-thin</v-icon>
-                  Back to Portal</router-link>
+                  Back to Portal
+                </router-link>
+                <a href="#" class="forgot-password-link" @click="showForgotPassword = true">Lupa password?</a>
               </div>
             </v-form>
+          </v-card-text>
+        </v-card>
+        <v-card v-if="showForgotPassword" class="custom-card">
+          <v-card-title class="text-center">
+            Lupa Password
+          </v-card-title>
+          <v-card-text>
+            <form >
+              <v-select 
+                v-model="role" 
+                label="Role" 
+                :items="roleOptions" 
+                id="role">
+              </v-select>
+
+              <v-text-field label="Username" v-model="forgotUsername"></v-text-field>
+              <p dense v-if="role === 'KoTA'">Masukkan email Ketua KoTA yang terdaftar di aplikasi</p>
+              <p dense v-else-if="role === 'Dosen'">Masukkan email Anda yang terdaftar di aplikasi</p>
+              <v-text-field label="Email" v-model="forgotEmail"></v-text-field>
+
+              <v-btn color="primary" block @click="resetPassword">Submit</v-btn>
+              <div dense class="text-right">
+                <a href="#" class="forgot-password-link" @click="showForgotPassword = false">Kembali</a>
+              </div>
+            </form>
           </v-card-text>
         </v-card>
       </v-col>
@@ -61,7 +88,13 @@ export default {
       rememberMe: false,
       dialog: false,
       username: '',
-      password:''
+      password:'',
+
+      showForgotPassword: false,
+      forgotUsername: '',
+      forgotEmail: '',
+      role: '',
+      roleOptions: ['KoTA', 'Dosen']
     };
   },
   mounted() {
@@ -77,6 +110,25 @@ export default {
     document.removeEventListener('keydown', this.handleEnterKey);
   },
   methods: {
+    async resetPassword() {
+      console.log('haii')
+      await axios({
+        method: 'post',
+        url: 'http://localhost:3000/api/forgotPassword',
+        data: {
+          username: this.forgotUsername,
+          email: this.forgotEmail,
+          role: this.role
+        },
+      })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.log(error.response);
+        });
+    },
+
     handleEnterKey(event) {
       if (event.key === 'Enter') {
         this.login();
@@ -152,17 +204,27 @@ export default {
 </script>
 
 <style scoped>
-.back-to-portal-link {
-  text-decoration: none; /* Menghilangkan garis bawah */
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
 }
+
+.back-to-portal-link {
+  text-decoration: none;
+}
+
+.forgot-password-link {
+  text-decoration: none;
+}
+
 .theme--light.v-sheet{
   color: #1a5f7a;
 }
 .custom-card {
-  width: 97%;
+  width: 92%;
   margin-left: auto;
   margin-right: auto;
-  border-radius: 5px;
 }
 
 ::v-deep .v-select-list .v-list-item {
