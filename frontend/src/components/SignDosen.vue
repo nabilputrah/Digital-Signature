@@ -424,7 +424,7 @@
         idKota: '',
         nip: '',
         nama: 'Dr. Transmissia Semiawan, BSCS., M.IT.,',
-        tanggal_TTD: '',
+        tanggal_TTD: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
         pdfUrl: 'https://example.com/path-to-your-pdf.pdf',
         // End Data Halaman TTD
 
@@ -478,11 +478,22 @@
           const payload = JSON.parse(atob(token.split('.')[1]));
           this.dataFromToken= payload.user;
         }
+      this.checkLembarPengesahan()
       this.initialize()
       this.initializeAksesTTD()
     },
 
     methods: {
+      async checkLembarPengesahan(){
+        const response = await axios.get(`http://localhost:3000/api/ceklembarpengesahan/Laporan_${this.$route.params.id}`)
+        const message = response.data.message
+
+        console.log(message)
+        if (message === 'lembar pengesahaan tidak ada'){
+          this.BackToDetail()
+        }
+      },
+
       async initializeAksesTTD() {
           if (this.$route.params.role === "Kaprodi" || this.$route.params.role === "Kajur"){
             try {
@@ -622,16 +633,21 @@
       },
   
       convertDateDibuat() {
-        const dateAsli = new Date(this.tanggal_TTD);
-        const durasi = 7 * 60 * 60 * 1000;
-        let date = new Date(dateAsli.getTime() + durasi);
-        const year = date.toISOString().substring(0, 4);
-        const month = date.toISOString().substring(5, 7);
-        const day = date.toISOString().substring(8, 10);
-        const hours = date.toISOString().substring(11, 13);
-        const minute = date.toISOString().substring(14, 16);
-        const second = date.toISOString().substring(17, 19);
-        return this.tanggal_TTD = year + '-' + month + '-' + day + ' ' + hours + ':' + minute + ':' + second;
+        if (this.tanggal_TTD){
+          const dateAsli = new Date(this.tanggal_TTD);
+          const durasi = 7 * 60 * 60 * 1000;
+          let date = new Date(dateAsli.getTime() + durasi);
+          const year = date.toISOString().substring(0, 4);
+          const month = date.toISOString().substring(5, 7);
+          const day = date.toISOString().substring(8, 10);
+          const hours = date.toISOString().substring(11, 13);
+          const minute = date.toISOString().substring(14, 16);
+          const second = date.toISOString().substring(17, 19);
+          return this.tanggal_TTD = year + '-' + month + '-' + day + ' ' + hours + ':' + minute + ':' + second;
+        }
+        else {
+          return ''
+        }
       },
 
       

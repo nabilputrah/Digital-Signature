@@ -405,6 +405,15 @@ export default {
     },
 
     async initializeAksesTTD() {
+
+        const response = await axios.get(`http://localhost:3000/api/ceklembarpengesahan/Laporan_${this.$route.params.id}`)
+        const message = response.data.message
+
+        console.log(message)
+        if (message === 'lembar pengesahaan tidak ada'){
+          this.AksesTTD = true
+        }
+
         if (this.$route.params.role === "Kaprodi" || this.$route.params.role === "Kajur"){
           try {
             const response = await axios.get(`http://localhost:3000/api/relasi/accessttd/${this.$route.params.role}/${this.$route.params.id}`)

@@ -21,12 +21,14 @@ module.exports = {
     const { id_laporan, NIP, role} = req.body
 
     try {
+      const id_KoTA = id_laporan.substr(8);
       const selectQuery = `SELECT D."nama", D."email", R."id_relasi" FROM "Relasi_KoTA" as R 
                             JOIN "Dosen" as D ON D."NIP" = R."NIP"
                             WHERE R."NIP" = $1
                             AND R."role" = $2
+                            AND R."id_KoTA" = $3
                            `
-      const paramsQuery =[NIP,role]
+      const paramsQuery =[NIP,role,id_KoTA]
 
       const resultRelasi = await db.query(selectQuery,paramsQuery)
 
@@ -44,9 +46,6 @@ module.exports = {
       // console.log(resultRelasiShare.rows[0].secret_key)
       const shareKey =  resultRelasiShare.rows[0].secret_key
       const formattedNamaKoTA = 'KoTA ' + id_laporan.substr(12, 3)
-      const id_KoTA = id_laporan.substr(8);
-
-
 
       
       if (Object.keys(resultRelasiShare).length > 0) {
@@ -87,11 +86,13 @@ module.exports = {
 
     try {
       // Get Id Relasi by NIP and role
+      const id_KoTA = id_laporan.substr(8);
       const selectQuery = `SELECT R."id_relasi" FROM "Relasi_KoTA" as R 
                           WHERE R."NIP" = $1
                           AND R."role" = $2
+                          AND R."id_KoTA" = $3
                           `
-      const paramsQuery =[NIP,role]
+      const paramsQuery =[NIP,role, id_KoTA]
 
       const resultRelasi = await db.query(selectQuery,paramsQuery)
 
