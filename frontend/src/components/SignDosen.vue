@@ -253,7 +253,7 @@
                     ></v-text-field>
                     <v-row >
                       <v-col class="text-right" >
-                        <v-btn color="primary" @click="SignDocument">Tambah Tanda Tangan</v-btn>
+                        <v-btn color="primary" :disabled="AksesTTD" @click="SignDocument">Tambah Tanda Tangan</v-btn>
                       </v-col>
                     </v-row>
                   </form>
@@ -389,6 +389,7 @@
     data: () => ({
 
         // Start Data HTML Lembar Pengesahan
+        AksesTTD:false,
         dataFromToken: '',
         Judul_TA: '',
         kota:'',
@@ -478,9 +479,25 @@
           this.dataFromToken= payload.user;
         }
       this.initialize()
+      this.initializeAksesTTD()
     },
 
     methods: {
+      async initializeAksesTTD() {
+          if (this.$route.params.role === "Kaprodi" || this.$route.params.role === "Kajur"){
+            try {
+              const response = await axios.get(`http://localhost:3000/api/relasi/accessttd/${this.$route.params.role}/${this.$route.params.id}`)
+              const akses = response.data.data
+              console.log(akses)
+              if (akses > 0){
+                this.AksesTTD = true
+              }
+            } catch (error) {
+              console.error(error.message);
+            }
+          }
+      },
+
       async initialize () {
   
       try {

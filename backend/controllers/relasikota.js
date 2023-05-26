@@ -350,6 +350,62 @@ module.exports = {
     }
   },
 
+  async getAccessTTD(req, res){
+    const {  role, id_KoTA } = req.params;
+
+    try {
+      if (role==='Kaprodi') {
+         const selectQuery = ` SELECT R."status" FROM "Relasi_KoTA" as R
+                               WHERE R."id_KoTA" = $1 AND 
+                               (R."role" = 'Pembimbing' OR R."role"= 'Penguji' ) AND
+                               R."status" = false 
+                              `
+                            
+         const paramsQuery = [id_KoTA]
+   
+         const resultQuery = await db.query(selectQuery, paramsQuery)
+   
+         if (Object.keys(resultQuery).length > 0) {
+
+              return res.status(200).send({
+                message: `Get data false untuk kaprodi ttd berhasil`,
+                data: resultQuery.rows.length
+          })
+        } 
+      }
+
+      else if (role==='Kajur') {
+        //  const selectQuery = ` SELECT R."status" FROM "Relasi_KoTA" as R
+        //                        WHERE R."id_KoTA" = $1 AND 
+        //                        R."role" = 'Kaprodi' AND
+        //                        R."status" = false
+        //                       `
+
+        const selectQuery = ` SELECT R."status" FROM "Relasi_KoTA" as R
+                               WHERE R."id_KoTA" = $1 AND 
+                               (R."role" = 'Pembimbing' OR R."role"= 'Penguji' OR R."role" = 'Kaprodi') AND
+                               R."status" = false 
+                              `
+                            
+         const paramsQuery = [id_KoTA]
+   
+         const resultQuery = await db.query(selectQuery, paramsQuery)
+   
+         if (Object.keys(resultQuery).length > 0) {
+
+              return res.status(200).send({
+                message: `Get data false untuk kajur ttd berhasil`,
+                data: resultQuery.rows.length
+          })
+        } 
+      }
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
+
   async getTglTTDRelasi(req, res) {
     const { NIP, role, id_KoTA } = req.params;
   

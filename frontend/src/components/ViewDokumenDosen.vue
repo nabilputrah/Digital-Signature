@@ -148,6 +148,7 @@
           <v-btn 
             v-if="shouldShowSignatureIcon(item, Laporan)" 
             color="primary"
+            :disabled="AksesTTD"
             @click="SignDocument(item)"
           >
             <v-icon 
@@ -304,10 +305,7 @@ import axios from 'axios'
 export default {
   data() {
     return {
-      // Data Form Nama
-      // judul_tugas_akhir : "PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME",
-      // tanggal_disetujui : '',
-      // tanggal_disidangkan : '',
+      AksesTTD:false,
       dataFromToken: '',
       dosen:'',
       tanggal_disetujui: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -387,6 +385,7 @@ export default {
     }
     this.initializeToken()
     this.initialize()
+    this.initializeAksesTTD()
   },
 
   methods: {
@@ -403,6 +402,21 @@ export default {
           } catch (error) {
             console.error(error.message);
           }
+    },
+
+    async initializeAksesTTD() {
+        if (this.$route.params.role === "Kaprodi" || this.$route.params.role === "Kajur"){
+          try {
+            const response = await axios.get(`http://localhost:3000/api/relasi/accessttd/${this.$route.params.role}/${this.$route.params.id}`)
+            const akses = response.data.data
+            console.log(akses)
+            if (akses > 0){
+              this.AksesTTD = true
+            }
+          } catch (error) {
+            console.error(error.message);
+          }
+        }
     },
     
     async initialize () {
