@@ -97,12 +97,11 @@
           </div>
         </div>
       </div>
-  
+
       <!-- Start HTML Lembar Pengesahan Halaman 2 -->
       <!-- Start HTML Lembar Pengesahan Halaman 2 -->
-      <!-- :hidden="true"     -->
       <div 
-  
+        :hidden="true"      
       >
         <div id="pdf-hal2"
         style="width: 450pt; position: relative;"
@@ -176,10 +175,118 @@
           </div>
         </div>
       </div>
-      <button @click="generatePDF">Generate PDF</button>
-      <button @click="Do_Sign"> Tanda Tangan</button>
+      <!-- <button @click="generatePDF">Generate PDF</button>
+      <button @click="Do_Sign"> Tanda Tangan</button> -->
 
+      <!-- Start Breadcrumbs -->
+      <v-breadcrumbs style="margin-left: 0.5%;">
+        <h4 style="color: #1a5f7a;">Detail Dokumen Laporan TA</h4>
+        <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
+        <v-breadcrumbs-item 
+        :exact="true"
+        to="/dosen/daftar_dokumen">
+          <span>Dokumen Laporan TA</span>
+        </v-breadcrumbs-item>
+        <v-breadcrumbs-item 
+        :disabled="true">
+          /
+        </v-breadcrumbs-item>
+        <v-breadcrumbs-item 
+        :disabled="true"
+        to="/dosen/daftar_dokumen/detail_dokumen">
+          <span>Detail Dokumen Laporan TA</span>
+        </v-breadcrumbs-item>
+        <v-breadcrumbs-item 
+        :disabled="true">
+          /
+        </v-breadcrumbs-item>
+        <v-breadcrumbs-item 
+        :disabled="true"
+        to="/dosen/daftar_dokumen/detail_dokumen/do_sign">
+          <span>Tanda Tangan Dokumen</span>
+        </v-breadcrumbs-item>
+      </v-breadcrumbs>
+      <!-- End Breadcrumbs -->
 
+      <v-row class="custom-card" >
+        <v-col cols="8" >
+          <!-- <v-card > -->
+            <!-- <div class="signature-page"> -->
+                  <iframe :src="pdfUrl" width="100%" height="600px"></iframe>
+            <!-- </div> -->
+          <!-- </v-card> -->
+        </v-col>
+
+        <v-col cols="4">
+          <v-card style="height: 100%;">
+            <div class="signature-page">
+                  <h2>Detail Tanda Tangan</h2>
+                  <br>
+                  <form @submit.prevent="addSignature">
+                    <v-text-field 
+                      v-model="laporan.id_KoTA"
+                      label="ID Kota"
+                      dense
+                      outlined
+                      disabled
+                    ></v-text-field>
+                    <v-text-field 
+                      v-model="dosen.NIP"
+                      label="NIP"
+                      dense
+                      outlined
+                      disabled
+                    ></v-text-field>
+                    <v-text-field 
+                      v-model="dosen.nama"
+                      label="Nama"
+                      dense
+                      outlined
+                      disabled
+                    ></v-text-field>
+                    <v-text-field v-model="tanggal" label="Tanggal Tanda Tangan" required type="date"></v-text-field>
+                    <v-row >
+                      <v-col class="text-right" >
+                        <v-btn color="primary" @click="save">Tambah Tanda Tangan</v-btn>
+                      </v-col>
+                    </v-row>
+                  </form>
+            </div>
+          </v-card>
+        </v-col>
+
+      </v-row>
+
+    <!-- Start Dialog input Sharekey  -->
+    <v-dialog v-model="dialogShareKey" max-width="500px">
+      <v-card>
+        <v-card-title>
+          Input Share Key
+        </v-card-title>
+
+          <v-card-text>
+            <v-form ref="form" v-model="ShareKeyValid" @submit.prevent>
+            <v-text-field
+              v-model="shareKey"
+              :rules="rules"
+              label="Share Key"
+              @keyup.enter="validateShareKey"
+            >
+            </v-text-field>
+            <div class="note">
+              *Periksa email anda untuk mendapatkan share key
+            </div>
+            </v-form>
+          </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" @click="closeDialog">Batal</v-btn>
+          <v-btn color="primary" :disabled="!ShareKeyValid" @click="validateShareKey">Simpan</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <!-- End Dialog input Sharekey  -->
+      
     <!-- Start Card Upload Dokumen -->
     <v-dialog
     v-model="validasiDokumen"
@@ -273,8 +380,10 @@
   
   export default {
     data: () => ({
+
+        // Start Data HTML Lembar Pengesahan
         dataFromToken: '',
-        Judul_TA: '<p>PENGEMBANGAN SISTEM <em>MULTI-USER DIGITAL</em></p><p><em>SIGNATURE</em> UNTUK LAPORAN TUGAS AKHIR&nbsp;</p><p>DENGAN METODE<em> SECRET</em></p><p><em>SHARING SCHEME</em></p>',
+        Judul_TA: '',
         kota:'',
         laporan:'',
         dosen : '',
@@ -297,14 +406,21 @@
         Kaprodi : {
           nama:'Djoko Cahyo Utomo L., S.Kom., M.MT.', NIP:'197201061999031555', TTD:'',
         },
-  
         Kajur : {
           nama:'Djoko Cahyo Utomo L., S.Kom., M.MT.', NIP:'197201061999031999', TTD:'',
         },
-  
-        imageURL:'',
         tanggal_disetujui: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+        // Start Data HTML Lembar Pengesahan
 
+        // Start Data Halaman TTD
+        idKota: '',
+        nip: '',
+        nama: 'Dr. Transmissia Semiawan, BSCS., M.IT.,',
+        tanggal: '',
+        pdfUrl: 'https://example.com/path-to-your-pdf.pdf',
+        // End Data Halaman TTD
+
+        // Start Data Dialog Add Dokumen
         validasiDokumen: false,
         tab: 0,
         InputFile: [
@@ -314,6 +430,7 @@
         file: null,
         dragging: false,
         validationError: null,
+        // End Data Dialog Add Dokumen
 
         // Notifikasi Berhasil
         snackbar: {
@@ -348,23 +465,18 @@
   
             const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +id_kota)
             this.laporan = responseListLaporan.data.data
-    
+
+            // Get Data Pembimbing
             const responsePembimbing = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ this.laporan.id_KoTA)
             this.Pembimbing = responsePembimbing.data.data
     
-            try {
-              this.imageURL = 'http://localhost:3000/api/relasi/gambarttd/234234234234234232/Penguji/20224022023'
-            } catch (error) {
-              console.error(error);
-            }
-
+            // Get Image TTD Pembimbing
             try {
               this.Pembimbing[0].img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Pembimbing[0].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
               this.Pembimbing[1].img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Pembimbing[1].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
             } catch (error) {
               console.error(error);
             }
-
 
             // Get Data Penguji
             const responsePenguji = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ this.laporan.id_KoTA)
@@ -380,8 +492,7 @@
             });
             console.log(this.Penguji)
 
-
-
+            // Get Data Kaprodi
             const responseKaprodi = await axios.get('http://localhost:3000/api/prodi/'+this.Anggota[0].id_prodi)
             this.kaprodiData = responseKaprodi.data.data
     
@@ -394,12 +505,13 @@
             const DataKaprodi = await axios.get('http://localhost:3000/api/dosen/'+ this.kaprodiData.NIP,)
             this.Kaprodi = DataKaprodi.data.data    
 
-
+            // Get Data Kajur
             const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
             this.Kajur = responseKajur.data.data[0]    
             const DataKajur = await axios.get('http://localhost:3000/api/dosen/'+ this.Kajur.NIP,)
             this.Kajur = DataKajur.data.data
 
+            // Get TTD image Kajur n Kaprodi
             try {
               this.Kaprodi.img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Kaprodi.NIP +'/Kaprodi/'+ this.laporan.id_KoTA
               this.Kajur.img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Kajur.NIP +'/Kajur/'+ this.laporan.id_KoTA
@@ -555,7 +667,18 @@
   </script>
   
   <style scoped>
-  .background-image {
+
+.custom-card {
+  width: 97%;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 5px;
+  margin-bottom: 2%;
+}
+.signature-page {
+  padding: 20px;
+}
+.background-image {
     position: absolute;
     top: 0;
     width: 80%;

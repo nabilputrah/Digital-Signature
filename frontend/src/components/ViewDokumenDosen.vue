@@ -273,7 +273,6 @@
           <v-btn color="primary" :disabled="!ShareKeyValid" @click="validateShareKey">Simpan</v-btn>
         </v-card-actions>
       </v-card>
-
     </v-dialog>
     <!-- End Dialog input Sharekey  -->
 
