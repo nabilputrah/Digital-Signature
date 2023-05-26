@@ -110,9 +110,23 @@ export default {
     document.removeEventListener('keydown', this.handleEnterKey);
   },
   methods: {
-    resetPassword() {
-      // Logika untuk mereset password
-      // Anda dapat mengakses nilai forgotUsername, forgotEmail, dan role dengan this.forgotUsername, this.forgotEmail, dan this.role
+    async resetPassword() {
+      console.log('haii')
+      await axios({
+        method: 'post',
+        url: 'http://localhost:3000/api/forgotPassword',
+        data: {
+          username: this.forgotUsername,
+          email: this.forgotEmail,
+          role: this.role
+        },
+      })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.log(error.response);
+        });
     },
 
     handleEnterKey(event) {
