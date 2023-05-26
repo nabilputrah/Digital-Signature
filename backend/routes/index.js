@@ -218,7 +218,7 @@ router.put('/api/relasi/:id',relasiController.updateRelasiKoTA)
 router.delete('/api/relasi/:id', relasiController.deleteRelasiKoTA)
 // router.put('/api/relasi/doSignature/:id', relasiController.doSignature)
 router.post('/api/relasi/doSignature/', relasiController.doSignatureDosen)
-router.post('/api/relasi/gambarttd/', relasiController.getGambarTTDRelasi)
+router.get('/api/relasi/gambarttd/:NIP/:role/:id_KoTA', relasiController.getGambarTTDRelasi)
 
 /* Endpoint Laporan Controller*/
 router.get('/api/laporan', laporanController.getAllLaporan)

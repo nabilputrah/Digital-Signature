@@ -347,7 +347,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 
 .theme--light.v-sheet{
   color: #1a5f7a;

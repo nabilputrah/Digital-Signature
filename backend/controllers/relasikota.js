@@ -1,6 +1,7 @@
 const db = require('../db/index')
 const moment = require('moment-timezone');
 const path = require('path');
+const fs = require("fs");
 const Relasi_KoTA = require('../models').Relasi_KoTA;
 
 
@@ -232,16 +233,75 @@ module.exports = {
       })
     }
   },
+  // async doSignatureDosen(req, res){
+  //   const  { img_ttd } = req.files
+  //   const  { NIP, role, id_KoTA} = req.body
+
+  //   const now = moment()
+  //   const formattedDate = now.format('YYYY-MM-DD')
+  //   const formattedTimeFull = now.format('HH:mm:ss')
+  //   const fullDatetime = formattedDate + " " + formattedTimeFull
+
+  //   const base64Image = img_ttd.toString('base64');
+
+  //   try {
+  //     const relasi  = await Relasi_KoTA.findOne({
+  //       where: {
+  //         NIP: NIP,
+  //         role: role,
+  //         id_KoTA: id_KoTA
+  //       },
+  //       attributes:{
+  //         exclude:['createdAt','updatedAt','id']
+  //       }
+  //     })
+
+  //     if(!relasi) {
+  //       return res.status(404).send({
+  //         message: 'data relasi tidak ditemukan'
+  //       })
+  //     }
+      
+
+  //     const updateQuery = `UPDATE "Relasi_KoTA" SET "status" = true, "img_ttd" = $1, "tgl_ttd"=$2
+  //                          WHERE "id_relasi"= $3 RETURNING *
+  //                         `
+  //     const paramsQuery = [base64Image, fullDatetime, relasi.id_relasi]
+
+  //     const resultQuery = await db.query(updateQuery, paramsQuery)
+
+  //     if (Object.keys(resultQuery).length > 0) {
+  
+  //         return res.status(200).send({
+  //           message: `Do signature berhasil`,
+  //           data: resultQuery.rows
+  //         })
+  //       } 
+
+  //   } catch (error) {
+  //     return res.status(400).send({
+  //       message: error.message
+  //     })
+  //   }
+  // },
+
   async doSignatureDosen(req, res){
     const  { img_ttd } = req.files
     const  { NIP, role, id_KoTA} = req.body
 
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).json({ message: "Tidak ada file yang diunggah" });
+    }
+
     const now = moment()
     const formattedDate = now.format('YYYY-MM-DD')
     const formattedTimeFull = now.format('HH:mm:ss')
+    // const formattedTimeNotFull = now.format('HH:mm:ss')
     const fullDatetime = formattedDate + " " + formattedTimeFull
 
-    
+    const urlImage = './uploads/img_ttd/' + id_KoTA +'/' + role + '_' + NIP + path.extname(img_ttd.name)
+    // const base64Image = img_ttd.toString('base64');
+
     try {
       const relasi  = await Relasi_KoTA.findOne({
         where: {
@@ -260,17 +320,24 @@ module.exports = {
         })
       }
       
+      const uploadDir = path.resolve('./uploads/img_ttd/' + id_KoTA +'/')
+  // Membuat direktori jika belum ada
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      img_ttd.mv(path.resolve('./uploads/img_ttd/' + id_KoTA +'/', role + '_' + NIP + path.extname(img_ttd.name)))
+    
 
       const updateQuery = `UPDATE "Relasi_KoTA" SET "status" = true, "img_ttd" = $1, "tgl_ttd"=$2
                            WHERE "id_relasi"= $3 RETURNING *
                           `
-      const paramsQuery = [img_ttd, fullDatetime, relasi.id_relasi]
+      const paramsQuery = [urlImage, fullDatetime, relasi.id_relasi]
 
       const resultQuery = await db.query(updateQuery, paramsQuery)
 
       if (Object.keys(resultQuery).length > 0) {
-  
-          return res.status(200).send({
+               return res.status(200).send({
             message: `Do signature berhasil`,
             data: resultQuery.rows
           })
@@ -283,44 +350,37 @@ module.exports = {
     }
   },
 
-  async getGambarTTDRelasi(req,res) {
-    const  { NIP, role, id_KoTA} = req.body
-
+  async getGambarTTDRelasi(req, res) {
+    const { NIP, role, id_KoTA } = req.params;
+  
     try {
-      const relasi  = await Relasi_KoTA.findOne({
+      const relasi = await Relasi_KoTA.findOne({
         where: {
           NIP: NIP,
           role: role,
           id_KoTA: id_KoTA
         },
-        attributes:{
-          exclude:['createdAt','updatedAt','id']
+        attributes: {
+          exclude: ['createdAt', 'updatedAt', 'id']
         }
-      })
-
-      if(!relasi) {
-        return res.status(404).send({
-          message: 'data relasi tidak ditemukan'
-        })
-      }
-
-      res.set({
-        'Content-Type': 'image/png'
       });
-
-      res.send(relasi.img_ttd)
-
-      // return res.status(200).send({
-      //   message: 'get data gambar sukses',
-      //   data: relasi.img_ttd
-      // })
+  
+      if (!relasi) {
+        return res.status(404).send({
+          message: 'Data relasi tidak ditemukan'
+        });
+      }
+      
+      const imagePath = path.resolve(relasi.img_ttd)
+      res.sendFile(imagePath)
+      
     } catch (error) {
-      return res.status(400).send({
-        message:error.message
-      })
+      return res.status(200).send({
+        data:'no image',
+        message: error.message
+      });
     }
   },
-
 
   async deleteRelasiKoTA(req, res) {
     const { id } = req.params

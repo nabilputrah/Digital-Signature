@@ -29,7 +29,7 @@
     };
     </script>
     
-  <style>
+  <style scoped>
   .pdf-content {
     page-break-inside: avoid;
     /* width: 150; */
