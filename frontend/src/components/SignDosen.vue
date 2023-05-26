@@ -42,14 +42,14 @@
             <v-row class="text-size" style="width: 80%;margin-left: auto;margin-right: auto;">
               <v-col >
                 <p>Pembimbing 1,</p>
-                <img width="160px" height="110px" src="../assets/TTD.png">
+                <img width="160px" height="110px" :src=Pembimbing[0].img>
                 <p>{{ Pembimbing[0].nama }}</p>
               </v-col>
               <v-col cols="1">
               </v-col>
               <v-col >
                 <p>Pembimbing 2,</p>
-                <img width="160px" height="110px" src="../assets/TTD.png">
+                <img width="160px" height="110px" :src=Pembimbing[1].img>
                 <p>{{ Pembimbing[1].nama }}</p>
               </v-col>
             </v-row>
@@ -68,14 +68,14 @@
             <v-row class="text-size" style="width: 80%;margin-left: auto;margin-right: auto;">
               <v-col >
                 <p>Ketua Jurusan Teknik Komputer dan Infomatika,</p>
-                <img width="160px" height="110px" src="../assets/TTD.png">
+                <img width="160px" height="110px" :src="Kajur.img">
                 <p>{{ Kajur.nama }}</p>
               </v-col>
               <v-col cols="1">
               </v-col>
               <v-col >
                 <p>Ketua Program Studi {{ Prodi }} Teknik Informatika,</p>
-                <img width="160px" height="110px" src="../assets/TTD.png">
+                <img width="160px" height="110px" :src="Kaprodi.img">
                 <p>{{ Kaprodi.nama }}</p>
               </v-col>
             </v-row>
@@ -163,7 +163,7 @@
                     <img 
                       width="100px" 
                       height="70px" 
-                      :src="imageURL"
+                      :src="dosen.img"
                       >
                     <!-- <img src="imageURL" alt=""> -->
                   </v-col>
@@ -188,7 +188,7 @@
     color="white"
     >
     <v-card >
-        <v-card-title class="headline">Validasi Dokumen</v-card-title>
+        <v-card-title class="headline">Pilih Gambar Tanda Tangan</v-card-title>
         <v-card-text>
           <v-tabs v-model="tab">
             <v-tab v-for="(item, index) in InputFile" :key="index">{{ item.text }}</v-tab>
@@ -277,6 +277,7 @@
         Judul_TA: '<p>PENGEMBANGAN SISTEM <em>MULTI-USER DIGITAL</em></p><p><em>SIGNATURE</em> UNTUK LAPORAN TUGAS AKHIR&nbsp;</p><p>DENGAN METODE<em> SECRET</em></p><p><em>SHARING SCHEME</em></p>',
         kota:'',
         laporan:'',
+        dosen : '',
         Dialog_TTD: false,
         pembimbingKoTA:[],
   
@@ -339,6 +340,9 @@
       try {
             const id_kota = this.$route.params.id
   
+            const response = await axios.get(`http://localhost:3000/api/getdosendata/${this.dataFromToken.id_user}`)
+            this.dosen = response.data.data[0]
+
             const responseAnggota = await axios.get('http://localhost:3000/api/mahasiswakota/' + id_kota);
             this.Anggota = responseAnggota.data.data;
   
@@ -354,9 +358,30 @@
               console.error(error);
             }
 
+            try {
+              this.Pembimbing[0].img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Pembimbing[0].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
+              this.Pembimbing[1].img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Pembimbing[1].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
+            } catch (error) {
+              console.error(error);
+            }
+
+
+            // Get Data Penguji
             const responsePenguji = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ this.laporan.id_KoTA)
             this.Penguji = responsePenguji.data.data
-            
+
+            // Get Image TTD Penguji
+            this.Penguji.forEach(async (item) => {
+              try {
+                item.img = 'http://localhost:3000/api/relasi/gambarttd/'+ item.NIP +'/Penguji/'+ this.laporan.id_KoTA
+              } catch (error) {
+                console.error(error.message);
+              }
+            });
+            console.log(this.Penguji)
+
+
+
             const responseKaprodi = await axios.get('http://localhost:3000/api/prodi/'+this.Anggota[0].id_prodi)
             this.kaprodiData = responseKaprodi.data.data
     
@@ -367,15 +392,21 @@
             }
     
             const DataKaprodi = await axios.get('http://localhost:3000/api/dosen/'+ this.kaprodiData.NIP,)
-            this.Kaprodi = DataKaprodi.data.data
-    
-    
+            this.Kaprodi = DataKaprodi.data.data    
+
+
             const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
-            this.Kajur = responseKajur.data.data[0]
-    
+            this.Kajur = responseKajur.data.data[0]    
             const DataKajur = await axios.get('http://localhost:3000/api/dosen/'+ this.Kajur.NIP,)
             this.Kajur = DataKajur.data.data
-    
+
+            try {
+              this.Kaprodi.img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Kaprodi.NIP +'/Kaprodi/'+ this.laporan.id_KoTA
+              this.Kajur.img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Kajur.NIP +'/Kajur/'+ this.laporan.id_KoTA
+            } catch (error) {
+              console.error(error.message.request);
+            }
+            
             this.convertDateDisetujui()
             this.convertDateDisidangkan()
   
@@ -416,9 +447,9 @@
           console.log(this.file)
           const formData = new FormData();
           formData.append('img_ttd', this.file);
-          formData.append('NIP', '234234234234234232')
+          formData.append('NIP', this.dosen.NIP)
           formData.append('id_KoTA', this.laporan.id_KoTA)
-          formData.append('role', 'Penguji')
+          formData.append('role', this.$route.params.role)
 
           await axios.post('http://localhost:3000/api/relasi/doSignature/', formData, {
               headers : {
@@ -441,7 +472,8 @@
           this.snackbar.color = "error";
           this.snackbar.message = "Tanda Tangan gagal dibubuhkan";
           });
-          this.initialize()
+          // this.initialize()
+          window.location.reload()
         },
 
         close_Popup_AddDokumen(){
@@ -522,7 +554,7 @@
   };
   </script>
   
-  <style>
+  <style scoped>
   .background-image {
     position: absolute;
     top: 0;
@@ -558,5 +590,56 @@
     display: table;
     clear: both;
   }
+
+  .theme--light.v-sheet{
+    color: #1a5f7a;
+  }
+
+  .theme--light.v-card .v-card__text{
+    color: #1a5f7a;
+  }
+
+ /* Drag and Drop Zone */
+ .drop-area {
+  display: flex;
+  justify-content: center; /* Menengahkan konten secara horizontal */
+  align-items: center; /* Menengahkan konten secara vertical */
+  border: 2px dashed rgba(145, 187, 203, 1);
+  text-align: center;
+  padding: 30px;
+  font-size: 20px;
+}
+
+.highlight {
+  background: rgba(145, 187, 203, 0.2);
+}
+
+.placeholder {
+  color: rgba(145, 187, 203, 1);
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: rgba(145, 187, 203, 0.35);
+  border-radius: 5px;
+}
+
+.file-name {
+  margin: 0;
+}
+
+.remove-button {
+  background-color: #ff5555;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+  
   </style>
   

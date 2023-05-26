@@ -375,7 +375,8 @@ module.exports = {
       res.sendFile(imagePath)
       
     } catch (error) {
-      return res.status(400).send({
+      return res.status(200).send({
+        data:'no image',
         message: error.message
       });
     }
