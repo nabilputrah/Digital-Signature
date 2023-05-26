@@ -20,6 +20,7 @@
     <h3>Halo, <%= username %>!</h3>
     <p>Ini adalah email yang berisi informasi ShareKey yang digunakan untuk dapat menandatangani dokumen laporan Tugas Akhir untuk :</p>
     <p>KoTA : <%= formattedUKoTA %></p>
+    <p>Peran : <%= role %></p>
     <p>Silahkan klik tombol berikut untuk mengarahkan anda ke halaman validasi ShareKey</p>
 
     <a href="http://localhost:8080/dosen/daftar_dokumen/dokumen_detail/do_sign/<%= role %>/<%= id_KoTA %>?DialogShareKey=true&shareKey=<%= ShareKey %>" style="color: #ffffff;"  class="copy-button">Link To Sign</a>

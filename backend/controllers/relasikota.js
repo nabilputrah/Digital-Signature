@@ -350,6 +350,39 @@ module.exports = {
     }
   },
 
+  async getTglTTDRelasi(req, res) {
+    const { NIP, role, id_KoTA } = req.params;
+  
+    try {
+      const relasi = await Relasi_KoTA.findOne({
+        where: {
+          NIP: NIP,
+          role: role,
+          id_KoTA: id_KoTA
+        },
+        attributes: {
+          exclude: ['createdAt', 'updatedAt', 'id']
+        }
+      });
+  
+      if (!relasi) {
+        return res.status(404).send({
+          message: 'Data relasi tidak ditemukan'
+        });
+      }
+      
+      return res.status(200).send({
+        message:'get tgl ttd berhasil',
+        data: relasi.tgl_ttd
+      })
+
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      });
+    }
+  },
+
   async getGambarTTDRelasi(req, res) {
     const { NIP, role, id_KoTA } = req.params;
   

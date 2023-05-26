@@ -343,7 +343,7 @@ module.exports = {
         }
 
         const update = await Laporan.update({
-            lembar_pengesahan : lembar_pengesahan
+            lembar_pengesahan : lembar_pengesahan.data
             },{
               where:{
                 id_laporan: id

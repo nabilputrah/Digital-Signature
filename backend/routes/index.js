@@ -213,6 +213,7 @@ router.get('/api/relasibykota/pembimbing/:id', relasiController.getAllRelasiKoTA
 router.get('/api/relasibykota/penguji/:id', relasiController.getAllRelasiKoTAByPenKoTA)
 router.get('/api/relasibynip/:id', relasiController.getAllRelasiByNIP)
 router.get('/api/relasi/:id', relasiController.getRelasiKoTAById)
+router.get('/api/tglttd/relasi/:NIP/:role/:id_KoTA', relasiController.getTglTTDRelasi)
 router.post('/api/relasi', relasiController.addRelasiKoTA)
 router.put('/api/relasi/:id',relasiController.updateRelasiKoTA)
 router.delete('/api/relasi/:id', relasiController.deleteRelasiKoTA)
