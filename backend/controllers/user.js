@@ -7,6 +7,18 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../db/index')
 
+const nodemailer = require('nodemailer');
+
+require('dotenv').config()
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.AUTH_USERNAME,
+    pass: process.env.AUTH_PASSWORD
+  }
+});
+
 // const NodeRSA = require('node-rsa');
 
 
@@ -657,6 +669,149 @@ module.exports = {
      return res.status(200).send({
         message: `data berhasil dihapus denga id user ${req.params.id}`
       })
+  },
+
+  async forgotPassword(req,res){
+    const { username, email, role } = req.body
+
+    try {
+      // cari usernamenya terdaftar atau tidak 
+      const user = await User.findOne({
+        where: {
+          username : username
+        },
+        attributes:{
+          exclude:['id','cretedAt','updatedAt']
+        }
+      }) 
+
+      if (!user) {
+        return res.status(404).send({
+          message: 'data user tidak ditemkan'
+        })
+      }
+      // Kalo rolenya dosen
+      if ( role ==='Dosen') {
+        const userDosen = await Dosen.findOne({
+          where: {
+            NIP: username,
+            email: email
+          },
+          attributes:{
+            exclude:['id','createdAt','updatedAt']
+          }
+        })
+
+        if (!userDosen) {
+          return res.status(404).send({
+            message: 'username dan email dosen tidak sinkron'
+          })
+        }
+
+        const newPassword =  "Dosen" + username.substring(0, 4) +username.substring(username.length - 4)
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10)
+
+        await User.update({
+          password:hashedNewPassword
+        },{
+          where :{
+            username : username
+          }
+        }
+        )
+  
+          res.render('forgotPasswordDosen', { nama: userDosen.nama, username: username, newPass: newPassword }, function (err, renderedHtml) {
+            if (err) {
+              console.log(err);
+            } else {
+              const mailOptions = {
+                from: 'hello@example.com',
+                to: email,
+                subject: 'Reset Password Dosen',
+                html: renderedHtml
+              };
+          
+              transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                  console.log(error);
+                } else {
+                  return res.status(200).send({
+                    message:'Email terkirim' + info.response
+                  })
+               
+                }
+              });
+            }
+          });
+      }
+
+      // end user dosen
+
+      // kalo role nya KoTA
+
+      else if (role ==='KoTA'){
+
+        const selectQuery = `SELECT m."email",m."id_KoTA", k."jumlah_pembimbing", k."jumlah_penguji" FROM "Mahasiswa" as m
+                              JOIN "KoTA" as k ON m."id_KoTA" = k."id_KoTA"
+                              WHERE m."id_KoTA" = $1 AND m."isKetua" = true
+                              AND m."email" = $2` 
+        const paramsQuery = [username, email ]
+
+        const result =  await db.query(selectQuery,paramsQuery)
+
+        if(result.rows.length === 0) {
+          return res.status(404).send({
+            message:'email dan username yang diinputkan tidak sinkron'
+          })
+        }
+
+        const dataKoTA = result.rows[0]
+
+        const formattedNamaKoTA = 'KoTA ' + dataKoTA.id_KoTA.substr(4, 3)
+        const formattedPassword = 'KoTA' + dataKoTA.id_KoTA + dataKoTA.jumlah_pembimbing + dataKoTA.jumlah_penguji
+        const hashedNewPassword = await bcrypt.hash(formattedPassword,10)
+
+        await User.update({
+          password:hashedNewPassword
+        },{
+          where :{
+            username : username
+          }
+        }
+        )
+
+        res.render('forgotPasswordKoTA', { formattedUsername: formattedNamaKoTA, username: username, newPass: formattedPassword }, function (err, renderedHtml) {
+          if (err) {
+            console.log(err);
+          } else {
+            const mailOptions = {
+              from: 'hello@example.com',
+              to: email,
+              subject: 'Reset Password KoTA',
+              html: renderedHtml
+            };
+        
+            transporter.sendMail(mailOptions, function (error, info) {
+              if (error) {
+                console.log(error);
+              } else {
+                return res.status(200).send({
+                  message:'Email terkirim' + info.response
+                })
+             
+              }
+            });
+          }
+        });
+
+      }
+
+    } catch (error) {
+      
+      return res.status(400).send({
+        message: error.message
+      })
+    }
   },
 
   async changeUserPassword(req, res) {
