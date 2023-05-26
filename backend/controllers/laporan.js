@@ -85,7 +85,7 @@ module.exports = {
           id_KoTA: id
         },
         attributes: {
-          exclude:['id','createdAt','updatedAt']
+          exclude:['id','createdAt','updatedAt','lembar_pengesahan','public_key','private_key']
         }
       })
 
@@ -343,7 +343,7 @@ module.exports = {
         }
 
         const update = await Laporan.update({
-            lembar_pengesahan : lembar_pengesahan
+            lembar_pengesahan : lembar_pengesahan.data
             },{
               where:{
                 id_laporan: id
@@ -363,6 +363,50 @@ module.exports = {
     }
 
   },
+  async checkLembarPengesahan(req, res){
+    const { id } = req.params
+
+    try {
+      const laporan = await Laporan.findOne({
+          where:{
+            id_laporan: id
+          },
+          attributes: {
+            exclude:['id','createdAt','updatedAt']
+          }
+        })
+
+        if (!laporan) {
+          return res.status(404).send({
+            message: 'data laporan tidak ditemukan'
+          })
+        }
+
+        if (laporan.lembar_pengesahan === null) {
+          return res.status(200).send({
+            message: 'lembar pengesahaan tidak ada'
+          })
+        }
+
+        return res.status(200).send({
+          message:'lembar pengesahan ada'
+        })
+
+        // res.set({
+        //   'Content-Type': 'application/pdf'
+        // });
+    
+        // return res.send(
+        //  laporan.lembar_pengesahan
+        // )
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+    
+  },
+
 
   async getLembarPengesahan(req,res) {
     
@@ -378,17 +422,25 @@ module.exports = {
           }
         })
 
-        // if (!laporan) {
-        //   return res.status(404).send({
-        //     message: 'data laporan tidak ditemukan'
-        //   })
-        // }
+        if (!laporan) {
+          return res.status(404).send({
+            message: 'data laporan tidak ditemukan'
+          })
+        }
+
+        if (laporan.lembar_pengesahan === null) {
+          return res.status(400).send({
+            message: 'lembar pengesahaan tidak ada'
+          })
+        }
 
         res.set({
           'Content-Type': 'application/pdf'
         });
     
-        res.send(laporan.lembar_pengesahan)
+        return res.send(
+         laporan.lembar_pengesahan
+        )
     } catch (error) {
       return res.status(400).send({
         message: error.message
