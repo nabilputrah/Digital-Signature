@@ -322,6 +322,82 @@ module.exports = {
     }
   },
 
+  async updateLembarPengesahan(req, res) {
+    const { id } = req.params
+    const { lembar_pengesahan } = req.files
+
+    try {
+        const laporan = await Laporan.findOne({
+          where:{
+            id_laporan: id
+          },
+          attributes: {
+            exclude:['id','createdAt','updatedAt']
+          }
+        })
+
+        if (!laporan) {
+          return res.status(404).send({
+            message: 'data laporan tidak ditemukan'
+          })
+        }
+
+        const update = await Laporan.update({
+            lembar_pengesahan : lembar_pengesahan
+            },{
+              where:{
+                id_laporan: id
+              }
+            }
+          )
+
+        return res.status(200).send({
+          message: 'update lembar pengesahan sukses',
+          data: update
+        })
+
+    } catch (error) {
+        return res.status(400).send({
+          message : error.message
+        })
+    }
+
+  },
+
+  async getLembarPengesahan(req,res) {
+    
+    const { id } = req.params
+
+    try {
+      const laporan = await Laporan.findOne({
+          where:{
+            id_laporan: id
+          },
+          attributes: {
+            exclude:['id','createdAt','updatedAt']
+          }
+        })
+
+        // if (!laporan) {
+        //   return res.status(404).send({
+        //     message: 'data laporan tidak ditemukan'
+        //   })
+        // }
+
+        res.set({
+          'Content-Type': 'application/pdf'
+        });
+    
+        res.send(laporan.lembar_pengesahan)
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+    
+
+  },
+
   async updateLaporan(req, res) {
     const { id } = req.params
     const { judul_TA, tgl_disetujui, tgl_disidangkan } = req.body

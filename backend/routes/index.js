@@ -224,9 +224,11 @@ router.get('/api/relasi/gambarttd/:NIP/:role/:id_KoTA', relasiController.getGamb
 router.get('/api/laporan', laporanController.getAllLaporan)
 router.get('/api/laporan/:id', laporanController.getLaporanById)
 router.get('/api/laporankota/:id', laporanController.getLaporanByKoTA)
+router.get('/api/lembarpengesahan/:id', laporanController.getLembarPengesahan)
 router.post('/api/laporan', laporanController.addLaporan)
 router.put('/api/laporan/:id',laporanController.updateLaporan)
 router.put('/api/laporanidkota/:id',laporanController.updateIdKoTALaporan)
+router.put('/api/lembarpengesahan/:id',laporanController.updateLembarPengesahan)
 router.delete('/api/laporan/:id', laporanController.deleteLaporan)
 // router.put('/api/laporan/doSignature/:id', laporanController.doSignature)
 
