@@ -3,7 +3,7 @@
       <!-- End HTML Lembar Pengesahan Halaman 2 -->
       <!-- End HTML Lembar Pengesahan Halaman 2 -->
       <div 
-        :hidden="true"
+      :hidden="true"
       >
         <div id="pdf-content"
         style="width: 450pt; position: relative;"
@@ -180,7 +180,7 @@
 
       <!-- Start Breadcrumbs -->
       <v-breadcrumbs style="margin-left: 0.5%;">
-        <h4 style="color: #1a5f7a;">Detail Dokumen Laporan TA</h4>
+        <h4 style="color: #1a5f7a;">Tanda Tangan Dokumen</h4>
         <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
         <v-breadcrumbs-item 
         :exact="true"
@@ -192,9 +192,10 @@
           /
         </v-breadcrumbs-item>
         <v-breadcrumbs-item 
-        :disabled="true"
-        to="/dosen/daftar_dokumen/detail_dokumen">
-          <span>Detail Dokumen Laporan TA</span>
+        :disabled="false"
+        style="color: #1a5f7a;"
+        >
+          <span @click="BackToDetail()" style="cursor: pointer;" >Detail Dokumen Laporan TA</span>
         </v-breadcrumbs-item>
         <v-breadcrumbs-item 
         :disabled="true">
@@ -210,11 +211,10 @@
 
       <v-row class="custom-card" >
         <v-col cols="8" >
-          <!-- <v-card > -->
-            <!-- <div class="signature-page"> -->
-                  <iframe :src="pdfUrl" width="100%" height="600px"></iframe>
-            <!-- </div> -->
-          <!-- </v-card> -->
+          <!-- Start Dialog Buka Dokumen -->
+          <div id="pdfContainer"></div>
+          <!-- End Dialog Buka Dokumen -->
+          <!-- <iframe :src="pdfUrl" width="100%" height="600px"></iframe> -->
         </v-col>
 
         <v-col cols="4">
@@ -247,7 +247,7 @@
                     <v-text-field v-model="tanggal" label="Tanggal Tanda Tangan" required type="date"></v-text-field>
                     <v-row >
                       <v-col class="text-right" >
-                        <v-btn color="primary" @click="save">Tambah Tanda Tangan</v-btn>
+                        <v-btn color="primary" @click="SignDocument">Tambah Tanda Tangan</v-btn>
                       </v-col>
                     </v-row>
                   </form>
@@ -374,6 +374,7 @@
         
   <script>
   import jsPDF from 'jspdf';
+  import PDFObject from 'pdfobject';
   import { format, parseISO } from 'date-fns';
   import idLocale from 'date-fns/locale/id';
   import axios from 'axios'
@@ -410,7 +411,7 @@
           nama:'Djoko Cahyo Utomo L., S.Kom., M.MT.', NIP:'197201061999031999', TTD:'',
         },
         tanggal_disetujui: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
-        // Start Data HTML Lembar Pengesahan
+        // End Data HTML Lembar Pengesahan
 
         // Start Data Halaman TTD
         idKota: '',
@@ -432,6 +433,17 @@
         validationError: null,
         // End Data Dialog Add Dokumen
 
+        // Start Dialog Input Share Key
+        dialogShareKey: false,
+        ShareKeyValid:false,
+        shareKey: '',
+        shareKeyDB:'',
+        rules: [
+          value => !!value || 'Required.',
+          // value => (value && value.length >= 3) || 'Min 3 characters',
+        ],
+        // End Dialog Input Share Key
+
         // Notifikasi Berhasil
         snackbar: {
             show: false,
@@ -442,6 +454,17 @@
       }),
   
     mounted () {
+      const params = new URLSearchParams(window.location.search);
+      const DialogshareKey = params.get('DialogShareKey');
+      const shareKey = params.get('shareKey');
+
+      if (DialogshareKey) {
+        this.dialogShareKey = true;
+      }
+      if (shareKey) {
+        this.shareKey = shareKey;
+      }
+
        const token = localStorage.getItem('token');
   
         if (token) {
@@ -522,11 +545,30 @@
             this.convertDateDisetujui()
             this.convertDateDisidangkan()
   
+            const responsePDF = await axios.get('http://localhost:3000/api/lembarpengesahan/'+ this.laporan.id_laporan,{responseType:'blob'})
+            // const responsePDF = await axios.get('http://localhost:3000/api/dokumen/Laporan_20224022023_v1' ,{responseType:'blob'})
+            this.pdfUrl = URL.createObjectURL(responsePDF.data);
+            this.showPdf();
+
         } catch (error) {
           console.error(error.message);
         }
       },
   
+      showPdf() {
+        const pdfContainer = document.getElementById('pdfContainer');
+        PDFObject.embed(this.pdfUrl, pdfContainer, {
+          pdfOpenParams: {
+            navpanes: 0,
+            toolbar: 0,
+            statusbar: 1,
+          },
+          callback: this.customizePdfToolbar,
+          width: '100%',
+          height: 'calc(100vh - 100px)', // Mengurangi tinggi toolbar Vuetify
+        });
+      },
+
       convertDateDisetujui() {
         const date = new Date(this.laporan.tgl_disetujui);
         const year = date.toISOString().substring(0, 4);
@@ -556,7 +598,7 @@
               this.validationError = "Mohon pilih file yang akan divalidasi.";
               return;
           }
-          console.log(this.file)
+          // console.log(this.file)
           const formData = new FormData();
           formData.append('img_ttd', this.file);
           formData.append('NIP', this.dosen.NIP)
@@ -569,32 +611,27 @@
               }
           })
           .then(response => {
-          console.log(response.data);
-          this.validasiDokumen = !this.validasiDokumen;
-          this.file = null
-          this.snackbar.show = true;
-          this.snackbar.color = "primary";
-          this.snackbar.message = "Tanda Tangan Berhasil dibubuhkan";
+            console.log(response.data);
+            this.validasiDokumen = !this.validasiDokumen;
+            this.file = null
+            this.snackbar.show = true;
+            this.snackbar.color = "primary";
+            this.snackbar.message = "Tanda Tangan Berhasil dibubuhkan";
           })
           .catch(error => {
-          console.log(error.message);
-          this.validasiDokumen = !this.validasiDokumen;
-          this.file = null
-          this.snackbar.show = true;
-          this.snackbar.color = "error";
-          this.snackbar.message = "Tanda Tangan gagal dibubuhkan";
+            console.log(error.message);
+            this.validasiDokumen = !this.validasiDokumen;
+            this.file = null
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Tanda Tangan gagal dibubuhkan";
           });
-          // this.initialize()
           window.location.reload()
         },
 
         close_Popup_AddDokumen(){
             this.validasiDokumen = !this.validasiDokumen;
             this.file = null
-        },
-
-        Do_Sign(){
-            this.validasiDokumen = true
         },
 
         validateFile() {
@@ -610,8 +647,65 @@
             }
         },
 
+        Do_Sign(){
+          this.validasiDokumen = true
+        },
 
-        generatePDF() {
+        SignDocument (){
+          this.dialogShareKey = true;
+        },
+
+        closeDialog() {
+          this.dialogShareKey = false;
+        },
+
+        async validateShareKey() {
+          // Lakukan sesuatu dengan shareKey
+          if (this.ShareKeyValid){
+          console.log('Share Key:', this.shareKey);
+          console.log(this.dosen.NIP)
+          console.log(this.$route.params.id)
+          console.log(this.$route.params.role)
+
+          await axios({
+              method:'post',
+              url: 'http://localhost:3000/api/getonesharekey/',
+              data: {
+              NIP: this.dosen.NIP,
+              id_laporan: "Laporan_" + this.$route.params.id,
+              role:this.$route.params.role
+              }
+            })
+            .then(response => {
+              // console.log(response.data.data)
+              this.shareKeyDB = response.data.data
+            })
+            .catch(error => {
+              console.log(error.request.response)          
+            })
+          if (this.shareKey === this.shareKeyDB){
+            this.dialogShareKey = false;
+            this.snackbar.show = true;
+            this.snackbar.color = "primary";
+            this.snackbar.message = "Share Key yang diinputkan valid";
+            this.shareKey = null
+
+            this.validasiDokumen = true
+
+          }else{
+            this.dialogShareKey = false;
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Share Key yang diinputkan tidak valid";
+            this.shareKey = null
+          }
+
+          }
+
+        },
+
+
+         generatePDF() {
             const doc = new jsPDF('p', 'pt', 'a4');
             
             const htmlContent = document.getElementById('pdf-content');
@@ -621,8 +715,26 @@
             callback: () => {
                 doc.insertPage(1);
                 doc.html(htmlContent, {
-                callback: () => {
-                    doc.save('report.pdf');
+                callback: async () => {
+                    const blob = doc.output('blob')
+                    
+                    const formData = new FormData()
+
+                    formData.append('lembar_pengesahan',blob)
+
+                    await axios.put('http://localhost:3000/api/lembarpengesahan/'+ this.laporan.id_laporan, formData, {
+                      headers : {
+                        'Content-Type' : 'multipart/form-data'
+                      }
+                    })
+                      .then(response => {
+                        console.log(response.data);
+                      })
+                      .catch(error => {
+                        console.log(error.message);
+                      });
+
+                    // doc.save('report.pdf');
                 },
                 x: 0, // Mengatur margin kiri (4 cm = 0 pt)
                 y: 0, // Mengatur margin atas (4 cm = 0 pt)
@@ -631,6 +743,10 @@
             x: 0, // Mengatur margin kiri (4 cm = 0 pt)
             y: 0, // Mengatur margin atas (4 cm = 0 pt)
             });
+        },
+
+        BackToDetail () {
+          this.$router.push(`/dosen/daftar_dokumen/dokumen_detail/${this.$route.params.id}/${this.$route.params.id}/`);
         },
 
         // Methods Drag n Drop zone
@@ -668,24 +784,24 @@
   
   <style scoped>
 
-.custom-card {
-  width: 97%;
-  margin-left: auto;
-  margin-right: auto;
-  border-radius: 5px;
-  margin-bottom: 2%;
-}
-.signature-page {
-  padding: 20px;
-}
-.background-image {
+  .custom-card {
+    width: 97%;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 5px;
+    margin-bottom: 2%;
+  }
+  .signature-page {
+    padding: 20px;
+  }
+  .background-image {
     position: absolute;
     top: 0;
     width: 80%;
     height: 500pt;
     margin-left: 12%;
     z-index: -1;
-  }
+    }
   .columnName{
     width: 70%;
     display: inline-block;
@@ -723,46 +839,46 @@
   }
 
  /* Drag and Drop Zone */
- .drop-area {
-  display: flex;
-  justify-content: center; /* Menengahkan konten secara horizontal */
-  align-items: center; /* Menengahkan konten secara vertical */
-  border: 2px dashed rgba(145, 187, 203, 1);
-  text-align: center;
-  padding: 30px;
-  font-size: 20px;
-}
+  .drop-area {
+    display: flex;
+    justify-content: center; /* Menengahkan konten secara horizontal */
+    align-items: center; /* Menengahkan konten secara vertical */
+    border: 2px dashed rgba(145, 187, 203, 1);
+    text-align: center;
+    padding: 30px;
+    font-size: 20px;
+  }
 
-.highlight {
-  background: rgba(145, 187, 203, 0.2);
-}
+  .highlight {
+    background: rgba(145, 187, 203, 0.2);
+  }
 
-.placeholder {
-  color: rgba(145, 187, 203, 1);
-}
+  .placeholder {
+    color: rgba(145, 187, 203, 1);
+  }
 
-.file-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px;
-  background-color: rgba(145, 187, 203, 0.35);
-  border-radius: 5px;
-}
+  .file-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: rgba(145, 187, 203, 0.35);
+    border-radius: 5px;
+  }
 
-.file-name {
-  margin: 0;
-}
+  .file-name {
+    margin: 0;
+  }
 
-.remove-button {
-  background-color: #ff5555;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 3px;
-  cursor: pointer;
-  margin-left: 10px;
-}
+  .remove-button {
+    background-color: #ff5555;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 10px;
+  }
   
   </style>
   

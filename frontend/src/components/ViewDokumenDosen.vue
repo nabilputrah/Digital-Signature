@@ -545,7 +545,8 @@ export default {
     },
 
     SignDocument (){
-      this.dialogShareKey = true;
+      // this.dialogShareKey = true;
+      this.$router.push(`/dosen/daftar_dokumen/dokumen_detail/do_sign/${this.$route.params.role}/${this.$route.params.id}`);
     },
 
     closeDialog() {
