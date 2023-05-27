@@ -9,6 +9,9 @@ const bcrypt = require('bcrypt');
 const db = require('../db/index')
 const Dosen = require('../models').Dosen;
 const User = require('../models').User;
+const Prodi = require('../models').Prodi;
+
+const Jurusan = require('../models').Jurusan;
 
 require('dotenv').config()
 
@@ -196,6 +199,45 @@ module.exports = {
           message: 'Data dosen tidak ditemukan'
         })
       }
+      // cek ke prodi 
+      const selectQuery  = `SELECT D."NIP" FROM "Dosen" as D
+                            JOIN "Prodi" as P ON P."NIP" = D."NIP"
+                            WHERE D."NIP" = $1
+                           `
+
+      const paramsQuery = [id]
+
+      const result = await db.query(selectQuery,paramsQuery)
+
+      if(result.rows.length > 0) {
+        await Prodi.update({
+          NIP: null
+        }, {
+          where: {
+            NIP: id
+          }
+        })
+      }
+      // cek ke kajur 
+      const selectQueryKajur  = `SELECT D."NIP" FROM "Dosen" as D
+                            JOIN "Jurusan" as J ON J."NIP" = D."NIP"
+                            WHERE D."NIP" = $1
+                           `
+
+      const paramsQueryKajur = [id]
+
+      const resultKajur = await db.query(selectQueryKajur,paramsQueryKajur)
+
+      if(resultKajur.rows.length > 0) {
+        await Jurusan.update({
+          NIP: null
+        }, {
+          where: {
+            NIP: id
+          }
+        })
+      }
+      
 
       // await dosen.destroy()
       await User.destroy({

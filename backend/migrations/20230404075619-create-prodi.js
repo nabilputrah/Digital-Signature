@@ -17,7 +17,7 @@ module.exports = {
         unique:true,
         onDelete:'cascade',
         onUpdate:'cascade',
-        allowNull:false
+        allowNull:true
       },
       nama_prodi: {
         type: Sequelize.STRING,

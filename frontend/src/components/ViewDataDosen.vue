@@ -616,7 +616,6 @@ import axios from 'axios'
     },
 
     mounted () {
-     
       this.initialize()
       this.initializeKajurList()
       this.initializeKaprodiList()
@@ -729,7 +728,12 @@ import axios from 'axios'
         } catch (error) {
           console.log(error.message.request)
         }
-       
+
+        // console.log(this.formKaprodiD3.selectedItem)
+        // if (this.formKaprodiD3.selectedItem){
+        //   this.PimpinanValid = false
+        // } 
+        
       },
 
    
@@ -890,6 +894,7 @@ import axios from 'axios'
           .then(response => {
           
             console.log(response.data)
+            window.location.reload()
             this.initialize()
     
           })
