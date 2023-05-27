@@ -376,8 +376,8 @@ export default {
     this.initializePimpinanList()
     this.initializeDetailKoTA();
     this.initializeMahasiswaList();
-    this.initializePembimbingList();
-    this.initializePengujiList();
+    this.initializePengampuList();
+    // this.initializePengujiList();
   },
 
   computed: {
@@ -457,24 +457,8 @@ export default {
       if (this.loggedIn.nama_prodi === 'D4') {
           this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD001");
 
-        //   const mappedData = this.MahasiswaFiltered.map((item) => {
-        //     if (item.id_prodi === "PRD001") {
-        //       item.id_prodi = "D4";
-        //     }
-        //     return item;
-        //   })
-
-        // this.MahasiswaFiltered = mappedData
       } else if(this.loggedIn.nama_prodi === 'D3'){
-        this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD002");
-
-          // const mappedData = this.MahasiswaFiltered.map((item) => {
-          //   if (item.id_prodi === "PRD002") {
-          //     item.id_prodi = "D3";
-          //   }
-          //   return item;
-          // })
-          //     this.MahasiswaFiltered = mappedData
+          this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD002");
       }
       
       const selectedItem = this.mahasiswaKoTA.map((item) => ({
@@ -491,7 +475,7 @@ export default {
       
     },
 
-    async initializePembimbingList(){
+    async initializePengampuList(){
         // pembimbing kota
       try {
         const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
@@ -499,6 +483,9 @@ export default {
         const response = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ this.$route.params.id)
         this.pembimbingKoTA = response.data.data
         
+        const responsePenguji = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ this.$route.params.id)
+        this.pengujiKoTA = responsePenguji.data.data
+
         if (this.pembimbingKoTA.length > 0){
         // Set nilai items dan search pada setiap elemen form
           this.formPembimbing = this.pembimbingKoTA.map((item) => ({
@@ -513,8 +500,23 @@ export default {
               { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
             ];
         }
-    
 
+        if (this.pengujiKoTA.length > 0){
+         // Set nilai items dan search pada setiap elemen form
+          this.formPenguji = this.pengujiKoTA.map((item) => ({
+            selectedItem: item.NIP,
+            items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })),
+            search: ""
+          }));
+        }
+        else {
+          this.formPenguji = [
+              { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
+              { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
+            ];
+        }
+
+        
       } catch (error) { 
         console.log(error.message.request)
       }
@@ -543,6 +545,13 @@ export default {
             ];
         }
    
+        console.log(this.formPembimbing[0].selectedItem)
+        if (!this.formPembimbing[0].selectedItem){
+          console.log("MASUUUUK")
+          this.valid = false
+        }
+        // this.uniquePembimbingRule(0)
+
 
       } catch (error) { 
         console.log(error.message.request)

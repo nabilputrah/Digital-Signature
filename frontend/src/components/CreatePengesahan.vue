@@ -200,7 +200,7 @@
     <!-- End Breadcrumbs -->
 
     <v-row class="custom-card" >
-      <v-col cols="6" >
+      <v-col cols="6" :hidden="pdfNotExist">
         <!-- Start Dialog Buka Dokumen -->
         <div id="pdfContainer"></div>
         <!-- End Dialog Buka Dokumen -->
@@ -513,9 +513,24 @@ export default {
           console.error(error.message.request);
         }
 
-        this.convertDateDisetujui()
+        if (this.laporan.tgl_disidangkan){
+            this.convertDateDisidangkan()
+        }
+        else {
+          this.laporan.tgl_disidangkan = ''
+        }
+        if (this.laporan.tgl_disetujui){
+            this.convertDateDisetujui()
+        }
+        else {
+          this.laporan.tgl_disetujui = ''
+        }
+
+        // this.convertDateDisetujui()
+        // this.convertDateDisidangkan()
         this.convertDateDibuat()
-        this.convertDateDisidangkan()
+
+        this.checkLembarPengesahan()
 
         const responsePDF = await axios.get('http://localhost:3000/api/lembarpengesahan/'+ this.laporan.id_laporan,{responseType:'blob'})
         this.pdfUrl = URL.createObjectURL(responsePDF.data);

@@ -31,6 +31,7 @@
               </v-col>
               <v-col cols="8" >
                 <v-textarea
+                  placeholder="Judul Tugas Akhir"
                   dense
                   readonly
                   outlined
