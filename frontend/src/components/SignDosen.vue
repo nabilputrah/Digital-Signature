@@ -376,7 +376,7 @@
     </v-snackbar>
 
     </div>
-  </template>
+</template>
         
   <script>
   import jsPDF from 'jspdf';
