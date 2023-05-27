@@ -88,7 +88,7 @@
             </v-btn>
             <v-btn
               color="primary"
-              :to="`/koordinator/KoTA/tambah_KoTA`"
+              @click="redirectToAddKoTA()"
               style="margin-top: auto;margin-bottom: auto;" 
             >
               + Add KoTA
@@ -352,9 +352,20 @@ import axios from 'axios'
           } catch (error) {
             console.error(error.message);
           }
-        });
+        });        
+      },
 
-
+      async redirectToAddKoTA () {
+        const response = await axios.get(`http://localhost:3000/api/checkkajurkaprodi`);
+        const CanADD = response.data
+        if ((CanADD.kajur == 1) && (CanADD.kaprodi == 2)){
+          this.$router.push(`/koordinator/KoTA/tambah_KoTA`);
+        }
+        else {
+          this.snackbar.show = true;
+          this.snackbar.color = "error";
+          this.snackbar.message = "Mohon Tambahkan data Kaprodi dan Kajur terlebih dahulu di halaman data Dosen";
+        }
       },
 
       redirectToDetail(id_KoTA) {

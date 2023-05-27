@@ -331,12 +331,13 @@ export default {
       const payload = JSON.parse(atob(token.split('.')[1]));
       this.navbar= payload.user;
     }
-   this.initializeNavbarLoggedIn()
-   this.generateListTahunAjaran();
-   this.initializePimpinanList()
-   this.initializeMahasiswaList();
-   this.initializePembimbingList();
-   this.initializePengujiList();
+    this.CheckPimpinan();
+    this.initializeNavbarLoggedIn()
+    this.generateListTahunAjaran();
+    this.initializePimpinanList()
+    this.initializeMahasiswaList();
+    this.initializePembimbingList();
+    this.initializePengujiList();
 
   },
 
@@ -385,6 +386,15 @@ export default {
 
   methods: {
   
+    async CheckPimpinan(){
+      const response = await axios.get(`http://localhost:3000/api/checkkajurkaprodi`);
+        const CanADD = response.data
+        if ((CanADD.kajur < 1) || (CanADD.kaprodi < 2)){
+          console.log("MASUUK")
+          this.$router.push(`/koordinator/KoTA`);
+        }
+    },
+
      async initializePimpinanList() {
         const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
         this.kajurData = responseKajur.data.data[0]
@@ -955,12 +965,6 @@ export default {
         .catch(error => {
             console.log(error.request.response)
         })
-
-
-
-      
-        
-
     }
      
 

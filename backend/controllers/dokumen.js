@@ -1,3 +1,4 @@
+const sss = require('shamirs-secret-sharing')
 const db = require('../db/index')
 const { Op } = require('sequelize');
 const { degrees, PDFDocument, rgb, StandardFonts } = require('pdf-lib')
@@ -6,6 +7,7 @@ const fs = require('fs')
 const path = require('path');
 const Laporan = require('../models').Laporan;
 const Dokumen = require('../models').Dokumen;
+const SecretKey = require('../models').Secret_Key;
 const crypto = require('crypto');
 
 
@@ -13,43 +15,128 @@ const crypto = require('crypto');
 module.exports = {
 
   async mergePDF(req, res) {
-  // const cover = await PDFDocument.load(fs.readFileSync('./pdf/KoTA108LaporanTA.pdf'));
-  // const content = await PDFDocument.load(fs.readFileSync('./pdf/contoh3.pdf'));
-  const cover = await PDFDocument.load(req.files.cover.data);
-  const content = await PDFDocument.load(req.files.content.data);
+    const moment = require('moment-timezone');
+    moment.tz.setDefault('Asia/Jakarta');
+    const now = moment();
+    const formattedDate = now.format('YYYY-MM-DD');
+    const formattedTimeFull = now.format('HH:mm:ss');
+    const fullDatetime = formattedDate + " " + formattedTimeFull
 
-  const doc = await PDFDocument.create();
+    const  { id_laporan, id_dokumen,version } = req.body
 
-  const coverPages = await doc.copyPages(cover, [0]); // Menyalin halaman pertama dari dokumen pertama
-  for (const page of coverPages) {
-    doc.addPage(page);
-  }
+    try {
+          // const cover = await PDFDocument.load(fs.readFileSync('./pdf/KoTA108LaporanTA.pdf'));
+        // const content = await PDFDocument.load(fs.readFileSync('./pdf/contoh3.pdf'));
+        const cover = await PDFDocument.load(req.files.cover.data);
+        const content = await PDFDocument.load(req.files.content.data);
 
-  const contentPages = await doc.copyPages(content, [0, 1]); // Mengambil halaman ke-2 dan ke-3 dari dokumen kedua
-  for (const page of contentPages) {
-    doc.addPage(page);
-  }
+        const doc = await PDFDocument.create();
 
-  const contentPages1 = await doc.copyPages(cover, cover.getPageIndices())
-  for (const page of contentPages1) {
-  
-    doc.addPage(page)
+        const coverPages = await doc.copyPages(cover, [0]); // Menyalin halaman pertama dari dokumen pertama
+        for (const page of coverPages) {
+          doc.addPage(page);
+        }
 
-  }
+        const contentPages = await doc.copyPages(content, [0, 1]); // Mengambil halaman ke-2 dan ke-3 dari dokumen kedua
+        for (const page of contentPages) {
+          doc.addPage(page);
+        }
 
-  doc.removePage(3)
-  doc.removePage(3)
-  doc.removePage(3)
+        const contentPages1 = await doc.copyPages(cover, cover.getPageIndices())
+        for (const page of contentPages1) {
+        
+          doc.addPage(page)
+
+        }
+
+        doc.removePage(3)
+        doc.removePage(3)
+        doc.removePage(3)
+
+        doc.setTitle('Judul Dokumen PDF');
+
+        // Set Author
+        doc.setAuthor('Penulis Dokumen');
+
+        // Set Subject
+        doc.setSubject('Subjek Dokumen');
+
+      // // Get Share Key by id Laporan
+      // const allShareKey = await SecretKey.findAll({
+      //   where: {
+      //     id_laporan: id_laporan
+      //   },
+      //   attributes:{
+      //     exclude:['id','createdAt','updatedAt']
+      //   }
+      // })
+
+      const selectQuery = ` SELECT S."secret_key" FROM "Secret_Key" as S
+                            WHERE S."id_laporan" = $1
+                          `
+      const paramsQuery = [id_laporan]
+
+      const result = await db.query(selectQuery,paramsQuery)
+
+      const allShareKey = result.rows
+
+      const newArray = allShareKey.map((item) => {
+        return item.secret_key.toString('hex');
+      });
 
 
-  const mergedBytes = await doc.save();
-  fs.writeFileSync('./pdf/merged.pdf', mergedBytes);
-    if(Object.keys(doc).length > 0){
-      res.status(200).send({
-        message:'success',
+      const recoveredPrivateKey = sss.combine(newArray.map(share => Buffer.from(share, 'hex')))
+
+      const constructPrivateKey = recoveredPrivateKey.toString()
+
+
+      const selectQueryPublicKey = ` SELECT L."public_key" FROM "Laporan" as L 
+                                    WHERE L."id_laporan" = $1 
+                                    `
+      const paramsQueryPublicKey = [id_laporan]
+
+      const resultPublicKey = await db.query(selectQueryPublicKey,paramsQueryPublicKey)
+
+      const PublicKey = resultPublicKey.rows[0].public_key
+
+      const mergedBytes = await doc.save();
+      const dokumenKu = Buffer.from(mergedBytes)
+
+      const options = {
+        fields: ['id_dokumen','id_laporan','dokumen_laporan', 'version', 'tgl_unggah'],
+        returning:true   
+      }
+
+      const dokumen = await Dokumen.create({
+        id_dokumen:id_dokumen,
+        id_laporan:id_laporan,
+        dokumen_laporan: dokumenKu,
+        version: version,
+        tgl_unggah:fullDatetime
+      }, options)
+
+      if (!dokumen) {
+        return res.status(400).send({
+          message: 'gagal input'
+        })
+      }
+
+      return res.status(200).send({
+        message:'add dokumen sukses',
+        data: dokumen,
+        file:mergedBytes,
+        sharekey:constructPrivateKey,
+        publicKey: PublicKey
+      })
+      
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
       })
     }
+    
   },
+
   async addDokumen(req, res) {
     const moment = require('moment-timezone');
     moment.tz.setDefault('Asia/Jakarta');
@@ -61,7 +148,7 @@ module.exports = {
 
     const formattedTimeFull = now.format('HH:mm:ss');
 
- const fullDatetime = formattedDate + " " + formattedTimeFull
+    const fullDatetime = formattedDate + " " + formattedTimeFull
     const { dokumen_laporan } = req.files
     const { id_dokumen, id_laporan, version} = req.body
     
