@@ -238,8 +238,26 @@
       </v-dialog>
       <!-- End Card Pop up Delete Data Mahasiswa -->
     <!-- End Card -->
-  </div>
 
+    <v-snackbar 
+      v-model="snackbar.show" 
+      :color="snackbar.color" 
+      top 
+      right 
+      :timeout="3000"
+      style="margin-right: 1%;"
+    >
+      <span>
+        {{ snackbar.message }}
+      </span>
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
+
+  </div>
 </template>
 
 <script>
@@ -271,6 +289,12 @@ export default {
       PembimbingMinItems: 2,
       PembimbingMaxItems: 3,
 
+      // Notifikasi Berhasil
+      snackbar: {
+        show: false,
+        message: "",
+        color: "",
+      },
 
       //Data List Dropdown
       form: '',
@@ -398,8 +422,17 @@ export default {
       }
     
     },
-    edit_data(ID_KoTA){
-      this.$router.push(`/koordinator/KoTA/edit_KoTA/${ID_KoTA}`);
+    async edit_data(ID_KoTA){
+      const response = await axios.get(`http://localhost:3000/api/checkkajurkaprodi`);
+      const CanADD = response.data
+      if ((CanADD.kajur == 1) && (CanADD.kaprodi == 2)){
+        this.$router.push(`/koordinator/KoTA/edit_KoTA/${ID_KoTA}`);
+      }
+      else {
+        this.snackbar.show = true;
+        this.snackbar.color = "error";
+        this.snackbar.message = "Mohon Tambahkan data Kaprodi dan Kajur terlebih dahulu di halaman data Dosen";
+      }
     },
     delete_data(){
       this.dialogDelete = true

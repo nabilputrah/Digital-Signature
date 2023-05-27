@@ -371,6 +371,7 @@ export default {
       const payload = JSON.parse(atob(token.split('.')[1]));
       this.navbar= payload.user;
     }
+    this.CheckPimpinan();
     this.initializeNavbarLoggedIn()
     this.generateListTahunAjaran();
     this.initializePimpinanList()
@@ -424,6 +425,15 @@ export default {
   },
 
   methods: {
+      async CheckPimpinan(){
+        const response = await axios.get(`http://localhost:3000/api/checkkajurkaprodi`);
+          const CanADD = response.data
+          if ((CanADD.kajur < 1) || (CanADD.kaprodi < 2)){
+            console.log("MASUUK")
+            this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.$route.params.id}`);
+          }
+      },
+
      async initializePimpinanList() {
         const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
         this.kajurData = responseKajur.data.data[0]
