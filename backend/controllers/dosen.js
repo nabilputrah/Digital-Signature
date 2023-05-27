@@ -188,6 +188,36 @@ module.exports = {
       })
     }
   },
+
+  async checkIsExistKaprodiKajur (req, res){
+    try {
+      // Cek Kaprodi
+      const selectQueryKaprodi  = `SELECT * FROM "Prodi" as P
+                                    WHERE P."NIP" IS NOT NULL
+                                  `
+
+      const resultKaprodi = await db.query(selectQueryKaprodi)
+
+      // Cek Kajur
+      const selectQueryKajur  = `SELECT * FROM "Jurusan" as J
+                                    WHERE J."NIP" IS NOT NULL
+                                  `
+
+      const resultKajur = await db.query(selectQueryKajur)
+
+
+      return res.status(200).send({
+        message: 'check kaprodi kajur',
+        kaprodi: resultKaprodi.rows.length,
+        kajur: resultKajur.rows.length
+      })
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
+
   async deleteDosen(req, res) {
     const { id } = req.params
 
