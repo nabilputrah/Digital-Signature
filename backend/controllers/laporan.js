@@ -303,6 +303,7 @@ module.exports = {
        // update mahasiswa kota to null  
     const updateLaporan = await Laporan.update({
       id_KoTA : id_KoTA,
+      lembar_pengesahan:null
       }, {
         where: {
           id_laporan: id

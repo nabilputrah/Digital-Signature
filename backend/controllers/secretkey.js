@@ -339,6 +339,40 @@ module.exports = {
       })
     }
   },
+  async deleteSecretKeyByIDLaporan(req, res) {
+    const { id } = req.params
+   
+    try {
+      const secret_key = await SecretKey.findAll({
+        where: {
+          id_laporan: id
+        },
+        attributes: {
+          exclude:['id']
+        }
+      })
+
+      if (!secret_key) {
+        return res.status(404).send({
+          message:'Data secret_key tidak ditemukan'
+        })
+      }
+
+      await SecretKey.destroy({
+        where: {
+          id_laporan:id
+        }
+      })
+   
+      return res.status(200).send({
+        message:`Data secret_key dengan id laporan ${id} berhasil dihapus`
+      })
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
 
 
 
