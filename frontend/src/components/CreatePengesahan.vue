@@ -1,11 +1,9 @@
 <template>
   <div>
-
-
     <!-- End HTML Lembar Pengesahan Halaman 2 -->
     <!-- End HTML Lembar Pengesahan Halaman 2 -->
     <div 
-      :hidden="true"
+    :hidden="true"
     >
       <div id="pdf-content"
       style="width: 450pt; position: relative;"
@@ -39,19 +37,19 @@
           <br>
           <p class="text-size">Menyetujui</p>
           <br>
-          <p class="text-size">Bandung {{ this.laporan.tgl_disetujui }}</p>
+          <p class="text-size">Bandung {{ this.tanggal_disetujui }}</p>
           <br>
           <v-row class="text-size" style="width: 80%;margin-left: auto;margin-right: auto;">
             <v-col >
               <p>Pembimbing 1,</p>
-              <img width="160px" height="110px" src="../assets/TTD.png">
+              <img width="160px" height="110px" :src=Pembimbing[0].img>
               <p>{{ Pembimbing[0].nama }}</p>
             </v-col>
             <v-col cols="1">
             </v-col>
             <v-col >
               <p>Pembimbing 2,</p>
-              <img width="160px" height="110px" src="../assets/TTD.png">
+              <img width="160px" height="110px" :src=Pembimbing[1].img>
               <p>{{ Pembimbing[1].nama }}</p>
             </v-col>
           </v-row>
@@ -70,14 +68,14 @@
           <v-row class="text-size" style="width: 80%;margin-left: auto;margin-right: auto;">
             <v-col >
               <p>Ketua Jurusan Teknik Komputer dan Infomatika,</p>
-              <img width="160px" height="110px" src="../assets/TTD.png">
+              <img width="160px" height="110px" :src="Kajur.img">
               <p>{{ Kajur.nama }}</p>
             </v-col>
             <v-col cols="1">
             </v-col>
             <v-col >
               <p>Ketua Program Studi {{ Prodi }} Teknik Informatika,</p>
-              <img width="160px" height="110px" src="../assets/TTD.png">
+              <img width="160px" height="110px" :src="Kaprodi.img">
               <p>{{ Kaprodi.nama }}</p>
             </v-col>
           </v-row>
@@ -102,9 +100,8 @@
 
     <!-- Start HTML Lembar Pengesahan Halaman 2 -->
     <!-- Start HTML Lembar Pengesahan Halaman 2 -->
-    <!-- :hidden="true"     -->
     <div 
-
+      :hidden="true"      
     >
       <div id="pdf-hal2"
       style="width: 450pt; position: relative;"
@@ -137,7 +134,7 @@
           </v-row>
           <br>
           <br>
-          <p class="text-size">Tugas Akhir ini telah disidangkan pada tanggal {{ this.laporan.tgl_disidangkan }}<br>sesuai dengan ketentuan.</p>
+          <p class="text-size">Tugas Akhir ini telah disidangkan pada tanggal {{ this.tanggal_disidangkan }}<br>sesuai dengan ketentuan.</p>
           <br>
           <p class="text-size">Tim Penguji:</p>
           <br>
@@ -161,7 +158,13 @@
                   <p>NIP. {{ dosen.NIP }}</p>
                 </v-col>
                 <v-col cols="3" >
-                  <img width="100px" height="70px" src="../assets/TTD.png">
+                  <!-- <img width="100px" height="70px" src="../assets/uploads/img_ttd/20224022023/Penguji_234234234234234232.png"> -->
+                  <img 
+                    width="100px" 
+                    height="70px" 
+                    :src="dosen.img"
+                    >
+                  <!-- <img src="imageURL" alt=""> -->
                 </v-col>
               </v-row>
             </v-col>
@@ -172,23 +175,205 @@
         </div>
       </div>
     </div>
-    <button @click="generatePDF">Generate PDF</button>
+    <!-- <button @click="generatePDF">Generate PDF</button> -->
+    <!-- <button @click="Do_Sign"> Tanda Tangan</button> -->
+
+    <!-- Start Breadcrumbs -->
+    <v-breadcrumbs style="margin-left: 0.5%;">
+      <h4 style="color: #1a5f7a;">Dokumen Laporan TA</h4>
+      <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
+      <v-breadcrumbs-item 
+      :exact="true"
+      to="/KoTA/dokumen_detail">
+        <span>Dokumen Laporan TA</span>
+      </v-breadcrumbs-item>
+      <v-breadcrumbs-item 
+      :disabled="true">
+        /
+      </v-breadcrumbs-item>
+      <v-breadcrumbs-item 
+      :disabled="true"
+      to="/KoTA/dokumen_detail/lembar_pengesahan">
+        <span>Lembar Pengesahan</span>
+      </v-breadcrumbs-item>
+    </v-breadcrumbs>
+    <!-- End Breadcrumbs -->
+
+    <v-row class="custom-card" >
+      <v-col cols="6" >
+        <!-- Start Dialog Buka Dokumen -->
+        <div id="pdfContainer"></div>
+        <!-- End Dialog Buka Dokumen -->
+        <!-- <iframe :src="pdfUrl" width="100%" height="600px"></iframe> -->
+      </v-col>
+
+      <v-col cols="6">
+        <v-card style="height: 100%;">
+          <div class="signature-page">
+                <h2>Detail Laporan</h2>
+                <br>
+                <form @submit.prevent="addSignature">
+                  <v-row>
+                    <v-col>
+                      <span 
+                        style="font-size:1rem;"
+                      >Judul Tugas Akhir</span>
+                      <vue-editor
+                      v-model="laporan.judul_TA"
+                      :rules="rules"
+                      :editorToolbar="customToolbar"
+                      placeholder="Judul Tugas Akhir"
+                      ></vue-editor>
+                  </v-col>
+                  </v-row>
+                  <v-row dense>
+                    <v-col>
+                      <span 
+                        style="font-size:1rem;"
+                      >Tanggal Disidangkan</span>
+                      <v-dialog
+                        ref="dialog"
+                        v-model="menu_disetujui"
+                        persistent
+                        width="290px"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="laporan.tgl_disetujui"
+                            placeholder="Tanggal Disetujui"
+                            dense
+                            outlined
+                            :rules = "rules"
+                            clearable
+                            readonly
+                            append-icon="mdi-calendar"
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                        </template>
+                        <v-date-picker
+                          v-model="laporan.tgl_disetujui"
+                          scrollable
+                        >
+                          <v-spacer></v-spacer>
+                          <v-btn
+                            text
+                            color="primary"
+                            @click="menu_disetujui = false"
+                          >
+                            Cancel
+                          </v-btn>
+                          <v-btn
+                            text
+                            color="primary"
+                            @click="menu_disetujui = false"
+                          >
+                            OK
+                          </v-btn>
+                        </v-date-picker>
+                      </v-dialog>
+                    </v-col>
+                  </v-row>
+                  <v-row dense>
+                    <v-col>
+                      <span 
+                        style="font-size:1rem;"
+                      >Tanggal Disidangkan</span>
+                      <v-dialog
+                        ref="dialog"
+                        v-model="menu_disidangkan"
+                        persistent
+                        width="290px"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="laporan.tgl_disidangkan"
+                            placeholder="Tanggal Disetujui"
+                            dense
+                            outlined
+                            :rules = "rules"
+                            clearable
+                            readonly
+                            append-icon="mdi-calendar"
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                        </template>
+                        <v-date-picker
+                          v-model="laporan.tgl_disidangkan"
+                          scrollable
+                        >
+                          <v-spacer></v-spacer>
+                          <v-btn
+                            text
+                            color="primary"
+                            @click="menu_disidangkan = false"
+                          >
+                            Cancel
+                          </v-btn>
+                          <v-btn
+                            text
+                            color="primary"
+                            @click="menu_disidangkan = false"
+                          >
+                            OK
+                          </v-btn>
+                        </v-date-picker>
+                      </v-dialog>
+                    </v-col>
+                  </v-row>
+                  <v-row >
+                    <v-col class="text-right" >
+                      <v-btn color="primary" @click="save">Buat Lembar Pengesahan</v-btn>
+                    </v-col>
+                  </v-row> 
+                </form>
+          </div>
+        </v-card>
+      </v-col>
+
+    </v-row>
+
+  <v-snackbar 
+    v-model="snackbar.show" 
+    :color="snackbar.color" 
+    top 
+    right 
+    :timeout="3000"
+    style="margin-right: 1%;"
+  >
+    <span>
+      {{ snackbar.message }}
+    </span>
+    <template v-slot:action="{ attrs }">
+      <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+        <v-icon>mdi-window-close</v-icon>
+      </v-btn>
+    </template>
+  </v-snackbar>
+
   </div>
 </template>
       
 <script>
 import jsPDF from 'jspdf';
+import PDFObject from 'pdfobject';
+import { VueEditor } from "vue2-editor";
 import { format, parseISO } from 'date-fns';
 import idLocale from 'date-fns/locale/id';
 import axios from 'axios'
 
 export default {
+  components: {
+    VueEditor
+  },
   data: () => ({
       dataFromToken: '',
       Judul_TA: '<p>PENGEMBANGAN SISTEM <em>MULTI-USER DIGITAL</em></p><p><em>SIGNATURE</em> UNTUK LAPORAN TUGAS AKHIR&nbsp;</p><p>DENGAN METODE<em> SECRET</em></p><p><em>SHARING SCHEME</em></p>',
       kota:'',
       laporan:'',
       pembimbingKoTA:[],
+      pdfNotExist:true,
 
       Anggota : [
         {nama:'Andika Yudha Riyanto', NIM:'191524034'},
@@ -202,6 +387,7 @@ export default {
       ],
 
       Prodi:'',
+      Penguji:'',
       Kaprodi : {
         nama:'Djoko Cahyo Utomo L., S.Kom., M.MT.', NIP:'197201061999031555', TTD:'',
       },
@@ -211,6 +397,28 @@ export default {
       },
 
       tanggal_disetujui: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      tanggal_disidangkan : (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+
+      // Start Data Form
+      customToolbar: [
+        [ "italic"],
+        [ { align: "center" }]
+      ],
+      rules: [
+        value => !!value || 'Required.',
+        // value => (value && value.length >= 3) || 'Min 3 characters',
+      ],
+      pdfUrl: 'https://example.com/path-to-your-pdf.pdf',
+      menu_disetujui : false,
+      menu_disidangkan : false,
+      // End Data Form
+
+      // Notifikasi Berhasil
+      snackbar: {
+          show: false,
+          message: "",
+          color: "",
+      },
     }),
 
   mounted () {
@@ -220,64 +428,119 @@ export default {
         const payload = JSON.parse(atob(token.split('.')[1]));
         this.dataFromToken= payload.user;
       }
+    this.checkLembarPengesahan()
     this.initialize()
   },
 
   methods: {
+    async checkLembarPengesahan(){
+      const responseKoTA = await axios.get(`http://localhost:3000/api/getkotadata/${this.dataFromToken.id_user}`)
+      this.kota = responseKoTA.data.data[0]
+      console.log(this.kota.id_KoTA)
+      const response = await axios.get(`http://localhost:3000/api/ceklembarpengesahan/Laporan_${this.kota.id_KoTA}`)
+      const message = response.data.message
+      console.log(message)
+
+      console.log(message)
+      if (message === 'lembar pengesahan ada'){
+        this.pdfNotExist = false
+      }
+    },
+
     async initialize () {
 
     try {
         const response = await axios.get(`http://localhost:3000/api/getkotadata/${this.dataFromToken.id_user}`)
         this.kota = response.data.data[0]
         console.log(this.kota)
-        const id_kota = response.data.data[0].id_KoTA
+        const id_kota = this.kota.id_KoTA
 
         const responseAnggota = await axios.get('http://localhost:3000/api/mahasiswakota/' + id_kota);
         this.Anggota = responseAnggota.data.data;
-        console.log(this.Anggota)
 
         const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +id_kota)
         this.laporan = responseListLaporan.data.data
-        console.log(this.laporan)
 
+        // Get Data Pembimbing
         const responsePembimbing = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ this.laporan.id_KoTA)
         this.Pembimbing = responsePembimbing.data.data
-        console.log(this.Pembimbing)
 
+        // Get Image TTD Pembimbing
+        try {
+          this.Pembimbing[0].img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Pembimbing[0].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
+          this.Pembimbing[1].img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Pembimbing[1].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
+        } catch (error) {
+          console.error(error);
+        }
+
+        // Get Data Penguji
         const responsePenguji = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ this.laporan.id_KoTA)
         this.Penguji = responsePenguji.data.data
-        console.log(this.Penguji)
 
+        // Get Image TTD Penguji
+        this.Penguji.forEach(async (item) => {
+          try {
+            item.img = 'http://localhost:3000/api/relasi/gambarttd/'+ item.NIP +'/Penguji/'+ this.laporan.id_KoTA
+          } catch (error) {
+            console.error(error.message);
+          }
+        });
+
+        // Get Data Kaprodi
         const responseKaprodi = await axios.get('http://localhost:3000/api/prodi/'+this.Anggota[0].id_prodi)
         this.kaprodiData = responseKaprodi.data.data
-        console.log(this.kaprodiData)
 
         if (this.Anggota[0].id_prodi === 'PRD001'){
-          this.Prodi = 'D4'
+            this.Prodi = 'D4'
         }else if (this.Anggota[0].id_prodi === 'PRD002'){
-          this.Prodi = 'D3'
+            this.Prodi = 'D3'
         }
 
         const DataKaprodi = await axios.get('http://localhost:3000/api/dosen/'+ this.kaprodiData.NIP,)
-        console.log(DataKaprodi.data.data)
-        this.Kaprodi = DataKaprodi.data.data
+        this.Kaprodi = DataKaprodi.data.data    
 
-
+        // Get Data Kajur
         const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
-        this.Kajur = responseKajur.data.data[0]
-
+        this.Kajur = responseKajur.data.data[0]    
         const DataKajur = await axios.get('http://localhost:3000/api/dosen/'+ this.Kajur.NIP,)
-        console.log(DataKajur.data.data)
         this.Kajur = DataKajur.data.data
 
+        // Get TTD image Kajur n Kaprodi
+        try {
+          this.Kaprodi.img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Kaprodi.NIP +'/Kaprodi/'+ this.laporan.id_KoTA
+          this.Kajur.img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Kajur.NIP +'/Kajur/'+ this.laporan.id_KoTA
+        } catch (error) {
+          console.error(error.message.request);
+        }
+
         this.convertDateDisetujui()
+        this.convertDateDibuat()
         this.convertDateDisidangkan()
+
+        const responsePDF = await axios.get('http://localhost:3000/api/lembarpengesahan/'+ this.laporan.id_laporan,{responseType:'blob'})
+        this.pdfUrl = URL.createObjectURL(responsePDF.data);
+        this.showPdf();
 
       } catch (error) {
         console.error(error.message);
       }
     },
 
+    showPdf() {
+      const pdfContainer = document.getElementById('pdfContainer');
+      PDFObject.embed(this.pdfUrl, pdfContainer, {
+        pdfOpenParams: {
+          navpanes: 0,
+          toolbar: 0,
+          statusbar: 1,
+          zoom:70,
+        },
+        callback: this.customizePdfToolbar,
+        width: '100%',
+        height: 'calc(100vh - 100px)', // Mengurangi tinggi toolbar Vuetify
+      });
+    },
+    
     convertDateDisetujui() {
       const date = new Date(this.laporan.tgl_disetujui);
       const year = date.toISOString().substring(0, 4);
@@ -286,7 +549,7 @@ export default {
       this.laporan.tgl_disetujui = year + '-' + month + '-' + day;
       const parsedDate = parseISO(this.laporan.tgl_disetujui);
       const formatted = format(parsedDate, 'd MMMM yyyy', { locale: idLocale });
-      this.laporan.tgl_disetujui = formatted
+      this.tanggal_disetujui = formatted
      
     },
 
@@ -298,8 +561,60 @@ export default {
       this.laporan.tgl_disidangkan = year + '-' + month + '-' + day;
       const parsedDate = parseISO(this.laporan.tgl_disidangkan);
       const formatted = format(parsedDate, 'd MMMM yyyy', { locale: idLocale });
-      this.laporan.tgl_disidangkan = formatted
+      this.tanggal_disidangkan = formatted
      
+    },
+
+    convertDateDibuat() {
+      if (this.tanggal_TTD){
+        const dateAsli = new Date(this.tanggal_TTD);
+        const durasi = 7 * 60 * 60 * 1000;
+        let date = new Date(dateAsli.getTime() + durasi);
+        const year = date.toISOString().substring(0, 4);
+        const month = date.toISOString().substring(5, 7);
+        const day = date.toISOString().substring(8, 10);
+        const hours = date.toISOString().substring(11, 13);
+        const minute = date.toISOString().substring(14, 16);
+        const second = date.toISOString().substring(17, 19);
+        return this.tanggal_TTD = year + '-' + month + '-' + day + ' ' + hours + ':' + minute + ':' + second;
+      }
+      else {
+        return ''
+      }
+    },
+
+    async save() {
+      // 
+      await axios({
+          method:'put',
+          url: 'http://localhost:3000/api/laporan/'+ this.kota.id_KoTA,
+          data: this.laporan
+        })
+        .then(response => {
+        
+          console.log(response.data)
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Perubahan data Dokumen Laporan TA berhasil disimpan";
+
+          // Convert Tanggal di lembar Pengesahan
+          this.tanggal_disetujui = parseISO(this.laporan.tgl_disetujui);
+          this.tanggal_disetujui = format(this.tanggal_disetujui, 'd MMMM yyyy', { locale: idLocale });
+
+          this.tanggal_disidangkan = parseISO(this.laporan.tgl_disidangkan);
+          this.tanggal_disidangkan = format(this.tanggal_disidangkan, 'd MMMM yyyy', { locale: idLocale });
+          this.generatePDF()
+  
+        })
+        .catch(error => {
+            console.log(error.request.response)
+            this.MessageError = error.request.response
+            if (this.MessageError.includes('email')){
+              this.snackbar.show = true;
+              this.snackbar.color = "error";
+              this.snackbar.message = "Email Sudah Terdaftar!!!";
+            }
+        })   
     },
 
     generatePDF() {
@@ -308,74 +623,107 @@ export default {
       const htmlContent = document.getElementById('pdf-content');
       const htmlContentHal2 = document.getElementById('pdf-hal2');
 
-      // const img = new Image()
-      // img.src = '../assets/logo-polban-81.png'
-      
-      // var img = new Image();
-      // img.src = path.resolve('./assets/logo-polban-81.png');
-
-      // const srcImg = "../assets/logo-polban-81.png";
-
-      // const width = doc.internal.pageSize.getWidth();
-      // const height = doc.internal.pageSize.getHeight();
-
-      // doc.addImage(srcImg, 'PNG', 0, 0, width, height)
-
       doc.html(htmlContentHal2, {
-        callback: () => {
-          // doc.addImage(img, 'png', 0, 0, width, height)
+      callback: () => {
           doc.insertPage(1);
           doc.html(htmlContent, {
-            callback: () => {
-              doc.save('report.pdf');
-            },
-            x: 0, // Mengatur margin kiri (4 cm = 0 pt)
-            y: 0, // Mengatur margin atas (4 cm = 0 pt)
-          });
-        },
-        x: 0, // Mengatur margin kiri (4 cm = 0 pt)
-        y: 0, // Mengatur margin atas (4 cm = 0 pt)
-      });
+          callback: async () => {
+              const blob = doc.output('blob')
+              
+              const formData = new FormData()
 
+              formData.append('lembar_pengesahan',blob)
+
+              await axios.put('http://localhost:3000/api/lembarpengesahan/'+ this.laporan.id_laporan, formData, {
+                headers : {
+                  'Content-Type' : 'multipart/form-data'
+                }
+              })
+                .then(response => {
+                  console.log(response.data);
+                  this.validasiDokumen = !this.validasiDokumen;
+                  this.file = null
+                  this.snackbar.show = true;
+                  this.snackbar.color = "primary";
+                  this.snackbar.message = "Lembar Pengesahan berhasil dibuat";
+                })
+                .catch(error => {
+                  console.log(error.message);
+                  this.validasiDokumen = !this.validasiDokumen;
+                  this.file = null
+                  this.snackbar.show = true;
+                  this.snackbar.color = "error";
+                  this.snackbar.message = "Lembar Pengesahan gagal dibuat";
+                });
+                this.initialize()
+              // doc.save('report.pdf');
+          },
+          x: 0, // Mengatur margin kiri (4 cm = 0 pt)
+          y: 0, // Mengatur margin atas (4 cm = 0 pt)
+          });
+      },
+      x: 0, // Mengatur margin kiri (4 cm = 0 pt)
+      y: 0, // Mengatur margin atas (4 cm = 0 pt)
+      });
     },
   },
 };
 </script>
 
 <style scoped>
-.background-image {
-  position: absolute;
-  top: 0;
-  width: 80%;
-  height: 500pt;
-  margin-left: 12%;
-  z-index: -1;
-}
-.columnName{
-  width: 70%;
-  display: inline-block;
-}
 
-.text-size{
-  font-size: 11px;
-}
+  .custom-card {
+    width: 97%;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 5px;
+    margin-bottom: 2%;
+  }
+  .signature-page {
+    padding: 20px;
+  }
+  .background-image {
+    position: absolute;
+    top: 0;
+    width: 80%;
+    height: 500pt;
+    margin-left: 12%;
+    z-index: -1;
+    }
+  .columnName{
+    width: 70%;
+    display: inline-block;
+  }
+  
+  .text-size{
+    font-size: 11px;
+  }
+  
+  .columnNIM{
+    float: left;
+  }
+  
+  .column {
+    background-color: red;
+    margin-left: auto;
+    margin-right: auto;
+    float: left;
+    width: 30%;
+  }
+  
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
 
-.columnNIM{
-  float: left;
-}
+  .theme--light.v-sheet{
+    color: #1a5f7a;
+  }
 
-.column {
-  background-color: red;
-  margin-left: auto;
-  margin-right: auto;
-  float: left;
-  width: 30%;
-}
-
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
+  .theme--light.v-card .v-card__text{
+    color: #1a5f7a;
+  }
+  
 </style>

@@ -82,7 +82,7 @@ module.exports = {
                 exclude: ['createdAt', 'updatedAt','id']
             },
             order: [
-                ['NIM', 'ASC']
+                ['isKetua', 'DESC']
             ]
         })
         

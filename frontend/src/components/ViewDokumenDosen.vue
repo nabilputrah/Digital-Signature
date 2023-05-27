@@ -36,7 +36,6 @@
                   <span 
                   style="font-size:1rem;"
                   >Judul Tugas Akhir</span>
-                  <v-text-field__details></v-text-field__details>
                 </div>
               </v-col>
               <v-col cols="8" >
@@ -60,7 +59,6 @@
                   <span 
                   style="font-size:1rem;"
                   >Tanggal Disetujui</span>
-                  <v-text-field__details></v-text-field__details>
                 </div>
               </v-col>
               <v-col cols="8" >
@@ -69,6 +67,7 @@
                   placeholder="Tanggal Disetujui"
                   dense
                   outlined
+                  hide-details
                   disabled
                   readonly
                   append-icon="mdi-calendar"
@@ -84,7 +83,6 @@
                   <span 
                   style="font-size:1rem;"
                   >Tanggal Disidangkan</span>
-                  <v-text-field__details></v-text-field__details>
                 </div>
               </v-col>
               <v-col cols="8" >
@@ -93,6 +91,7 @@
                   placeholder="Tanggal Disidangkan"
                   dense
                   outlined
+                  hide-details
                   disabled
                   readonly
                   append-icon="mdi-calendar"

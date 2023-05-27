@@ -6,7 +6,7 @@
       <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
       <v-breadcrumbs-item 
       :disabled="true"
-      to="/KoTA/dokumen_laporan">
+      to="/KoTA/dokumen_detail">
         <span>Dokumen Laporan TA</span>
       </v-breadcrumbs-item>
     </v-breadcrumbs>
@@ -30,21 +30,16 @@
                 </div>
               </v-col>
               <v-col cols="8" >
-                <!-- <v-text-field 
-                v-model="judul_tugas_akhir"
-                :rules="rules"
-                placeholder="Judul Tugas Akhir"
-                dense
-                outlined
-                ></v-text-field> -->
-
-                <vue-editor
-                v-model="laporan.judul_TA"
-                :rules="rules"
-                :editorToolbar="customToolbar"
-                placeholder="Judul Tugas Akhir"
-                ></vue-editor>
-  
+                <v-textarea
+                  dense
+                  readonly
+                  outlined
+                  disabled
+                  rows="1"
+                  hide-details
+                  auto-grow
+                  :value="Judul_Tugas_Akhir"
+                ></v-textarea>
               </v-col>
             </v-row>
             <!-- End Form Judul Tugas Akhir -->
@@ -58,47 +53,17 @@
                 </div>
               </v-col>
               <v-col cols="8" >
-                <v-dialog
-                  ref="dialog"
-                  v-model="menu_disetujui"
-                  persistent
-                  width="290px"
+                <v-text-field
+                  v-model="laporan.tgl_disetujui"
+                  placeholder="Tanggal Disetujui"
+                  dense
+                  outlined
+                  hide-details
+                  disabled
+                  readonly
+                  append-icon="mdi-calendar"
                 >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="laporan.tgl_disetujui"
-                      placeholder="Tanggal Disetujui"
-                      dense
-                      outlined
-                      :rules = "rules"
-                      clearable
-                      readonly
-                      append-icon="mdi-calendar"
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="laporan.tgl_disetujui"
-                    scrollable
-                  >
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="menu_disetujui = false"
-                    >
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="menu_disetujui = false"
-                    >
-                      OK
-                    </v-btn>
-                  </v-date-picker>
-                </v-dialog>
+              </v-text-field>
               </v-col>
             </v-row>
             <!-- End Form Tanggal Disetujui -->
@@ -112,54 +77,23 @@
                 </div>
               </v-col>
               <v-col cols="8" >
-                <v-dialog
-                  ref="dialog"
-                  v-model="menu_disidangkan"
-                  persistent
-                  width="290px"
+                <v-text-field
+                  v-model="laporan.tgl_disidangkan"
+                  placeholder="Tanggal Disidangkan"
+                  dense
+                  outlined
+                  hide-details
+                  disabled
+                  readonly
+                  append-icon="mdi-calendar"
                 >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="laporan.tgl_disidangkan"
-                      placeholder="Tanggal Disidangkan"
-                      dense
-                      outlined
-                      :rules = "rules"
-                      clearable
-                      readonly
-                      append-icon="mdi-calendar"
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="laporan.tgl_disidangkan"
-                    scrollable
-                  >
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="menu_disidangkan = false"
-                    >
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="menu_disidangkan = false"
-                    >
-                      OK
-                    </v-btn>
-                  </v-date-picker>
-                </v-dialog>
+                </v-text-field>
               </v-col>
             </v-row>
             <!-- End Form Tanggal Disidangkan -->
-            <!-- Start Button Simpan Perubahan -->
             <v-row >
               <v-col class="text-right" >
-                <v-btn color="primary" @click="save">Simpan Perubahan</v-btn>
+                <v-btn color="primary" @click="toLembarPengesahan">Buat Lembar Pengesahan</v-btn>
               </v-col>
             </v-row>
             <!-- End Button Simpan Perubahan -->
@@ -416,11 +350,7 @@
 <script>
 import PDFObject from 'pdfobject';
 import axios from 'axios'
-import { VueEditor } from "vue2-editor";
 export default {
-  components: {
-    VueEditor
-  },
   data() {
     return {
 
@@ -433,7 +363,7 @@ export default {
       
       id_delete_dokumen :'',
       // Data Form Nama
-      judul_tugas_akhir : "",
+      Judul_Tugas_Akhir : "",
       customToolbar: [
         [ "italic"],
         [ { align: "center" }]
@@ -618,31 +548,8 @@ export default {
       this.snackbar.message = "Dokumen Laporan TA berhasil diunduh";
     },
 
-    async save() {
-      // 
-      await axios({
-          method:'put',
-          url: 'http://localhost:3000/api/laporan/'+ this.kota.id_KoTA,
-          data: this.laporan
-        })
-        .then(response => {
-        
-          console.log(response.data)
-          this.snackbar.show = true;
-          this.snackbar.color = "primary";
-          this.snackbar.message = "Perubahan data Dokumen Laporan TA berhasil disimpan";
-          this.initialize()
-  
-        })
-        .catch(error => {
-            console.log(error.request.response)
-            this.MessageError = error.request.response
-            if (this.MessageError.includes('email')){
-              this.snackbar.show = true;
-              this.snackbar.color = "error";
-              this.snackbar.message = "Email Sudah Terdaftar!!!";
-            }
-        })   
+    async toLembarPengesahan() {
+      this.$router.push(`/KoTA/dokumen_detail/lembar_pengesahan`);   
     },
 
    
@@ -660,6 +567,10 @@ export default {
 
         const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +id_kota)
         this.laporan = responseListLaporan.data.data
+
+        const tempElement = document.createElement('div');
+        tempElement.innerHTML = this.laporan.judul_TA;
+        this.Judul_Tugas_Akhir = tempElement.innerText;
 
        const responseListDokumen = await axios.get('http://localhost:3000/api/dokumenlaporan/'+this.laporan.id_laporan)
        const list = responseListDokumen.data.data
