@@ -378,7 +378,7 @@
     </div>
 </template>
         
-  <script>
+<script>
   import jsPDF from 'jspdf';
   import PDFObject from 'pdfobject';
   import { format, parseISO } from 'date-fns';
@@ -838,9 +838,9 @@
 
     },
   };
-  </script>
+</script>
   
-  <style scoped>
+<style scoped>
 
   .custom-card {
     width: 97%;
@@ -938,5 +938,5 @@
     margin-left: 10px;
   }
   
-  </style>
+</style>
   

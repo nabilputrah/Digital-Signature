@@ -34,26 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    NIP: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      validate: {
-        isUnique: async function (value) {
-          const prodi = await Prodi.findOne({
-             where: {
-               NIP: value 
-              },
-              attributes: {
-                exclude:['id']
-              } 
-            });
-          if (prodi) {
-            throw new Error('NIP must be unique');
-          }
-        },
-      },
-    },
+    NIP:DataTypes.STRING,
     nama_prodi: DataTypes.STRING,
   }, {
     sequelize,

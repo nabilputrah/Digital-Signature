@@ -16,7 +16,7 @@ module.exports = {
         },
         onDelete:'cascade',
         onUpdate:'cascade',
-        allowNull:false
+        allowNull:true
       },
       nama_jurusan: {
         type: Sequelize.STRING,

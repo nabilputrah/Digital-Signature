@@ -117,7 +117,7 @@ const routes = [
     },
   },
   {
-    path: '/KoTA/lembar_pengesahan',
+    path: '/KoTA/dokumen_detail/lembar_pengesahan',
     name: 'lembarPengesahan',
     component: LembarPengesahan,
     meta: {
