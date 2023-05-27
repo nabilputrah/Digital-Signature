@@ -153,6 +153,7 @@ router.put('/api/user/change-password/:id',userController.changeUserPassword)
 router.get('/api/dosen', dosenController.getAllDosen)
 router.post('/api/dosen', dosenController.addDosen)
 router.get('/api/dosen/:id', dosenController.getDosenByNIP)
+router.get('/api/checkkajurkaprodi', dosenController.checkIsExistKaprodiKajur)
 router.put('/api/dosen/:id',dosenController.updateDosen)
 router.delete('/api/dosen/:id', dosenController.deleteDosen);
 router.post('/api/dosenimport/', dosenController.importAllDosenWithUser)
