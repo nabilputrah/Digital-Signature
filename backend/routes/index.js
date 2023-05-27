@@ -244,6 +244,7 @@ router.post('/api/sharekey', secretController.createShareKey)
 router.post('/api/getonesharekey', secretController.getOneShareKey)
 router.put('/api/secret/:id',secretController.updateSecretKey)
 router.delete('/api/secret/:id', secretController.deleteSecretKey)
+router.delete('/api/secretidlaporan/:id', secretController.deleteSecretKeyByIDLaporan)
 router.post('/api/secret/sendemail/', secretController.sendShareKeyToDosen)
 
 /* Endpoint Dokumen Controller*/

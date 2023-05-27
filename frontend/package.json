@@ -26,8 +26,9 @@
     "vuetify": "^2.6.15"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.16",
+    "@babel/core": "^7.22.1",
     "@babel/eslint-parser": "^7.12.16",
+    "@babel/preset-env": "^7.22.2",
     "@mdi/font": "^7.2.96",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
@@ -51,7 +52,8 @@
       "eslint:recommended"
     ],
     "parserOptions": {
-      "parser": "@babel/eslint-parser"
+      "parser": "@babel/eslint-parser",
+      "requireConfigFile": false
     },
     "rules": {}
   },
