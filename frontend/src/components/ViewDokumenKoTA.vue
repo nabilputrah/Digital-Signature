@@ -128,6 +128,13 @@
             <v-spacer></v-spacer>
             <v-btn
               color="primary"
+              @click="GenerateDigitalSignature"
+              style="margin-top: auto;margin-bottom: auto; margin-right: 1%;" 
+            >
+              Generate Digital Signature
+            </v-btn>
+            <v-btn
+              color="primary"
               @click="add_Dokumen"
               style="margin-top: auto;margin-bottom: auto;" 
             >
@@ -443,6 +450,70 @@ export default {
   },
 
   methods: {
+
+    shouldShowSignatureIcon(item, Laporan) {
+      // Ambil semua tanggal dibuat yang tidak memiliki kata "Final"
+      const allCreatedDates = Laporan
+        .filter((laporan) => !laporan.ID_laporan.includes('Final'))
+        .map((laporan) => new Date(laporan.tanggal_dibuat));
+
+      // Cari tanggal dibuat yang paling baru
+      const latestCreatedAt = new Date(Math.max.apply(null, allCreatedDates));
+
+      // Tampilkan icon tanda tangan jika tanggal dibuat item paling baru
+      return new Date(item.tanggal_dibuat).getTime() === latestCreatedAt.getTime();
+    },
+
+    async GenerateDigitalSignature(){
+
+      // Get Lembar Pengesahan
+      const responsePDF = await axios.get('http://localhost:3000/api/lembarpengesahan/'+ this.laporan.id_laporan,{responseType:'blob'})
+      const lembarPengesahan = responsePDF;
+      console.log(lembarPengesahan)
+
+      const allCreatedDates = this.Laporan
+        .filter((laporan) => !laporan.ID_laporan.includes('Final'))
+        .map((laporan) => ({
+          tanggal_dibuat : new Date(laporan.tanggal_dibuat),
+          id_laporan : laporan.ID_laporan
+        }));
+
+      const Total_dokumen = allCreatedDates.length - 1
+      const Laporan_Final = allCreatedDates[Total_dokumen].id_laporan
+
+      const responseLaporan = await axios.get('http://localhost:3000/api/dokumen/'+ Laporan_Final,{responseType:'blob'})
+      const laporanFinal = responseLaporan;
+      
+      console.log(laporanFinal)
+      
+      const formData = new FormData();
+      formData.append('cover', laporanFinal.data);
+      formData.append('content', lembarPengesahan.data)
+      formData.append('id_laporan', this.laporan.id_laporan)
+      formData.append('id_dokumen', this.laporan.id_laporan + '_Final')
+      formData.append('version', 'Final')
+
+      await axios.post('http://localhost:3000/api/dokumen/merge/', formData, {
+        headers : {
+          'Content-Type' : 'multipart/form-data'
+        }
+      })
+        .then(response => {
+          console.log(response.data);
+          this.file = null
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Dokumen Digital Signature Berhasil di Generate";
+        })
+        .catch(error => {
+          console.log(error.message);
+          this.file = null
+          this.snackbar.show = true;
+          this.snackbar.color = "error";
+          this.snackbar.message = "Dokumen Digital Signature gagal di Generate";
+        });
+      
+    },
 
     async add_Dokumen_succes(){
       if (!this.file) {
