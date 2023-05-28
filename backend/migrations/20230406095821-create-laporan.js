@@ -27,8 +27,7 @@ module.exports = {
        
       },
       digital_signature: {
-        type: Sequelize.TEXT,
-        unique: true
+        type: Sequelize.BLOB,
       },
       tgl_disetujui: {
         type: Sequelize.DATE

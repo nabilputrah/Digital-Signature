@@ -53,24 +53,8 @@ module.exports = {
         doc.removePage(3)
         doc.removePage(3)
 
-        doc.setTitle('Judul Dokumen PDF');
 
-        // Set Author
-        doc.setAuthor('Penulis Dokumen');
-
-        // Set Subject
-        doc.setSubject('Subjek Dokumen');
-
-      // // Get Share Key by id Laporan
-      // const allShareKey = await SecretKey.findAll({
-      //   where: {
-      //     id_laporan: id_laporan
-      //   },
-      //   attributes:{
-      //     exclude:['id','createdAt','updatedAt']
-      //   }
-      // })
-
+      // Query get sharekey dan combine menjadi private key
       const selectQuery = ` SELECT S."secret_key" FROM "Secret_Key" as S
                             WHERE S."id_laporan" = $1
                           `
@@ -84,12 +68,11 @@ module.exports = {
         return item.secret_key.toString('hex');
       });
 
-
       const recoveredPrivateKey = sss.combine(newArray.map(share => Buffer.from(share, 'hex')))
 
       const constructPrivateKey = recoveredPrivateKey.toString()
 
-
+      // Quesy Get Public Key
       const selectQueryPublicKey = ` SELECT L."public_key" FROM "Laporan" as L 
                                     WHERE L."id_laporan" = $1 
                                     `
@@ -99,8 +82,46 @@ module.exports = {
 
       const PublicKey = resultPublicKey.rows[0].public_key
 
+      // Get id KoTA
+      const id_KoTA = id_laporan.substring(8);;
+
+      // Proses Simpan Atribut ke pdf
+      // Set Judul TA
+      doc.setTitle('Judul Dokumen PDF');
+      // Set Author
+      doc.setAuthor(id_KoTA);
+      // Set Subject
+      doc.setSubject(PublicKey);
+
+
       const mergedBytes = await doc.save();
       const dokumenKu = Buffer.from(mergedBytes)
+
+      // Proses Encrypted Menggunakan PrivateKey
+      // Hashing dokumen
+      let HashDoc = ''
+      const hashSum = crypto.createHash('sha256');
+      HashDoc = hashSum.update(dokumenKu).digest('hex');  
+
+      // Encrypt Menjadi Digital Signature
+      const digitalSignature = crypto.privateEncrypt(recoveredPrivateKey,HashDoc)
+
+      await Laporan.update({
+        digital_signature : digitalSignature
+        },{
+          where:{
+            id_laporan: id_laporan
+          }
+        }
+      )
+      
+      // Decrypt untuk Validasi
+      // Decrypt untuk Validasi
+      // Decrypt untuk Validasi
+      // const decrypted = crypto.publicDecrypt(PublicKey,digitalSignature)
+      // console.log('ini nilai hash  =' + HashDoc)
+      // console.log('ini data decrypted: ' + decrypted.toString())
+
 
       const options = {
         fields: ['id_dokumen','id_laporan','dokumen_laporan', 'version', 'tgl_unggah'],
@@ -125,8 +146,10 @@ module.exports = {
         message:'add dokumen sukses',
         data: dokumen,
         file:mergedBytes,
-        sharekey:constructPrivateKey,
-        publicKey: PublicKey
+        // sharekey:constructPrivateKey,
+        // publicKey: PublicKey,
+        digitalSignature :digitalSignature
+        // result :Hasil
       })
       
     } catch (error) {
