@@ -223,6 +223,7 @@ router.delete('/api/relasi/:id', relasiController.deleteRelasiKoTA)
 router.post('/api/relasi/doSignature/', relasiController.doSignatureDosen)
 router.get('/api/relasi/gambarttd/:NIP/:role/:id_KoTA', relasiController.getGambarTTDRelasi)
 router.get('/api/relasi/accessttd/:role/:id_KoTA', relasiController.getAccessTTD)
+router.delete('/api/relasi/deletettd/:id', relasiController.deleteImageTTDRelasiKoTA)
 
 /* Endpoint Laporan Controller*/
 router.get('/api/laporan', laporanController.getAllLaporan)
