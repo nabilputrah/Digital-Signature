@@ -58,24 +58,7 @@ module.exports = (sequelize, DataTypes) => {
     lembar_pengesahan: DataTypes.BLOB,
 
     digital_signature: {
-      type: DataTypes.TEXT,
-    
-      unique: true,
-      validate: {
-        isUnique: async function (value) {
-          const laporan = await Laporan.findOne({
-             where: {
-               digital_signature: value 
-              },
-              attributes: {
-                exclude:['id']
-              } 
-            });
-          if (laporan) {
-            throw new Error('Digital Signature must be unique');
-          }
-        },
-      },
+      type: DataTypes.BLOB,
     },
     tgl_disetujui: DataTypes.DATE,
     tgl_disidangkan: DataTypes.DATE,
