@@ -687,7 +687,7 @@ module.exports = {
 
       if (!user) {
         return res.status(404).send({
-          message: 'data user tidak ditemkan'
+          message: 'data user tidak ditemukan'
         })
       }
       // Kalo rolenya dosen
@@ -761,7 +761,7 @@ module.exports = {
 
         if(result.rows.length === 0) {
           return res.status(404).send({
-            message:'email dan username yang diinputkan tidak sinkron'
+            message:'email dan username KoTA yang diinputkan tidak sinkron'
           })
         }
 

@@ -212,7 +212,7 @@
           <div class="signature-page">
                 <h2>Detail Laporan</h2>
                 <br>
-                <form @submit.prevent="addSignature">
+                <v-form v-model="inputValid">
                   <v-row>
                     <v-col>
                       <span 
@@ -230,7 +230,7 @@
                     <v-col>
                       <span 
                         style="font-size:1rem;"
-                      >Tanggal Disidangkan</span>
+                      >Tanggal Disetujui</span>
                       <v-dialog
                         ref="dialog"
                         v-model="menu_disetujui"
@@ -324,10 +324,10 @@
                   </v-row>
                   <v-row >
                     <v-col class="text-right" >
-                      <v-btn color="primary" @click="save">Buat Lembar Pengesahan</v-btn>
+                      <v-btn color="primary" :disabled="!inputValid" @click="save">Buat Lembar Pengesahan</v-btn>
                     </v-col>
                   </v-row> 
-                </form>
+                </v-form>
           </div>
         </v-card>
       </v-col>
@@ -404,6 +404,7 @@ export default {
         [ "italic"],
         [ { align: "center" }]
       ],
+      inputValid:false,
       rules: [
         value => !!value || 'Required.',
         // value => (value && value.length >= 3) || 'Min 3 characters',
