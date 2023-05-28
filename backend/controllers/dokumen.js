@@ -3,6 +3,7 @@ const db = require('../db/index')
 const { Op } = require('sequelize');
 const { degrees, PDFDocument, rgb, StandardFonts } = require('pdf-lib')
 const fs = require('fs')
+const cheerio = require('cheerio');
 
 const path = require('path');
 const Laporan = require('../models').Laporan;
@@ -85,9 +86,21 @@ module.exports = {
       // Get id KoTA
       const id_KoTA = id_laporan.substring(8);;
 
+      const selectQueryJudul = `SELECT L."judul_TA" FROM "Laporan" as L 
+                                  WHERE L."id_laporan" = $1`
+
+      const paramsQueryJudul = [id_laporan]
+
+      const resultJudul = await db.query(selectQueryJudul, paramsQueryJudul)
+
+      const judul_TA = resultJudul.rows[0].judul_TA
+
+      const $ = cheerio.load(judul_TA);
+      const JudulTA = $.root().text();
+
       // Proses Simpan Atribut ke pdf
       // Set Judul TA
-      doc.setTitle('Judul Dokumen PDF');
+      doc.setTitle(JudulTA);
       // Set Author
       doc.setAuthor(id_KoTA);
       // Set Subject

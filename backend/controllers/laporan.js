@@ -164,102 +164,57 @@ module.exports = {
     }
   },
 
-//   async updateLaporan(req, res) {
-//     const { id } = req.params
-//     const { id_KoTA, NIP, role, urutan} = req.body
 
-//     try {
-//       const laporan = await Laporan.findOne({
-//         where: {
-//           id_laporan : id
-//         },
-//         attributes: {
-//           exclude:['id']
-//         }
-//       })
+  async getStatusKajur(req, res){
+    const {  id } = req.params;
 
-//       if (!laporan) {
-//         return res.status(404).send({
-//           message:'Data laporan tidak ditemukan'
-//         })
-//       }
-
-//       const updateQuery = `UPDATE "Laporan" SET "id_KoTA" = $1, "NIP" = $2, "role"=$3,
-//                            "urutan"=$4, "isKetua"=$5 
-//                            WHERE "id_laporan"= $6 RETURNING *`
-
-//       const paramsQuery = [ id_KoTA, NIP, role, urutan, id]
-
-//       const result = await db.query(updateQuery, paramsQuery)
-
-//       if (Object.keys(result).length > 0) {
-//         return res.status(200).send({
-//           message: `Update data laporan dengan id laporan ${id} berhasil`,
-//           data: result.rows
-//         })
-//       } 
-//     } catch (error) {
-//       return res.status(400).send({
-//         message: error.message
-//       })
-//     }
-//   },
-  
-//   async doSignature(req, res) {
-//     const { id } = req.params
-//     const { img_ttd } = req.files
-
-//     const now = moment();
-
-//     // const formattedDate = now.format('YYYY-MM-DD');
-//     // // Format time for file
-//     // const formattedTime = now.format('HHmmss');
-//     // // Format time for saving to database
-//     // const formattedTimeFull = now.format('HH:mm:ss');
-    
-//     // const fullDatetime = formattedDate + " " + formattedTimeFull
-
-//     try {
-//       const laporan = await Laporan.findOne({
-//         where: {
-//           id_laporan: id
-//         },
-//         attributes:{
-//           exclude:['createdAt','updatedAt']
-//         }
-//       })
-
-//       if (!laporan) {
-//         return res.status(404).send({
-//           message:'Data relasi kota tidak ditemukan'
-//         })
-//       }
-
-//       const imagePath = formattedDate + "-" + formattedTime + '-' + img_ttd.name
-
-//       const updateQuery = `UPDATE "Laporan" SET "status" = true, "img_ttd" = $1, "tgl_ttd"=$2
-//                            WHERE "id_laporan"= $3 RETURNING *`
-
-//       const paramsQuery = [ imagePath, fullDatetime, id ]
-
-//       const result = await db.query(updateQuery, paramsQuery)
-
-//       if (Object.keys(result).length > 0) {
-      
-//         img_ttd.mv(path.resolve('./uploads/img_ttd/', formattedDate + '-' + formattedTime + '-' + img_ttd.name))
-        
-//         return res.status(200).send({
-//           message: `Do signature berhasil`,
-//           data: result.rows
-//         })
-//       } 
-
-//     } catch (error) {
-//       return res.status(400).send({
-//         message:error.message
-//       })
-//     }
+    try {
+        const selectQuery = ` SELECT R."status" FROM "Relasi_KoTA" as R
+                              WHERE R."id_KoTA" = $1 AND 
+                              R."role" = 'Kajur'
+                              `
+        const paramsQuery = [id]
    
+        const resultQuery = await db.query(selectQuery, paramsQuery)
+
+        const statusTTDKajur = resultQuery.rows[0].status
+   
+        // Get Status Laporan Final
+        const id_laporan = "Laporan_"+id
+        const selectQueryDocFinal = ` SELECT D."id_dokumen" FROM "Dokumen" as D
+                              WHERE D."id_laporan" = $1 
+                              AND D."id_dokumen" LIKE '%Final%'
+                              `
+        const paramsQueryDocFinal = [id_laporan]
+   
+        const resultQueryDocFinal = await db.query(selectQueryDocFinal, paramsQueryDocFinal)
+
+        let statusLaporan = true
+        if (resultQueryDocFinal.rows.length == 0){
+          statusLaporan = false
+        }
+
+        if ((statusLaporan == false) && (statusTTDKajur == true)){
+          return res.status(200).send({
+                data: false,
+                statusTTDKajur : statusTTDKajur,
+                statusLaporan : statusLaporan
+          })
+        } else {
+          return res.status(200).send({
+                data: true,
+                statusTTDKajur : statusTTDKajur,
+                statusLaporan : statusLaporan
+          })
+        }
+
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
+
 //   },
   async deleteLaporan(req, res) {
     const { id } = req.params

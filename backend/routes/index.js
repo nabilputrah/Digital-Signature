@@ -235,6 +235,7 @@ router.put('/api/laporan/:id',laporanController.updateLaporan)
 router.put('/api/laporanidkota/:id',laporanController.updateIdKoTALaporan)
 router.put('/api/lembarpengesahan/:id',laporanController.updateLembarPengesahan)
 router.delete('/api/laporan/:id', laporanController.deleteLaporan)
+router.get('/api/getstatuskajur/:id', laporanController.getStatusKajur)
 // router.put('/api/laporan/doSignature/:id', laporanController.doSignature)
 
 /* Endpoint Prodi Controller*/

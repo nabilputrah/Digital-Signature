@@ -129,6 +129,7 @@
             <v-btn
               color="primary"
               @click="GenerateDigitalSignature"
+              :disabled="StatusKajur"
               style="margin-top: auto;margin-bottom: auto; margin-right: 1%;" 
             >
               Generate Digital Signature
@@ -361,7 +362,7 @@ import axios from 'axios'
 export default {
   data() {
     return {
-
+      StatusKajur:true,
       dataFromToken: '',
       kota: '',
       laporan: {
@@ -512,7 +513,7 @@ export default {
           this.snackbar.color = "error";
           this.snackbar.message = "Dokumen Digital Signature gagal di Generate";
         });
-      
+      this.initialize()
     },
 
     async add_Dokumen_succes(){
@@ -644,14 +645,14 @@ export default {
         tempElement.innerHTML = this.laporan.judul_TA;
         this.Judul_Tugas_Akhir = tempElement.innerText;
 
-       const responseListDokumen = await axios.get('http://localhost:3000/api/dokumenlaporan/'+this.laporan.id_laporan)
-       const list = responseListDokumen.data.data
+        const responseListDokumen = await axios.get('http://localhost:3000/api/dokumenlaporan/'+this.laporan.id_laporan)
+        const list = responseListDokumen.data.data
 
-      this.Laporan = list.map((item) =>({
-        ID_laporan: item.id_dokumen,
-        tanggal_dibuat:this.convertDateDibuat(item.tgl_unggah),
-        dokumen: item.id_dokumen
-      }))
+        this.Laporan = list.map((item) =>({
+          ID_laporan: item.id_dokumen,
+          tanggal_dibuat:this.convertDateDibuat(item.tgl_unggah),
+          dokumen: item.id_dokumen
+        }))
 
         if (this.laporan.tgl_disidangkan){
             this.convertDateDisidangkan()
@@ -665,6 +666,15 @@ export default {
         else {
           this.laporan.tgl_disetujui = ''
         }
+
+        // Get Status TTD Kajur
+        const ResultStatusGenerate = await axios.get('http://localhost:3000/api/getstatuskajur/' + id_kota)
+        const StatusKajur = ResultStatusGenerate.data.data;
+        this.StatusKajur = StatusKajur
+        console.log(ResultStatusGenerate.data)
+
+        // this.StatusKajur = false
+
 
       } catch (error) {
         console.error(error.message);
