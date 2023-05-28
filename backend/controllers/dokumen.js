@@ -27,9 +27,27 @@ module.exports = {
   
       const hex = hashSum2.digest('hex');
 
-      console.log(documentUploaded.getAuthor())
-      console.log(documentUploaded.getTitle())
-      console.log(documentUploaded.getSubject())
+      if (!documentUploaded.getAuthor()){
+        return res.status(200).send({
+          message : 'tidak ada id_kota',
+          valid : false
+        })
+      }
+
+      if (!documentUploaded.getTitle()){
+        return res.status(200).send({
+          message : 'tidak ada judul',
+          valid : false
+        })
+      }
+
+      if (!documentUploaded.getSubject()){
+        return res.status(200).send({
+          message : 'tidak ada public_key',
+          valid : false
+        })
+      }
+
       console.log("Hasil Hashing: " + hex)
 
       const selectQuery = ` SELECT L."digital_signature" FROM "Laporan" as L
@@ -42,20 +60,26 @@ module.exports = {
       const digital_signature = result.rows[0].digital_signature
       console.log("Digital Signature: " + digital_signature)
 
-      try {
-        const decrypted = crypto.publicDecrypt(documentUploaded.getSubject(),digital_signature)
-        console.log('ini data decrypted: ' + decrypted.toString())
-        if (hex == decrypted){
-          console.log('samaaaaaaaaaaaaaa')
-        } else{
-          console.log('GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
-        }
-      }catch(error){
-        console.log(error)
+      const decrypted = crypto.publicDecrypt(documentUploaded.getSubject(),digital_signature)
+      if (hex == decrypted){
+        return res.status(200).send({
+          message : 'dokumen valid',
+          id_KoTA : documentUploaded.getAuthor(),
+          judul : documentUploaded.getTitle(),
+          valid : true
+        })
+      } else{
+        return res.status(200).send({
+          message : 'dokumen tidak valid',
+          id_KoTA : documentUploaded.getAuthor(),
+          valid : false
+        })
       }
 
     } catch (error) {
-      console.log(error.message)
+      return res.status(400).send({
+        message : 'gagal',
+      })
     }
   },
 
