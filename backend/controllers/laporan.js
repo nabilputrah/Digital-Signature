@@ -164,6 +164,35 @@ module.exports = {
     }
   },
 
+  async getStatusCanTTD(req, res){
+    const {  id } = req.params;
+
+    try {   
+        // Get Status Laporan Final
+        const id_laporan = "Laporan_"+id
+        const selectQueryDocFinal = ` SELECT D."id_dokumen" FROM "Dokumen" as D
+                              WHERE D."id_laporan" = $1 
+                              AND D."id_dokumen" LIKE '%Final%'
+                              `
+        const paramsQueryDocFinal = [id_laporan]
+   
+        const resultQueryDocFinal = await db.query(selectQueryDocFinal, paramsQueryDocFinal)
+
+        let statusLaporan = true
+        if (resultQueryDocFinal.rows.length == 0){
+          statusLaporan = false
+        }
+
+        return res.status(200).send({
+          statusLaporan : statusLaporan
+        })
+
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+  },
 
   async getStatusKajur(req, res){
     const {  id } = req.params;

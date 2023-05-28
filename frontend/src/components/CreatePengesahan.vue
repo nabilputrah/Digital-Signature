@@ -352,6 +352,12 @@
     </template>
   </v-snackbar>
 
+  <!-- Start animasi loading section -->
+  <div v-if="isLoading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
+  <!-- End animasi loading section -->
+
   </div>
 </template>
       
@@ -420,6 +426,7 @@ export default {
           message: "",
           color: "",
       },
+      isLoading : false
     }),
 
   mounted () {
@@ -600,7 +607,7 @@ export default {
     },
 
     async save() {
-      // 
+      this.isLoading = true
       await axios({
           method:'put',
           url: 'http://localhost:3000/api/laporan/'+ this.kota.id_KoTA,
@@ -672,6 +679,7 @@ export default {
                   this.snackbar.message = "Lembar Pengesahan gagal dibuat";
                 });
                 this.initialize()
+                this.isLoading = false
               // doc.save('report.pdf');
           },
           x: 0, // Mengatur margin kiri (4 cm = 0 pt)
@@ -742,4 +750,37 @@ export default {
     color: #1a5f7a;
   }
   
+
+/* Animasi Loading */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #ffffff;
+  border-top-color: #1A5F7A;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 </style>

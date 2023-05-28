@@ -408,7 +408,13 @@ export default {
         const response = await axios.get(`http://localhost:3000/api/ceklembarpengesahan/Laporan_${this.$route.params.id}`)
         const message = response.data.message
 
-        console.log(message)
+        const responseFinal = await axios.get(`http://localhost:3000/api/getstatuscanTTD/${this.$route.params.id}`)
+        const messageFinal = responseFinal.data.statusLaporan
+
+        console.log(messageFinal)
+        if (messageFinal){
+          this.AksesTTD = true
+        }
         if (message === 'lembar pengesahaan tidak ada'){
           this.AksesTTD = true
         }
