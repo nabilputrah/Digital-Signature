@@ -5,6 +5,8 @@ const KoTA = require('../models').KoTA;
 const User = require('../models').User;
 const Mahasiswa = require('../models').Mahasiswa;
 const Laporan = require('../models').Laporan;
+const SecretKey = require('../models').Secret_Key;
+const Dokumen = require('../models').Dokumen;
 
 
 
@@ -228,6 +230,18 @@ module.exports = {
       await Laporan.destroy({
         where: {
           id_KoTA: id
+        }
+      })
+
+      await SecretKey.destroy({
+        where: {
+          id_laporan:'Laporan_' + id
+        }
+      })
+      
+      await Dokumen.destroy({
+        where: {
+          id_laporan:'Laporan_' + id
         }
       })
 
