@@ -375,7 +375,13 @@
       </template>
     </v-snackbar>
 
+    <!-- Start animasi loading section -->
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-spinner"></div>
     </div>
+    <!-- End animasi loading section -->
+    
+  </div>
 </template>
         
 <script>
@@ -458,6 +464,8 @@
             color: "",
         },
         
+        isLoading:false
+
       }),
   
     mounted () {
@@ -656,6 +664,7 @@
               this.validationError = "Mohon pilih file yang akan divalidasi.";
               return;
           }
+          this.isLoading = true
           // console.log(this.file)
           const formData = new FormData();
           formData.append('img_ttd', this.file);
@@ -792,6 +801,7 @@
                         this.snackbar.message = "Tanda Tangan gagal dibubuhkan";
                       });
                       this.initialize()
+                      this.isLoading = false
                     // doc.save('report.pdf');
                 },
                 x: 0, // Mengatur margin kiri (4 cm = 0 pt)
@@ -938,5 +948,37 @@
     margin-left: 10px;
   }
   
+/* Animasi Loading */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #ffffff;
+  border-top-color: #1A5F7A;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 </style>
   

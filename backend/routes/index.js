@@ -236,6 +236,7 @@ router.put('/api/laporanidkota/:id',laporanController.updateIdKoTALaporan)
 router.put('/api/lembarpengesahan/:id',laporanController.updateLembarPengesahan)
 router.delete('/api/laporan/:id', laporanController.deleteLaporan)
 router.get('/api/getstatuskajur/:id', laporanController.getStatusKajur)
+router.get('/api/getstatuscanTTD/:id', laporanController.getStatusCanTTD)
 // router.put('/api/laporan/doSignature/:id', laporanController.doSignature)
 
 /* Endpoint Prodi Controller*/
@@ -256,6 +257,6 @@ router.get('/api/dokumen/:id', dokumenController.getDokumenByID)
 router.delete('/api/dokumen/:id', dokumenController.deleteDokumen)
 router.get('/api/dokumenlaporan/:id/', dokumenController.getAllDokumenByIdLaporan)
 router.get('/api/dokumenversion/:id/', dokumenController.getDokumenVersionByKoTA)
-
 router.post('/api/dokumen/merge/', dokumenController.mergePDF)
+router.post('/api/dokumen/validate/', dokumenController.validateDocument)
 module.exports = router;

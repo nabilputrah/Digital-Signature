@@ -195,6 +195,12 @@
     </v-card>
     <!-- End Datatables -->
 
+    <!-- Start animasi loading section -->
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+    <!-- End animasi loading section -->
+
     <v-snackbar 
       v-model="snackbar.show" 
       :color="snackbar.color" 
@@ -212,6 +218,8 @@
         </v-btn>
       </template>
     </v-snackbar>
+
+
   </div>
 
 </template>
@@ -220,6 +228,7 @@
 import axios from 'axios'
   export default {
     data: () => ({
+      isLoading: false,
       loggedIn:'',
       navbar:'',
       search : '',
@@ -282,7 +291,6 @@ import axios from 'axios'
         },
       ],
       expandedItems: [],
-
 
     }),
 
@@ -387,6 +395,8 @@ import axios from 'axios'
       
       sendEmailConfirm () {
         console.log(this.sendEmailTo)
+        this.isLoading = true
+        console.log(this.isLoading)
         axios({
           method:'post',
           url: 'http://localhost:3000/api/mahasiswa/sendemail/'+ this.sendEmailTo,
@@ -400,12 +410,13 @@ import axios from 'axios'
         .catch(error => {
             console.log(error.request.response)
         })
-
+        this.isLoading = false
         this.closeEmail()
       },
 
       sendAllEmailConfirm () {
-
+        this.isLoading = true
+        console.log(this.isLoading)
         this.KoTA.forEach(async (item) => {
           // console.log(item.dokumen)
           axios({
@@ -422,6 +433,7 @@ import axios from 'axios'
         this.snackbar.show = true;
         this.snackbar.color = "primary";
         this.snackbar.message = "Email berhasil dikirimkan!";  
+        this.isLoading = false
         this.closeAllEmail()
       },
 
@@ -441,6 +453,37 @@ import axios from 'axios'
 
 <style scoped>
 
+/* Animasi Loading */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #ffffff;
+  border-top-color: #1A5F7A;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 .detail-container {
   margin: 1% 1%;
 }

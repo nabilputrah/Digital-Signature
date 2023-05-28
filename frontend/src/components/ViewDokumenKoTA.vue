@@ -137,6 +137,7 @@
             <v-btn
               color="primary"
               @click="add_Dokumen"
+              :disabled="canAddDoc"
               style="margin-top: auto;margin-bottom: auto;" 
             >
               + Tambah Dokumen
@@ -352,8 +353,14 @@
         </v-btn>
       </template>
     </v-snackbar>
-  </div>
+    <!-- Start animasi loading section -->
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+    <!-- End animasi loading section -->
+    
 
+  </div>
 </template>
 
 <script>
@@ -436,7 +443,8 @@ export default {
         message: "",
         color: "",
       },
-
+      canAddDoc: false,
+      isLoading: false
     }
   },
 
@@ -452,6 +460,17 @@ export default {
 
   methods: {
 
+    shouldShowAddDokumen(Laporan) {
+      // Ambil semua tanggal dibuat yang tidak memiliki kata "Final"
+      console.log(Laporan)
+      const allCreatedDates = Laporan
+        .filter((laporan) => laporan.ID_laporan.includes('Final'))
+      if (allCreatedDates.length === 1){
+        this.canAddDoc = true
+      }
+      console.log(this.canAddDoc)
+    },
+
     shouldShowSignatureIcon(item, Laporan) {
       // Ambil semua tanggal dibuat yang tidak memiliki kata "Final"
       const allCreatedDates = Laporan
@@ -466,7 +485,7 @@ export default {
     },
 
     async GenerateDigitalSignature(){
-
+      this.isLoading = true
       // Get Lembar Pengesahan
       const responsePDF = await axios.get('http://localhost:3000/api/lembarpengesahan/'+ this.laporan.id_laporan,{responseType:'blob'})
       const lembarPengesahan = responsePDF;
@@ -514,6 +533,7 @@ export default {
           this.snackbar.message = "Dokumen Digital Signature gagal di Generate";
         });
       this.initialize()
+      this.isLoading = false
     },
 
     async add_Dokumen_succes(){
@@ -521,7 +541,7 @@ export default {
         this.validationError = "Mohon pilih file yang akan divalidasi.";
         return;
       }
-
+      this.isLoading = true
       const response = await axios.get('http://localhost:3000/api/dokumenversion/'+ this.laporan.id_laporan)
       console.log(response.data.data)
       const version = response.data.data + 1
@@ -553,6 +573,7 @@ export default {
           this.snackbar.color = "error";
           this.snackbar.message = "Dokumen Laporan TA gagal ditambahkan";
         });
+        this.isLoading = false
         this.initialize()
     },
 
@@ -654,6 +675,8 @@ export default {
           dokumen: item.id_dokumen
         }))
 
+        this.shouldShowAddDokumen(this.Laporan)
+
         if (this.laporan.tgl_disidangkan){
             this.convertDateDisidangkan()
         }
@@ -679,39 +702,7 @@ export default {
       } catch (error) {
         console.error(error.message);
       }
-      // this.Laporan = [
-      //   {
-      //     "ID_laporan": 'Laporan_402_v1',
-      //     "tanggal_dibuat": '2023-05-04',
-      //     "dokumen" : 'LaporanTsA'
-      //   },
-      //   {
-      //     ID_laporan: 'Laporan_402_Final',
-      //     tanggal_dibuat: '2023-05-05',
-      //     dokumen : 'LaporanTA.pdf'
-      //   },
-      // ],
-      // this.Pengampu = [
-      //   {
-      //     dosen: 'Aprianti Nanda Sari, S.T., M.Kom.',
-      //     peran: 'Pembimbing',
-      //     urutan : 1,
-      //     status : true
-      //   },
-      //   {
-      //     dosen: 'Ghifari Munawar, S.Kom., M.T',
-      //     peran: 'Pembimbing',
-      //     urutan : 2,
-      //     status : true
-      //   },
-      //   {
-      //     dosen: 'Yadhi Adhitia P., S.T.',
-      //     peran: 'Ketua Jurusan',
-      //     urutan : '',
-      //     status : false
-      //   },
-      // ]
-    },
+   },
 
     convertDateDisetujui() {
       const date = new Date(this.laporan.tgl_disetujui);
@@ -911,4 +902,35 @@ export default {
   margin-left: 10px;
 }
 
+/* Animasi Loading */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #ffffff;
+  border-top-color: #1A5F7A;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 </style>

@@ -15,6 +15,74 @@ const crypto = require('crypto');
 
 module.exports = {
 
+  async validateDocument(req, res) {
+    const documentUploaded = await PDFDocument.load(req.files.cover.data)
+
+    try {
+
+      // const fileBuffer = fs.readFileSync('./pdf/Laporan_20224022023_Final (12).pdf');
+      const fileBuffer1 = req.files.cover.data
+      const hashSum2 = crypto.createHash('sha256');
+      hashSum2.update(fileBuffer1);
+  
+      const hex = hashSum2.digest('hex');
+
+      if (!documentUploaded.getAuthor()){
+        return res.status(200).send({
+          message : 'tidak ada id_kota',
+          valid : false
+        })
+      }
+
+      if (!documentUploaded.getTitle()){
+        return res.status(200).send({
+          message : 'tidak ada judul',
+          valid : false
+        })
+      }
+
+      if (!documentUploaded.getSubject()){
+        return res.status(200).send({
+          message : 'tidak ada public_key',
+          valid : false
+        })
+      }
+
+      console.log("Hasil Hashing: " + hex)
+
+      const selectQuery = ` SELECT L."digital_signature" FROM "Laporan" as L
+                            WHERE L."id_KoTA" = $1
+                          `
+      const paramsQuery = [documentUploaded.getAuthor()]
+
+      const result = await db.query(selectQuery,paramsQuery)
+
+      const digital_signature = result.rows[0].digital_signature
+      console.log("Digital Signature: " + digital_signature)
+
+      const decrypted = crypto.publicDecrypt(documentUploaded.getSubject(),digital_signature)
+      if (hex == decrypted){
+        return res.status(200).send({
+          message : 'dokumen valid',
+          id_KoTA : documentUploaded.getAuthor(),
+          judul : documentUploaded.getTitle(),
+          valid : true
+        })
+      } else{
+        return res.status(200).send({
+          message : 'dokumen tidak valid',
+          id_KoTA : documentUploaded.getAuthor(),
+          valid : false
+        })
+      }
+
+    } catch (error) {
+      return res.status(400).send({
+        message : 'gagal',
+      })
+    }
+  },
+
   async mergePDF(req, res) {
     const moment = require('moment-timezone');
     moment.tz.setDefault('Asia/Jakarta');
@@ -74,7 +142,7 @@ module.exports = {
       const constructPrivateKey = recoveredPrivateKey.toString()
 
       // Quesy Get Public Key
-      const selectQueryPublicKey = ` SELECT L."public_key" FROM "Laporan" as L 
+      const selectQueryPublicKey = ` SELECT L."public_key", L."private_key" FROM "Laporan" as L 
                                     WHERE L."id_laporan" = $1 
                                     `
       const paramsQueryPublicKey = [id_laporan]
@@ -82,6 +150,7 @@ module.exports = {
       const resultPublicKey = await db.query(selectQueryPublicKey,paramsQueryPublicKey)
 
       const PublicKey = resultPublicKey.rows[0].public_key
+      const PrivateKeyBaru = resultPublicKey.rows[0].private_key
 
       // Get id KoTA
       const id_KoTA = id_laporan.substring(8);;
@@ -110,32 +179,6 @@ module.exports = {
       const mergedBytes = await doc.save();
       const dokumenKu = Buffer.from(mergedBytes)
 
-      // Proses Encrypted Menggunakan PrivateKey
-      // Hashing dokumen
-      let HashDoc = ''
-      const hashSum = crypto.createHash('sha256');
-      HashDoc = hashSum.update(dokumenKu).digest('hex');  
-
-      // Encrypt Menjadi Digital Signature
-      const digitalSignature = crypto.privateEncrypt(recoveredPrivateKey,HashDoc)
-
-      await Laporan.update({
-        digital_signature : digitalSignature
-        },{
-          where:{
-            id_laporan: id_laporan
-          }
-        }
-      )
-      
-      // Decrypt untuk Validasi
-      // Decrypt untuk Validasi
-      // Decrypt untuk Validasi
-      // const decrypted = crypto.publicDecrypt(PublicKey,digitalSignature)
-      // console.log('ini nilai hash  =' + HashDoc)
-      // console.log('ini data decrypted: ' + decrypted.toString())
-
-
       const options = {
         fields: ['id_dokumen','id_laporan','dokumen_laporan', 'version', 'tgl_unggah'],
         returning:true   
@@ -155,14 +198,34 @@ module.exports = {
         })
       }
 
+      // Proses Encrypted Menggunakan PrivateKey
+      // Hashing dokumen
+      const hashSum2 = crypto.createHash('sha256');
+      hashSum2.update(dokumenKu);
+  
+      const hex = hashSum2.digest('hex');
+
+      console.log('ini nilai hash  =' + hex)
+      console.log(recoveredPrivateKey)
+      console.log(PrivateKeyBaru)
+      const digitalSignature = crypto.privateEncrypt(recoveredPrivateKey,hex)
+
+      await Laporan.update({
+        digital_signature : digitalSignature
+        },{
+          where:{
+            id_laporan: id_laporan
+          }
+        }
+      )
+
+
       return res.status(200).send({
         message:'add dokumen sukses',
         data: dokumen,
         file:mergedBytes,
-        // sharekey:constructPrivateKey,
-        // publicKey: PublicKey,
+        hash : hex,
         digitalSignature :digitalSignature
-        // result :Hasil
       })
       
     } catch (error) {

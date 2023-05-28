@@ -185,11 +185,11 @@
                   <v-col class="text-start align-self-center" cols="3">
                     <span 
                     style="font-size:1rem;"
-                    >Timestamp</span>
+                    >Tanggal TTD</span>
                   </v-col>
                   <v-col >
                     <v-text-field
-                      v-model="item.timestamp"
+                      v-model="item.tgl_ttd"
                       :placeholder="`Timestamp ${index + 1}`"
                       dense
                       outlined
@@ -229,6 +229,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -249,23 +250,23 @@ export default {
       ],
 
       // Data Dokumen Valid
-      id_dokumen : 'Laporan_20224022023_Final',
-      Judul_Laporan : 'PENGEMBANGAN SISTEM MULTI-USER DIGITAL SIGNATURE UNTUK LAPORAN TUGAS AKHIR DENGAN METODE SECRET SHARING SCHEME',
+      id_dokumen : 'id_laporan',
+      Judul_Laporan : 'Judul',
       list_Pengampu: [
         {
           dosen: "Aprianti Nanda Sari, S.T., M.Kom.",
           peran: "Pembimbing 1",
-          timestamp: "9-April-2023 11:20",
+          tgl_ttd: "9-April-2023 11:20",
         },
         {
           dosen: "Urip Teguh Setijohatmo, BSCS., M.Kom.",
           peran: "Penguji 1",
-          timestamp: "10-April-2023 07:41",
+          tgl_ttd: "10-April-2023 07:41",
         },
         {
           dosen: "Yadhi Adhitia P., S.T.",
           peran: "Ketua Jurusan",
-          timestamp: "11-April-2023 09:21",
+          tgl_ttd: "11-April-2023 09:21",
         },
       ],
       
@@ -299,19 +300,63 @@ export default {
     clearValidationErrors() {
       this.validationError = null;
     },
-    validateFile() {
+
+    async geRelasi(id_KoTA) {
+      const responseRelasi = await axios.get('http://localhost:3000/api/relasi/KoTA/' + id_KoTA)
+      const Pengampu = responseRelasi.data.data
+
+      this.list_Pengampu = Pengampu.map((item) =>({
+        dosen: item.nama,
+        peran: item.urutan !== null ? item.role + " " + item.urutan : item.role,
+        // peran: item.role +" "+ item.urutan,
+        tgl_ttd: item.tgl_ttd
+      }))
+
+      console.log(Pengampu)
+    },
+
+    async validateFile() {
       if (!this.file) {
         this.validationError = "Mohon pilih file yang akan divalidasi.";
         return;
       }
-      if (this.file && this.file.name === 'LaporanTA.pdf'){
-        this.validasiDokumen = !this.validasiDokumen
-        this.DokumenValidCard = !this.DokumenValidCard
-      } 
-      else {
-        this.validasiDokumen = !this.validasiDokumen
-        this.DokumenInValidCard = !this.DokumenInValidCard
-      }
+
+      const formData = new FormData();
+      formData.append('cover', this.file);
+
+      await axios.post('http://localhost:3000/api/dokumen/validate/', formData, {
+        headers : {
+          'Content-Type' : 'multipart/form-data'
+        }
+      })
+        .then(response => {
+          console.log(response.data);
+          if (response.data.valid){
+            this.validasiDokumen = !this.validasiDokumen
+            this.DokumenValidCard = !this.DokumenValidCard
+            this.Judul_Laporan = response.data.judul
+            this.id_dokumen = "Laporan_"+response.data.id_KoTA
+            this.geRelasi(response.data.id_KoTA)
+
+          } 
+          else {
+            this.validasiDokumen = !this.validasiDokumen
+            this.DokumenInValidCard = !this.DokumenInValidCard
+          }
+          // this.file = null
+          // this.snackbar.show = true;
+          // this.snackbar.color = "primary";
+          // this.snackbar.message = "Dokumen Laporan TA berhasil ditambahkan";
+        })
+        .catch(error => {
+          console.log(error.message);
+          // this.file = null
+          // this.snackbar.show = true;
+          // this.snackbar.color = "error";
+          // this.snackbar.message = "Dokumen Laporan TA gagal ditambahkan";
+        });
+
+
     },
 
     // Methods Drag n Drop zone

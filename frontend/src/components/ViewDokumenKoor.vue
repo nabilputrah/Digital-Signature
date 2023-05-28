@@ -290,8 +290,13 @@
         </v-btn>
       </template>
     </v-snackbar>
-  </div>
+    <!-- Start animasi loading section -->
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+    <!-- End animasi loading section -->
 
+  </div>
 </template>
 
 <script>
@@ -357,7 +362,7 @@ export default {
         message: "",
         color: "",
       },
-
+      isLoading:false
     }
   },
 
@@ -400,40 +405,6 @@ export default {
         console.error(error.message);
       }
 
-        // this.Laporan = [
-        //   {
-        //     ID_laporan: 'Laporan_402_v1',
-        //     tanggal_dibuat: '2022-03-02T00:00:00.000Z',
-        //   },
-        //   {
-        //     ID_laporan: 'Laporan_402_Final',
-        //     tanggal_dibuat: '2022-03-03T00:00:00.000Z',
-        //   },
-        //   {
-        //     ID_laporan: 'Laporan_402_v2',
-        //     tanggal_dibuat: '2022-03-02T15:00:00.000Z',
-        //   },
-        // ],
-        // this.Pengampu = [
-        //   {
-        //     dosen: 'Aprianti Nanda Sari, S.T., M.Kom.',
-        //     peran: 'Pembimbing',
-        //     urutan : 1,
-        //     status : true
-        //   },
-        //   {
-        //     dosen: 'Ghifari Munawar, S.Kom., M.T',
-        //     peran: 'Pembimbing',
-        //     urutan : 2,
-        //     status : true
-        //   },
-        //   {
-        //     dosen: 'Yadhi Adhitia P., S.T.',
-        //     peran: 'Ketua Jurusan',
-        //     urutan : '',
-        //     status : false
-        //   },
-        // ]
     },
     async Open_Dokumen(ID_laporan) {
       this.Dokumen_Dialog = !this.Dokumen_Dialog
@@ -515,8 +486,7 @@ export default {
     },
 
     async sendEmailConfirm () {
-      // console.log(this.laporan.id_laporan)
-      // console.log(this.sendEmailTo)
+      this.isLoading = true
       await axios({
         method:'post',
         url: 'http://localhost:3000/api/secret/sendemail/',
@@ -536,6 +506,7 @@ export default {
           console.log(error.request.response)
       })
 
+      this.isLoading = false
       this.closeEmail()
     },
 
@@ -605,4 +576,35 @@ export default {
   line-height: 2.5rem;
 }
 
+/* Animasi Loading */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #ffffff;
+  border-top-color: #1A5F7A;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 </style>

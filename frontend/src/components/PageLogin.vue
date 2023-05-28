@@ -41,24 +41,25 @@
             Lupa Password
           </v-card-title>
           <v-card-text>
-            <form >
+            <v-form v-model="inputValid">
               <v-select 
                 v-model="role" 
-                label="Role" 
+                label="Role"
+                :rules="rules.role" 
                 :items="roleOptions" 
                 id="role">
               </v-select>
 
-              <v-text-field label="Username" v-model="forgotUsername"></v-text-field>
+              <v-text-field label="Username" :rules="rules.username" v-model="forgotUsername"></v-text-field>
               <p dense v-if="role === 'KoTA'">Masukkan email Ketua KoTA yang terdaftar di aplikasi</p>
               <p dense v-else-if="role === 'Dosen'">Masukkan email Anda yang terdaftar di aplikasi</p>
-              <v-text-field label="Email" v-model="forgotEmail"></v-text-field>
+              <v-text-field label="Email" :rules="rules.email" v-model="forgotEmail"></v-text-field>
 
-              <v-btn color="primary" block @click="resetPassword">Submit</v-btn>
+              <v-btn color="primary" :disabled="!inputValid" block @click="resetPassword">Submit</v-btn>
               <div dense class="text-right">
                 <a href="#" class="forgot-password-link" @click="showForgotPassword = false">Kembali</a>
               </div>
-            </form>
+            </v-form>
           </v-card-text>
         </v-card>
       </v-col>
@@ -75,6 +76,32 @@
       </v-card>
     </v-dialog>
   <!-- </v-container> -->
+
+  <!-- Start Snackbar section -->
+  <v-snackbar 
+    v-model="snackbar.show" 
+    :color="snackbar.color" 
+    top 
+    right 
+    :timeout="3000"
+    style="margin-right: 1%;"
+  >
+    <span>
+      {{ snackbar.message }}
+    </span>
+    <template v-slot:action="{ attrs }">
+      <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+        <v-icon>mdi-window-close</v-icon>
+      </v-btn>
+    </template>
+  </v-snackbar>
+  <!-- End Snackbar section -->
+
+  <!-- Start animasi loading section -->
+  <div v-if="isLoading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
+  <!-- End animasi loading section -->
   </div>
 
 </template>
@@ -94,7 +121,31 @@ export default {
       forgotUsername: '',
       forgotEmail: '',
       role: '',
-      roleOptions: ['KoTA', 'Dosen']
+      roleOptions: ['KoTA', 'Dosen'],
+      rules: {
+        role: [
+          v => !!v || "Role wajib diisi",
+        ],
+        username: [
+          v => !!v || "Username wajib diisi",
+        ],
+        email: [
+          v => !!v || "Email wajib diisi",
+          v =>
+            /.+@.+\..+/.test(v) ||
+            "Format email tidak valid"
+        ]
+      },
+      inputValid:false,
+
+      // Notifikasi Berhasil
+      snackbar: {
+          show: false,
+          message: "",
+          color: "",
+      },
+
+      isLoading: false
     };
   },
   mounted() {
@@ -111,7 +162,7 @@ export default {
   },
   methods: {
     async resetPassword() {
-      console.log('haii')
+      this.isLoading = true
       await axios({
         method: 'post',
         url: 'http://localhost:3000/api/forgotPassword',
@@ -123,15 +174,38 @@ export default {
       })
         .then((response) => {
           console.log(response);
+          this.isLoading = false
+          this.snackbar.show = true;
+          this.snackbar.color = "primary";
+          this.snackbar.message = "Reset password berhasil, periksa email anda";
         })
         .catch((error) => {
-          console.log(error.response);
+          // console.log(error.response.data.message);
+          if (error.response.data.message === 'data user tidak ditemukan'){
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Data user tidak ditemukan";
+          } else if (error.response.data.message === 'username dan email dosen tidak sinkron'){
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Username atau email Dosen tidak terdaftar"; 
+          } else if (error.response.data.message === 'email dan username KoTA yang diinputkan tidak sinkron'){
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Username atau email KoTA tidak terdaftar"; 
+          }
         });
     },
 
     handleEnterKey(event) {
-      if (event.key === 'Enter') {
-        this.login();
+      if (this.showForgotPassword && this.inputValid){
+        if (event.key === 'Enter') {
+          this.resetPassword();
+        }
+      } else if (!this.showForgotPassword){
+        if (event.key === 'Enter') {
+          this.login();
+        }
       }
     },
 
@@ -237,6 +311,37 @@ export default {
 
 .v-card__subtitle, .v-card__text{
   line-height: 2.5rem;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #ffffff;
+  border-top-color: #1A5F7A;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 </style>
