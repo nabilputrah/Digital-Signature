@@ -532,6 +532,18 @@ export default {
           this.snackbar.color = "error";
           this.snackbar.message = "Dokumen Digital Signature gagal di Generate";
         });
+
+        await axios({
+            method:'delete',
+            url: 'http://localhost:3000/api/relasi/deletettd/'+ this.kota.id_KoTA
+          })
+          .then(response => {
+            console.log(response.data)
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
+        
       this.initialize()
       this.isLoading = false
     },
