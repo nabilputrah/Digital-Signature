@@ -287,7 +287,7 @@ export default {
       MahasiswaMinItems: 1,
       MahasiswaMaxItems: 3,
       PembimbingMinItems: 2,
-      PembimbingMaxItems: 3,
+      PembimbingMaxItems: 2,
       PengujiMinItems: 2,
       PengujiMaxItems: 3,
 
