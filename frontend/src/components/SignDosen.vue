@@ -276,6 +276,7 @@
               v-model="shareKey"
               :rules="rules"
               label="Share Key"
+              :disabled="disabledShareKey"
               @keyup.enter="validateShareKey"
             >
             </v-text-field>
@@ -451,6 +452,7 @@
         ShareKeyValid:false,
         shareKey: '',
         shareKeyDB:'',
+        disabledShareKey:false,
         rules: [
           value => !!value || 'Required.',
           // value => (value && value.length >= 3) || 'Min 3 characters',
@@ -478,6 +480,7 @@
       }
       if (shareKey) {
         this.shareKey = shareKey;
+        this.disabledShareKey = true
       }
 
        const token = localStorage.getItem('token');
@@ -486,9 +489,9 @@
           const payload = JSON.parse(atob(token.split('.')[1]));
           this.dataFromToken= payload.user;
         }
+      this.initializeAksesTTD()
       this.checkLembarPengesahan()
       this.initialize()
-      this.initializeAksesTTD()
     },
 
     methods: {
@@ -509,7 +512,9 @@
               const akses = response.data.data
               console.log(akses)
               if (akses > 0){
-                this.AksesTTD = true
+                // this.AksesTTD = true
+                // this.dialogShareKey = false
+                this.$router.push(`/dosen/daftar_dokumen/`);
               }
             } catch (error) {
               console.error(error.message);
@@ -814,7 +819,7 @@
         },
 
         BackToDetail () {
-          this.$router.push(`/dosen/daftar_dokumen/dokumen_detail/${this.$route.params.id}/${this.$route.params.id}/`);
+          this.$router.push(`/dosen/daftar_dokumen/dokumen_detail/${this.$route.params.role}/${this.$route.params.id}/`);
         },
 
         // Methods Drag n Drop zone

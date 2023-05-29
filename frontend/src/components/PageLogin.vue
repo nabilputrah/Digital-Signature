@@ -120,7 +120,7 @@ export default {
       showForgotPassword: false,
       forgotUsername: '',
       forgotEmail: '',
-      role: '',
+      role: 'KoTA',
       roleOptions: ['KoTA', 'Dosen'],
       rules: {
         role: [

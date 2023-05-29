@@ -68,17 +68,17 @@ module.exports = {
           judul : documentUploaded.getTitle(),
           valid : true
         })
-      } else{
+      } else if ((documentUploaded.getAuthor() && documentUploaded.getSubject() && documentUploaded.getTitle()) && (hex != decrypted)){
         return res.status(200).send({
           message : 'dokumen tidak valid',
-          id_KoTA : documentUploaded.getAuthor(),
           valid : false
         })
       }
 
     } catch (error) {
-      return res.status(400).send({
-        message : 'gagal',
+      return res.status(200).send({
+        message : 'dokumen tidak valid',
+        valid : false
       })
     }
   },
