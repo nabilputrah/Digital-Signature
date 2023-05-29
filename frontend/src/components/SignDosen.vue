@@ -276,6 +276,7 @@
               v-model="shareKey"
               :rules="rules"
               label="Share Key"
+              :disabled="disabledShareKey"
               @keyup.enter="validateShareKey"
             >
             </v-text-field>
@@ -451,6 +452,7 @@
         ShareKeyValid:false,
         shareKey: '',
         shareKeyDB:'',
+        disabledShareKey:false,
         rules: [
           value => !!value || 'Required.',
           // value => (value && value.length >= 3) || 'Min 3 characters',
@@ -478,6 +480,7 @@
       }
       if (shareKey) {
         this.shareKey = shareKey;
+        this.disabledShareKey = true
       }
 
        const token = localStorage.getItem('token');

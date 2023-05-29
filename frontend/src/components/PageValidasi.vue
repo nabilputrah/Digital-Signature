@@ -134,6 +134,46 @@
                 ></v-textarea>
               </v-col>
             </v-row>
+            <v-row dense>
+              <v-col class="text-start align-self-center" cols="3">
+                <span 
+                style="font-size:1rem;"
+                >Tanggal Disetujui</span>
+              </v-col>
+              <v-col >
+                <v-text-field
+                  v-model="tgl_disetujui"
+                  placeholder="Tanggal Disetujui"
+                  dense
+                  outlined
+                  hide-details
+                  disabled
+                  readonly
+                  append-icon="mdi-calendar"
+                >
+              </v-text-field>
+              </v-col>
+            </v-row>
+            <v-row dense>
+              <v-col class="text-start align-self-center" cols="3">
+                <span 
+                style="font-size:1rem;"
+                >Tanggal Disidangkan</span>
+              </v-col>
+              <v-col >
+                <v-text-field
+                  v-model="tgl_disidangkan"
+                  placeholder="Tanggal Disetujui"
+                  dense
+                  outlined
+                  hide-details
+                  disabled
+                  readonly
+                  append-icon="mdi-calendar"
+                >
+              </v-text-field>
+              </v-col>
+            </v-row>
           </v-card-text>
           <v-card-text class="text-start" style="color: #68B984;font-size:1rem;">
             Tanda Tangan Elektronik Valid<br>
@@ -190,7 +230,7 @@
                   <v-col >
                     <v-text-field
                       v-model="item.tgl_ttd"
-                      :placeholder="`Timestamp ${index + 1}`"
+                      :placeholder="`Tanggal TTD ${index + 1}`"
                       dense
                       outlined
                       disabled
@@ -252,6 +292,8 @@ export default {
       // Data Dokumen Valid
       id_dokumen : 'id_laporan',
       Judul_Laporan : 'Judul',
+      tgl_disidangkan : '',
+      tgl_disetujui : '',
       list_Pengampu: [
         {
           dosen: "Aprianti Nanda Sari, S.T., M.Kom.",
@@ -287,6 +329,36 @@ export default {
     },
   },
   methods: {
+
+    convertDateDisetujui() {
+      const date = new Date(this.laporan.tgl_disetujui);
+      const year = date.toISOString().substring(0, 4);
+      const month = date.toISOString().substring(5, 7);
+      const day = date.toISOString().substring(8, 10);
+      this.laporan.tgl_disetujui = year + '-' + month + '-' + day;
+     
+    },
+    convertDateDisidangkan() {
+      const date = new Date(this.laporan.tgl_disidangkan);
+      const year = date.toISOString().substring(0, 4);
+      const month = date.toISOString().substring(5, 7);
+      const day = date.toISOString().substring(8, 10);
+      this.laporan.tgl_disidangkan = year + '-' + month + '-' + day;
+    },
+
+    convertDateTTD(tgl_TTD) {
+      const dateAsli = new Date(tgl_TTD);
+      const durasi = 7 * 60 * 60 * 1000;
+      let date = new Date(dateAsli.getTime() + durasi);
+      const year = date.toISOString().substring(0, 4);
+      const month = date.toISOString().substring(5, 7);
+      const day = date.toISOString().substring(8, 10);
+      const hours = date.toISOString().substring(11, 13);
+      const minute = date.toISOString().substring(14, 16);
+      const second = date.toISOString().substring(17, 19);
+      return tgl_TTD = year + '-' + month + '-' + day + ' ' + hours + ':' + minute + ':' + second;
+    },
+
     BackToWelcome(){
       this.WelcomeCard = !this.WelcomeCard
       this.DokumenValidCard = false
@@ -305,12 +377,37 @@ export default {
       const responseRelasi = await axios.get('http://localhost:3000/api/relasi/KoTA/' + id_KoTA)
       const Pengampu = responseRelasi.data.data
 
+      const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +id_KoTA)
+      this.laporan = responseListLaporan.data.data
+
+      this.convertDateDisetujui()
+      this.convertDateDisidangkan()
+      this.tgl_disetujui = this.laporan.tgl_disetujui
+      this.tgl_disidangkan = this.laporan.tgl_disidangkan
+
       this.list_Pengampu = Pengampu.map((item) =>({
         dosen: item.nama,
         peran: item.urutan !== null ? item.role + " " + item.urutan : item.role,
-        // peran: item.role +" "+ item.urutan,
-        tgl_ttd: item.tgl_ttd
+        tgl_ttd: item.tgl_ttd !== null ? this.convertDateTTD(item.tgl_ttd) : item.tgl_ttd 
       }))
+
+      // this.list_Pengampu = Pengampu.map((item) =>{
+      //   const tgl_ttd = item.tgl_ttd;
+
+      //   if (tgl_ttd){
+      //     return {
+      //       dosen: item.nama,
+      //       peran: item.urutan !== null ? item.role + " " + item.urutan : item.role,
+      //       tgl_ttd: this.convertDateTTD(tgl_ttd) // Panggil method convertDateTTD dengan tgl_ttd
+      //     };
+      //   } else {
+      //     return {
+      //       dosen: item.nama,
+      //       peran: item.urutan !== null ? item.role + " " + item.urutan : item.role,
+      //       tgl_ttd: item.tgl_ttd // Panggil method convertDateTTD dengan tgl_ttd
+      //     };
+      //   }
+      // })
 
       console.log(Pengampu)
     },
