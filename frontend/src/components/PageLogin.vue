@@ -181,6 +181,7 @@ export default {
         })
         .catch((error) => {
           // console.log(error.response.data.message);
+          this.isLoading = false
           if (error.response.data.message === 'data user tidak ditemukan'){
             this.snackbar.show = true;
             this.snackbar.color = "error";
