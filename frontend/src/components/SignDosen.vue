@@ -352,7 +352,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" @click="close_Popup_AddDokumen">Kembali</v-btn>
-          <v-btn color="primary" @click="add_Dokumen_succes">Unggah Dokumen</v-btn>
+          <v-btn color="primary" @click="add_Dokumen_succes">Unggah Gambar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

@@ -280,7 +280,7 @@
     color="white"
     >
     <v-card >
-        <v-card-title class="headline">Validasi Dokumen</v-card-title>
+        <v-card-title class="headline">Tambah Dokumen</v-card-title>
         <v-card-text>
           <v-tabs v-model="tab">
             <v-tab v-for="(item, index) in InputFile" :key="index">{{ item.text }}</v-tab>
