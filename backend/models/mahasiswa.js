@@ -12,7 +12,24 @@ module.exports = (sequelize, DataTypes) => {
     NIM: {
       type: DataTypes.STRING,
       primaryKey: true,
-      allowNull: false
+      allowNull: false,
+      unique: true,
+      validate: {
+        isUnique: async function (value) {
+          const mahasiswa = await Mahasiswa.findOne({
+            where: {
+              NIM: value
+            },
+            attributes: {
+              exclude: ['id']
+            }
+          });
+          if (mahasiswa) {
+            throw new Error('NIM must be unique');
+          }
+        }
+      }
+      
     },
     id_prodi: {
       type: DataTypes.STRING,

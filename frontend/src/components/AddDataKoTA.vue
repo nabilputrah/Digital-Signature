@@ -486,7 +486,7 @@ export default {
           const mahasiswa = response.data.data
 
           if (this.loggedIn.nama_prodi === 'D4') {
-             this.MahasiswaFiltered = mahasiswa.filter((item) => item.id_prodi === "PRD001");
+             this.MahasiswaFiltered = mahasiswa.filter((item) => item.id_prodi === "PRD001" && item.id_KoTA == null);
 
             //  const mappedData = this.MahasiswaFiltered.map((item) => {
             //     if (item.id_prodi === "PRD001") {
@@ -497,7 +497,7 @@ export default {
 
             // this.MahasiswaFiltered = mappedData
           } else if (this.loggedIn.nama_prodi === 'D3'){
-            this.MahasiswaFiltered = mahasiswa.filter((item) => item.id_prodi === "PRD002");
+            this.MahasiswaFiltered = mahasiswa.filter((item) => item.id_prodi === "PRD002" && item.id_KoTA == null);
 
               // const mappedData = this.MahasiswaFiltered.map((item) => {
               //   if (item.id_prodi === "PRD002") {

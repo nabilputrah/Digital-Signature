@@ -60,21 +60,21 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-      // validate: {
-      //   isUnique: async function (value) {
-      //     const dosen = await Dosen.findOne({
-      //        where: {
-      //          email: value 
-      //         },
-      //         attributes: {
-      //           exclude:['id']
-      //         } 
-      //       });
-      //     if (dosen) {
-      //       throw new Error('Email must be unique');
-      //     }
-      //   },
-      // },
+      validate: {
+        isUnique: async function (value) {
+          const dosen = await Dosen.findOne({
+             where: {
+               email: value 
+              },
+              attributes: {
+                exclude:['id']
+              } 
+            });
+          if (dosen) {
+            throw new Error('Email must be unique');
+          }
+        },
+      },
     },
   }, {
     sequelize,
