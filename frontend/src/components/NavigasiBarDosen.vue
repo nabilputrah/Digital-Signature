@@ -67,7 +67,7 @@ import axios from 'axios'
         //  const headers = { Authorization: `Bearer ${token}` };
 
           try {
-            const response = await axios.get(`http://localhost:3000/api/getdosendata/${this.navbar.id_user}`)
+            const response = await axios.get(this.$root.BASE_URL + `/api/getdosendata/${this.navbar.id_user}`)
             this.loggedIn = response.data.data[0]
           } catch (error) {
             console.error(error.message);

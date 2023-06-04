@@ -451,7 +451,7 @@ export default {
 
   methods: {
       async CheckPimpinan(){
-        const response = await axios.get(`http://localhost:3000/api/checkkajurkaprodi`);
+        const response = await axios.get(this.$root.BASE_URL + `/api/checkkajurkaprodi`);
           const CanADD = response.data
           if ((CanADD.kajur < 1) || (CanADD.kaprodi < 2)){
             console.log("MASUUK")
@@ -460,9 +460,9 @@ export default {
       },
 
      async initializePimpinanList() {
-        const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
+        const responseKajur = await axios.get(this.$root.BASE_URL + '/api/jurusan')
         this.kajurData = responseKajur.data.data[0]
-        const responseKaprodi = await axios.get('http://localhost:3000/api/prodi')
+        const responseKaprodi = await axios.get(this.$root.BASE_URL + '/api/prodi')
         this.kaprodiData = responseKaprodi.data.data
      },
     async initializeNavbarLoggedIn (){
@@ -470,7 +470,7 @@ export default {
         const headers = { Authorization: `Bearer ${token}` };
         
         try {
-          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
+          const response = await axios.get(this.$root.BASE_URL + `/api/getkoordata/${this.navbar.id_user}`, { headers });
           this.loggedIn = response.data.data[0]
           console.log(this.loggedIn.nama_prodi)
          
@@ -484,9 +484,9 @@ export default {
     try {
 
       // yang urang baru 
-      const responseList = await axios.get(`http://localhost:3000/api/mahasiswa/`);
+      const responseList = await axios.get(this.$root.BASE_URL + `/api/mahasiswa/`);
       const listMahasiswa = responseList.data.data
-      const response = await axios.get('http://localhost:3000/api/mahasiswakota/'+ this.$route.params.id)
+      const response = await axios.get(this.$root.BASE_URL + '/api/mahasiswakota/'+ this.$route.params.id)
       this.mahasiswaKoTA= response.data.data
     
       if (this.loggedIn.nama_prodi === 'D4') {
@@ -516,12 +516,12 @@ export default {
     async initializePengampuList(){
         // pembimbing kota
       try {
-        const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
+        const responseList = await axios.get(this.$root.BASE_URL + `/api/dosen/`);
         const listDosen = responseList.data.data
-        const response = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ this.$route.params.id)
+        const response = await axios.get(this.$root.BASE_URL + '/api/relasibykota/pembimbing/'+ this.$route.params.id)
         this.pembimbingKoTA = response.data.data
         
-        const responsePenguji = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ this.$route.params.id)
+        const responsePenguji = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ this.$route.params.id)
         this.pengujiKoTA = responsePenguji.data.data
 
         if (this.pembimbingKoTA.length > 0){
@@ -563,9 +563,9 @@ export default {
     async initializePengujiList(){
     // penguji kota
       try {
-        const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
+        const responseList = await axios.get(this.$root.BASE_URL + `/api/dosen/`);
         const listDosen = responseList.data.data
-        const response = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ this.$route.params.id)
+        const response = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ this.$route.params.id)
         this.pengujiKoTA = response.data.data
        
         if (this.pengujiKoTA.length > 0){
@@ -599,7 +599,7 @@ export default {
     async initializeDetailKoTA() {
       // detail kotga
       try {
-        const response = await axios.get('http://localhost:3000/api/KoTA/'+ this.$route.params.id)
+        const response = await axios.get(this.$root.BASE_URL + '/api/KoTA/'+ this.$route.params.id)
         this.detailKoTA = response.data.data
         this.tahunAjaran = this.detailKoTA.tahun_ajaran
         this.ID_KoTA = this.detailKoTA.nama_KoTA
@@ -631,7 +631,7 @@ export default {
     if (this.tahunAjaran === this.detailKoTA.tahun_ajaran) {
       await axios({
         method:'delete',
-        url: 'http://localhost:3000/api/KoTA/'+ this.$route.params.id,
+        url: this.$root.BASE_URL + '/api/KoTA/'+ this.$route.params.id,
         
       })
       .then(response => {
@@ -648,7 +648,7 @@ export default {
 
       await axios({
         method:'post',
-        url: 'http://localhost:3000/api/KoTA',
+        url: this.$root.BASE_URL + '/api/KoTA',
         data: {
           id_KoTA: generatedIdKota,
           id_user: this.id_user,
@@ -671,7 +671,7 @@ export default {
       // insert data to laporan, ubah update simpan id laporan pas query di awal 
       await axios({
         method:'put',
-        url: 'http://localhost:3000/api/laporanidkota/' + this.id_laporan,
+        url: this.$root.BASE_URL + '/api/laporanidkota/' + this.id_laporan,
         data: {
           // id_laporan:generatedIdKota,
           id_KoTA: generatedIdKota,
@@ -693,7 +693,7 @@ export default {
       if (this.form.length === 1) {
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[0].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: true 
@@ -712,7 +712,7 @@ export default {
       else if (this.form.length === 2) {
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[0].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: true 
@@ -729,7 +729,7 @@ export default {
 
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[1].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[1].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: false 
@@ -748,7 +748,7 @@ export default {
       else if (this.form.length === 3) {
         axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[0].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: true 
@@ -765,7 +765,7 @@ export default {
 
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[1].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[1].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: false 
@@ -782,7 +782,7 @@ export default {
 
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[2].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[2].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: false 
@@ -803,7 +803,7 @@ export default {
       if (this.formPembimbing.length === 2) {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[0].selectedItem,
@@ -822,7 +822,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[1].selectedItem,
@@ -845,7 +845,7 @@ export default {
       else if (this.formPembimbing.length === 3) {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[0].selectedItem,
@@ -864,7 +864,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[1].selectedItem,
@@ -883,7 +883,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[2].selectedItem,
@@ -907,7 +907,7 @@ export default {
       if (this.formPenguji.length === 2) {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[0].selectedItem,
@@ -926,7 +926,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[1].selectedItem,
@@ -946,7 +946,7 @@ export default {
       else if (this.formPenguji.length === 3) {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[0].selectedItem,
@@ -965,7 +965,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[1].selectedItem,
@@ -983,7 +983,7 @@ export default {
         })
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[2].selectedItem,
@@ -1005,7 +1005,7 @@ export default {
       if (this.loggedIn.id_prodi === 'PRD001') {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.kaprodiData[0].NIP,
@@ -1026,7 +1026,7 @@ export default {
       else if (this.loggedIn.id_prodi === 'PRD002') {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.kaprodiData[1].NIP,
@@ -1046,7 +1046,7 @@ export default {
       // relasi Kajur
       await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.kajurData.NIP,
@@ -1069,7 +1069,7 @@ export default {
       // start delete sharekey
         await axios({
           method:'delete',
-          url: 'http://localhost:3000/api/secretidlaporan/Laporan_' + generatedIdKota,
+          url: this.$root.BASE_URL + '/api/secretidlaporan/Laporan_' + generatedIdKota,
         })
         .then(response => {
         
@@ -1086,7 +1086,7 @@ export default {
 
         await axios({
             method:'post',
-            url: 'http://localhost:3000/api/sharekey/',
+            url: this.$root.BASE_URL + '/api/sharekey/',
             data: {
               id_laporan:'Laporan_' + generatedIdKota,
               
@@ -1114,7 +1114,7 @@ export default {
       // insert data to kota 
       await axios({
         method:'post',
-        url: 'http://localhost:3000/api/signupuser/kota',
+        url: this.$root.BASE_URL + '/api/signupuser/kota',
         data: {
           username: generatedIdKota,
           nama_KoTA: namaKota,
@@ -1144,7 +1144,7 @@ export default {
       //  delete kota with laporan
       await axios({
         method:'delete',
-        url: 'http://localhost:3000/api/KoTAwithLaporan/'+ this.$route.params.id
+        url: this.$root.BASE_URL + '/api/KoTAwithLaporan/'+ this.$route.params.id
         
       })
       .then(response => {
@@ -1158,7 +1158,7 @@ export default {
       // insert data to laporan 
       await axios({
         method:'post',
-        url: 'http://localhost:3000/api/laporan',
+        url: this.$root.BASE_URL + '/api/laporan',
         data: {
           id_laporan:generatedIdKota,
           id_KoTA: generatedIdKota,
@@ -1179,7 +1179,7 @@ export default {
       if (this.form.length === 1) {
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[0].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: true 
@@ -1198,7 +1198,7 @@ export default {
       else if (this.form.length === 2) {
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[0].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: true 
@@ -1215,7 +1215,7 @@ export default {
 
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[1].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[1].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: false 
@@ -1234,7 +1234,7 @@ export default {
       else if (this.form.length === 3) {
         axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[0].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: true 
@@ -1251,7 +1251,7 @@ export default {
 
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[1].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[1].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: false 
@@ -1268,7 +1268,7 @@ export default {
 
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[2].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[2].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: false 
@@ -1289,7 +1289,7 @@ export default {
       if (this.formPembimbing.length === 2) {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[0].selectedItem,
@@ -1308,7 +1308,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[1].selectedItem,
@@ -1331,7 +1331,7 @@ export default {
       else if (this.formPembimbing.length === 3) {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[0].selectedItem,
@@ -1350,7 +1350,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[1].selectedItem,
@@ -1369,7 +1369,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[2].selectedItem,
@@ -1393,7 +1393,7 @@ export default {
       if (this.formPenguji.length === 2) {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[0].selectedItem,
@@ -1412,7 +1412,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[1].selectedItem,
@@ -1432,7 +1432,7 @@ export default {
       else if (this.formPenguji.length === 3) {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[0].selectedItem,
@@ -1451,7 +1451,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[1].selectedItem,
@@ -1469,7 +1469,7 @@ export default {
         })
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[2].selectedItem,
@@ -1491,7 +1491,7 @@ export default {
       if (this.loggedIn.id_prodi === 'PRD001') {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.kaprodiData[0].NIP,
@@ -1512,7 +1512,7 @@ export default {
       else if (this.loggedIn.id_prodi === 'PRD002') {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.kaprodiData[1].NIP,
@@ -1532,7 +1532,7 @@ export default {
       // relasi Kajur
       await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.kajurData.NIP,
@@ -1551,7 +1551,7 @@ export default {
       // relasi Secret Key
       await axios({
           method:'post',
-          url: 'http://localhost:3000/api/sharekey/',
+          url: this.$root.BASE_URL + '/api/sharekey/',
           data: {
             id_laporan:'Laporan_' + generatedIdKota,
             
@@ -1674,7 +1674,7 @@ export default {
     },
 
     async addFormPembimbing() {
-      const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
+      const responseList = await axios.get(this.$root.BASE_URL + `/api/dosen/`);
       const listDosen = responseList.data.data
      
       this.formPembimbing.push({ selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' });
@@ -1685,7 +1685,7 @@ export default {
     },
 
     async addFormPenguji() {
-      const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
+      const responseList = await axios.get(this.$root.BASE_URL + `/api/dosen/`);
       const listDosen = responseList.data.data
      
       this.formPenguji.push({ selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' });

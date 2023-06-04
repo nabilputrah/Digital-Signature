@@ -394,7 +394,7 @@ import axios from 'axios'
       formData.append('file', this.file);
 
       if (this.loggedIn.nama_prodi === 'D4'){
-        await axios.post('http://localhost:3000/api/mahasiswad4import/', formData, {
+        await axios.post(this.$root.BASE_URL + '/api/mahasiswad4import/', formData, {
           headers : {
             'Content-Type' : 'multipart/form-data'
           }
@@ -416,7 +416,7 @@ import axios from 'axios'
             this.snackbar.message = "Data Mahasiswa TA gagal diimport";
           });
       } else if (this.loggedIn.nama_prodi === 'D3'){
-        await axios.post('http://localhost:3000/api/mahasiswad3import/', formData, {
+        await axios.post(this.$root.BASE_URL + '/api/mahasiswad3import/', formData, {
           headers : {
             'Content-Type' : 'multipart/form-data'
           }
@@ -457,7 +457,7 @@ import axios from 'axios'
         const headers = { Authorization: `Bearer ${token}` };
         
         try {
-          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
+          const response = await axios.get(this.$root.BASE_URL + `/api/getkoordata/${this.navbar.id_user}`, { headers });
           this.loggedIn = response.data.data[0]
           console.log(this.loggedIn.nama_prodi)
          
@@ -469,7 +469,7 @@ import axios from 'axios'
       
       async initialize () {
         try {
-          const response = await axios.get(`http://localhost:3000/api/mahasiswa`);
+          const response = await axios.get(this.$root.BASE_URL + `/api/mahasiswa`);
           const list = response.data.data
           const regex = /^(\d{4})(\d{3})(\d{4})$/;
           const mappedMahasiswa = list.map((item) => ({
@@ -530,7 +530,7 @@ import axios from 'axios'
       deleteItemConfirm () {
         axios({
             method:'delete',
-            url: 'http://localhost:3000/api/mahasiswa/'+ this.editedItem.NIM
+            url: this.$root.BASE_URL + '/api/mahasiswa/'+ this.editedItem.NIM
             
           })
           .then(response => {
@@ -569,7 +569,7 @@ import axios from 'axios'
        
           axios({
             method:'put',
-            url: 'http://localhost:3000/api/mahasiswaWithoutIsKetua/'+ this.editedItem.NIM,
+            url: this.$root.BASE_URL + '/api/mahasiswaWithoutIsKetua/'+ this.editedItem.NIM,
             data: this.editedItem
           })
           .then(response => {
@@ -599,7 +599,7 @@ import axios from 'axios'
           }
            axios({
             method:'post',
-            url: 'http://localhost:3000/api/mahasiswa/',
+            url: this.$root.BASE_URL + '/api/mahasiswa/',
             data: {
               NIM : this.editedItem.NIM,
               nama : this.editedItem.nama,

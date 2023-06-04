@@ -822,7 +822,7 @@ module.exports = {
               message:'email dan username KoTA yang diinputkan tidak sinkron'
             })
           }
-        }
+        
 
         const dataKoordinator = result.rows[0]
         
@@ -861,11 +861,8 @@ module.exports = {
             });
           }
         });
+      }
 
-
-      
-
-      
     
 
     } catch (error) {

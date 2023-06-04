@@ -374,10 +374,10 @@ export default {
     },
 
     async geRelasi(id_KoTA) {
-      const responseRelasi = await axios.get('http://localhost:3000/api/relasi/KoTA/' + id_KoTA)
+      const responseRelasi = await axios.get(this.$root.BASE_URL + '/api/relasi/KoTA/' + id_KoTA)
       const Pengampu = responseRelasi.data.data
 
-      const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +id_KoTA)
+      const responseListLaporan = await axios.get(this.$root.BASE_URL + '/api/laporankota/' +id_KoTA)
       this.laporan = responseListLaporan.data.data
 
       this.convertDateDisetujui()
@@ -421,7 +421,7 @@ export default {
       const formData = new FormData();
       formData.append('cover', this.file);
 
-      await axios.post('http://localhost:3000/api/dokumen/validate/', formData, {
+      await axios.post(this.$root.BASE_URL + '/api/dokumen/validate/', formData, {
         headers : {
           'Content-Type' : 'multipart/form-data'
         }

@@ -500,7 +500,7 @@
 
     methods: {
       async checkLembarPengesahan(){
-        const response = await axios.get(`http://localhost:3000/api/ceklembarpengesahan/Laporan_${this.$route.params.id}`)
+        const response = await axios.get(this.$root.BASE_URL + `/api/ceklembarpengesahan/Laporan_${this.$route.params.id}`)
         const message = response.data.message
 
         console.log(message)
@@ -512,7 +512,7 @@
       async initializeAksesTTD() {
           if (this.$route.params.role === "Kaprodi" || this.$route.params.role === "Kajur"){
             try {
-              const response = await axios.get(`http://localhost:3000/api/relasi/accessttd/${this.$route.params.role}/${this.$route.params.id}`)
+              const response = await axios.get(this.$root.BASE_URL + `/api/relasi/accessttd/${this.$route.params.role}/${this.$route.params.id}`)
               const akses = response.data.data
               console.log(akses)
               if (akses > 0){
@@ -531,40 +531,40 @@
       try {
             const id_kota = this.$route.params.id
   
-            const response = await axios.get(`http://localhost:3000/api/getdosendata/${this.dataFromToken.id_user}`)
+            const response = await axios.get(this.$root.BASE_URL + `/api/getdosendata/${this.dataFromToken.id_user}`)
             this.dosen = response.data.data[0]
 
-            const responseAnggota = await axios.get('http://localhost:3000/api/mahasiswakota/' + id_kota);
+            const responseAnggota = await axios.get(this.$root.BASE_URL + '/api/mahasiswakota/' + id_kota);
             this.Anggota = responseAnggota.data.data;
   
-            const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +id_kota)
+            const responseListLaporan = await axios.get(this.$root.BASE_URL + '/api/laporankota/' +id_kota)
             this.laporan = responseListLaporan.data.data
 
             
             // Get Tanggal TTD
-            const responseTgl_TTD = await axios.get('http://localhost:3000/api/tglttd/relasi/'+ this.dosen.NIP+'/'+this.$route.params.role+'/'+this.laporan.id_KoTA)
+            const responseTgl_TTD = await axios.get(this.$root.BASE_URL + '/api/tglttd/relasi/'+ this.dosen.NIP+'/'+this.$route.params.role+'/'+this.laporan.id_KoTA)
             this.tanggal_TTD = responseTgl_TTD.data.data
 
             // Get Data Pembimbing
-            const responsePembimbing = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ this.laporan.id_KoTA)
+            const responsePembimbing = await axios.get(this.$root.BASE_URL + '/api/relasibykota/pembimbing/'+ this.laporan.id_KoTA)
             this.Pembimbing = responsePembimbing.data.data
     
             // Get Image TTD Pembimbing
             try {
-              this.Pembimbing[0].img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Pembimbing[0].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
-              this.Pembimbing[1].img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Pembimbing[1].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
+              this.Pembimbing[0].img = this.$root.BASE_URL + '/api/relasi/gambarttd/'+ this.Pembimbing[0].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
+              this.Pembimbing[1].img = this.$root.BASE_URL + '/api/relasi/gambarttd/'+ this.Pembimbing[1].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
             } catch (error) {
               console.error(error);
             }
 
             // Get Data Penguji
-            const responsePenguji = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ this.laporan.id_KoTA)
+            const responsePenguji = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ this.laporan.id_KoTA)
             this.Penguji = responsePenguji.data.data
 
             // Get Image TTD Penguji
             this.Penguji.forEach(async (item) => {
               try {
-                item.img = 'http://localhost:3000/api/relasi/gambarttd/'+ item.NIP +'/Penguji/'+ this.laporan.id_KoTA
+                item.img = this.$root.BASE_URL + '/api/relasi/gambarttd/'+ item.NIP +'/Penguji/'+ this.laporan.id_KoTA
               } catch (error) {
                 console.error(error.message);
               }
@@ -572,7 +572,7 @@
             console.log(this.Penguji)
 
             // Get Data Kaprodi
-            const responseKaprodi = await axios.get('http://localhost:3000/api/prodi/'+this.Anggota[0].id_prodi)
+            const responseKaprodi = await axios.get(this.$root.BASE_URL + '/api/prodi/'+this.Anggota[0].id_prodi)
             this.kaprodiData = responseKaprodi.data.data
     
             if (this.Anggota[0].id_prodi === 'PRD001'){
@@ -581,19 +581,19 @@
                 this.Prodi = 'D3'
             }
     
-            const DataKaprodi = await axios.get('http://localhost:3000/api/dosen/'+ this.kaprodiData.NIP,)
+            const DataKaprodi = await axios.get(this.$root.BASE_URL + '/api/dosen/'+ this.kaprodiData.NIP,)
             this.Kaprodi = DataKaprodi.data.data    
 
             // Get Data Kajur
-            const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
+            const responseKajur = await axios.get(this.$root.BASE_URL + '/api/jurusan')
             this.Kajur = responseKajur.data.data[0]    
-            const DataKajur = await axios.get('http://localhost:3000/api/dosen/'+ this.Kajur.NIP,)
+            const DataKajur = await axios.get(this.$root.BASE_URL + '/api/dosen/'+ this.Kajur.NIP,)
             this.Kajur = DataKajur.data.data
 
             // Get TTD image Kajur n Kaprodi
             try {
-              this.Kaprodi.img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Kaprodi.NIP +'/Kaprodi/'+ this.laporan.id_KoTA
-              this.Kajur.img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Kajur.NIP +'/Kajur/'+ this.laporan.id_KoTA
+              this.Kaprodi.img = this.$root.BASE_URL + '/api/relasi/gambarttd/'+ this.Kaprodi.NIP +'/Kaprodi/'+ this.laporan.id_KoTA
+              this.Kajur.img = this.$root.BASE_URL + '/api/relasi/gambarttd/'+ this.Kajur.NIP +'/Kajur/'+ this.laporan.id_KoTA
             } catch (error) {
               console.error(error.message.request);
             }
@@ -602,7 +602,7 @@
             this.convertDateDibuat()
             this.convertDateDisidangkan()
   
-            const responsePDF = await axios.get('http://localhost:3000/api/lembarpengesahan/'+ this.laporan.id_laporan,{responseType:'blob'})
+            const responsePDF = await axios.get(this.$root.BASE_URL + '/api/lembarpengesahan/'+ this.laporan.id_laporan,{responseType:'blob'})
             this.pdfUrl = URL.createObjectURL(responsePDF.data);
             this.showPdf();
 
@@ -681,7 +681,7 @@
           formData.append('id_KoTA', this.laporan.id_KoTA)
           formData.append('role', this.$route.params.role)
 
-          await axios.post('http://localhost:3000/api/relasi/doSignature/', formData, {
+          await axios.post(this.$root.BASE_URL + '/api/relasi/doSignature/', formData, {
               headers : {
               'Content-Type' : 'multipart/form-data'
               }
@@ -735,7 +735,7 @@
 
           await axios({
               method:'post',
-              url: 'http://localhost:3000/api/getonesharekey/',
+              url: this.$root.BASE_URL + '/api/getonesharekey/',
               data: {
               NIP: this.dosen.NIP,
               id_laporan: "Laporan_" + this.$route.params.id,
@@ -788,7 +788,7 @@
 
                     formData.append('lembar_pengesahan',blob)
 
-                    await axios.put('http://localhost:3000/api/lembarpengesahan/'+ this.laporan.id_laporan, formData, {
+                    await axios.put(this.$root.BASE_URL + '/api/lembarpengesahan/'+ this.laporan.id_laporan, formData, {
                       headers : {
                         'Content-Type' : 'multipart/form-data'
                       }

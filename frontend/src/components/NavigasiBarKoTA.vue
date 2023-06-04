@@ -68,7 +68,7 @@ import axios from 'axios'
       async initializeNavbarLoggedIn (){
         
         try {
-          const response = await axios.get(`http://localhost:3000/api/getkotadata/${this.navbar.id_user}`,);
+          const response = await axios.get(this.$root.BASE_URL + `/api/getkotadata/${this.navbar.id_user}`,);
           this.loggedIn = response.data.data[0]
           // console.log(this.loggedIn)
          

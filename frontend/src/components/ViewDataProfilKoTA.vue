@@ -244,11 +244,11 @@ export default {
 
     async initialize() {
       try {
-          const response = await axios.get(`http://localhost:3000/api/getkotadata/${this.dataFromToken.id_user}`)
+          const response = await axios.get(this.$root.BASE_URL + `/api/getkotadata/${this.dataFromToken.id_user}`)
           this.kota = response.data.data[0]
           const id_kota = response.data.data[0].id_KoTA
 
-          const responseList = await axios.get('http://localhost:3000/api/mahasiswakota/' +id_kota)
+          const responseList = await axios.get(this.$root.BASE_URL + '/api/mahasiswakota/' +id_kota)
           this.listAnggota = responseList.data.data
 
          
@@ -277,7 +277,7 @@ export default {
     changePassword() {
       axios({
           method:'post',
-          url: 'http://localhost:3000/api/checkCurrentPassword/',
+          url: this.$root.BASE_URL + '/api/checkCurrentPassword/',
           data: {
            username: this.kota.id_KoTA,
            password: this.currentPassword
@@ -312,7 +312,7 @@ export default {
       // change password in db
       axios({
           method:'put',
-          url: 'http://localhost:3000/api/user/change-password/'+ this.kota.id_user,
+          url: this.$root.BASE_URL + '/api/user/change-password/'+ this.kota.id_user,
           data: {
            currentPassword: this.currentPassword,
            newPassword: this.newPassword

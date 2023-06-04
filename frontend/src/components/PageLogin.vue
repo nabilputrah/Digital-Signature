@@ -102,7 +102,7 @@
   <div v-if="isLoading" class="loading-overlay">
     <div class="loading-spinner"></div>
   </div>
-  <!-- End animasi loading section -->
+  <!-- End animasi loading section --> 
   </div>
 
 </template>
@@ -150,6 +150,7 @@ export default {
     };
   },
   mounted() {
+    console.log(this.$root.BASE_URL);
     const credentials = this.getCredentialsFromCookie()
     if (credentials) {
       this.username = credentials.username
@@ -166,7 +167,7 @@ export default {
       this.isLoading = true
       await axios({
         method: 'post',
-        url: 'http://localhost:3000/api/forgotPassword',
+        url: this.$root.BASE_URL + '/api/forgotPassword',
         data: {
           username: this.forgotUsername,
           email: this.forgotEmail,
@@ -215,7 +216,7 @@ export default {
 
       await axios({
         method: 'post',
-        url: 'http://localhost:3000/api/login',
+        url: this.$root.BASE_URL + '/api/login',
         data: {
           username: this.username,
           password: this.password,

@@ -276,7 +276,7 @@ export default {
       try {
         const token = localStorage.getItem('token'); 
         const headers = { Authorization: `Bearer ${token}` };
-        const responseKoor = await axios.get(`http://localhost:3000/api/getkoordata/${this.dataFromToken.id_user}`, { headers });
+        const responseKoor = await axios.get(this.$root.BASE_URL + `/api/getkoordata/${this.dataFromToken.id_user}`, { headers });
         const KoorData = responseKoor.data.data[0]
 
         this.formKoordinator.selectedItem = KoorData.nama_koordinator
@@ -290,7 +290,7 @@ export default {
     async save() {
       axios({
           method:'put',
-          url: 'http://localhost:3000/api/koordinator/'+ this.koordinator.id_koor,
+          url: this.$root.BASE_URL + '/api/koordinator/'+ this.koordinator.id_koor,
           data: {
             id_koor: this.koordinator.id_koor,
             id_user: this.koordinator.id_user,
@@ -317,8 +317,8 @@ export default {
       try {
           const token = localStorage.getItem('token'); 
           const headers = { Authorization: `Bearer ${token}` };
-          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.dataFromToken.id_user}`, { headers });
-          const responseDosen = await axios.get(`http://localhost:3000/api/dosen`);
+          const response = await axios.get(this.$root.BASE_URL + `/api/getkoordata/${this.dataFromToken.id_user}`, { headers });
+          const responseDosen = await axios.get(this.$root.BASE_URL + `/api/dosen`);
           this.dosen = responseDosen.data.data
           this.koordinator = response.data.data[0]
           console.log(this.koordinator.nama_koordinator)
@@ -364,7 +364,7 @@ export default {
     changePassword() {
       axios({
           method:'post',
-          url: 'http://localhost:3000/api/checkCurrentPassword/',
+          url: this.$root.BASE_URL + '/api/checkCurrentPassword/',
           data: {
            username: this.koordinator.id_koor,
            password: this.currentPassword
@@ -398,7 +398,7 @@ export default {
       // change password in db
       axios({
           method:'put',
-          url: 'http://localhost:3000/api/user/change-password/'+ this.koordinator.id_user,
+          url: this.$root.BASE_URL + '/api/user/change-password/'+ this.koordinator.id_user,
           data: {
            currentPassword: this.currentPassword,
            newPassword: this.newPassword

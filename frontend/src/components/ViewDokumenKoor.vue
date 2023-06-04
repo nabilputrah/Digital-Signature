@@ -375,10 +375,10 @@ export default {
       try {
         this.id_KoTA = this.$route.params.id
 
-        const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +this.id_KoTA)
+        const responseListLaporan = await axios.get(this.$root.BASE_URL + '/api/laporankota/' +this.id_KoTA)
         this.laporan = responseListLaporan.data.data
 
-        const responseRelasi = await axios.get('http://localhost:3000/api/relasi/KoTA/' +  this.id_KoTA)
+        const responseRelasi = await axios.get(this.$root.BASE_URL + '/api/relasi/KoTA/' +  this.id_KoTA)
         this.Pengampu = responseRelasi.data.data
         console.log(this.Pengampu)
  
@@ -386,7 +386,7 @@ export default {
         this.convertDateDisetujui()
         this.convertDateDisidangkan()
         
-        const responseListDokumen = await axios.get('http://localhost:3000/api/dokumenlaporan/'+this.laporan.id_laporan)
+        const responseListDokumen = await axios.get(this.$root.BASE_URL + '/api/dokumenlaporan/'+this.laporan.id_laporan)
         const list = responseListDokumen.data.data
 
         this.Laporan = list.map((item) =>({
@@ -409,7 +409,7 @@ export default {
     async Open_Dokumen(ID_laporan) {
       this.Dokumen_Dialog = !this.Dokumen_Dialog
       // console.log(ID_laporan)
-      const response = await axios.get('http://localhost:3000/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      const response = await axios.get(this.$root.BASE_URL + '/api/dokumen/'+ ID_laporan,{responseType:'blob'})
       this.previewUrl = URL.createObjectURL(response.data);
       // console.log(this.previewUrl)
       this.showPdf();
@@ -435,7 +435,7 @@ export default {
 
     async unduhItem(ID_laporan) {
       const link = document.createElement('a');
-      const response = await axios.get('http://localhost:3000/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      const response = await axios.get(this.$root.BASE_URL + '/api/dokumen/'+ ID_laporan,{responseType:'blob'})
       this.previewUrl = URL.createObjectURL(response.data);
       link.href = this.previewUrl; // Ganti dengan URL dokumen PDF yang ingin diunduh
       link.download = ID_laporan; // Nama file yang akan diunduh
@@ -489,7 +489,7 @@ export default {
       this.isLoading = true
       await axios({
         method:'post',
-        url: 'http://localhost:3000/api/secret/sendemail/',
+        url: this.$root.BASE_URL + '/api/secret/sendemail/',
         data : {
           NIP : this.sendEmailTo.NIP,
           role : this.sendEmailTo.role,

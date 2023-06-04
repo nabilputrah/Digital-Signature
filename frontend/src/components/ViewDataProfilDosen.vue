@@ -248,7 +248,7 @@ export default {
     async save() {
       axios({
           method:'put',
-          url: 'http://localhost:3000/api/dosen/'+ this.dosen.NIP,
+          url: this.$root.BASE_URL + '/api/dosen/'+ this.dosen.NIP,
           data: {
             NIP: this.dosen.NIP,
             nama: this.dosen.nama,
@@ -271,7 +271,7 @@ export default {
 
     async initialize() {
        try {
-            const response = await axios.get(`http://localhost:3000/api/getdosendata/${this.dataFromToken.id_user}`)
+            const response = await axios.get(this.$root.BASE_URL + `/api/getdosendata/${this.dataFromToken.id_user}`)
             this.dosen = response.data.data[0]
           } catch (error) {
             console.error(error.message);
@@ -285,7 +285,7 @@ export default {
     changePassword() {
       axios({
           method:'post',
-          url: 'http://localhost:3000/api/checkCurrentPassword/',
+          url: this.$root.BASE_URL + '/api/checkCurrentPassword/',
           data: {
            username: this.dosen.NIP,
            password: this.currentPassword
@@ -320,7 +320,7 @@ export default {
       // change password in db
       axios({
           method:'put',
-          url: 'http://localhost:3000/api/user/change-password/'+ this.dosen.id_user,
+          url: this.$root.BASE_URL + '/api/user/change-password/'+ this.dosen.id_user,
           data: {
            currentPassword: this.currentPassword,
            newPassword: this.newPassword

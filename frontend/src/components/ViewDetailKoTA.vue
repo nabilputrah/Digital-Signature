@@ -354,7 +354,7 @@ export default {
     async initializeDetailKoTA() {
       // detail kotga
         try {
-        const response = await axios.get('http://localhost:3000/api/KoTA/'+ this.$route.params.id)
+        const response = await axios.get(this.$root.BASE_URL + '/api/KoTA/'+ this.$route.params.id)
         this.detailKoTA = response.data.data
         this.tahunAjaran = this.detailKoTA.tahun_ajaran
         this.ID_KoTA = this.detailKoTA.nama_KoTA
@@ -363,9 +363,9 @@ export default {
       }
       // mahasiswa kota
       try {
-          const responseList = await axios.get(`http://localhost:3000/api/mahasiswa/`);
+          const responseList = await axios.get(this.$root.BASE_URL + `/api/mahasiswa/`);
           const listMahasiswa = responseList.data.data
-          const response = await axios.get('http://localhost:3000/api/mahasiswakota/'+ this.$route.params.id)
+          const response = await axios.get(this.$root.BASE_URL + '/api/mahasiswakota/'+ this.$route.params.id)
           this.mahasiswaKoTA= response.data.data
        
         
@@ -384,9 +384,9 @@ export default {
 
       // pembimbing kota
       try {
-        const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
+        const responseList = await axios.get(this.$root.BASE_URL + `/api/dosen/`);
         const listDosen = responseList.data.data
-        const response = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ this.$route.params.id)
+        const response = await axios.get(this.$root.BASE_URL + '/api/relasibykota/pembimbing/'+ this.$route.params.id)
         this.pembimbingKoTA = response.data.data
         
         // Set nilai items dan search pada setiap elemen form
@@ -403,9 +403,9 @@ export default {
       }
       // penguji kota
       try {
-        const responseList = await axios.get(`http://localhost:3000/api/dosen/`);
+        const responseList = await axios.get(this.$root.BASE_URL + `/api/dosen/`);
         const listDosen = responseList.data.data
-        const response = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ this.$route.params.id)
+        const response = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ this.$route.params.id)
         this.pengujiKoTA = response.data.data
        
          // Set nilai items dan search pada setiap elemen form
@@ -423,7 +423,7 @@ export default {
     
     },
     async edit_data(ID_KoTA){
-      const response = await axios.get(`http://localhost:3000/api/checkkajurkaprodi`);
+      const response = await axios.get(this.$root.BASE_URL + `/api/checkkajurkaprodi`);
       const CanADD = response.data
       if ((CanADD.kajur == 1) && (CanADD.kaprodi == 2)){
         this.$router.push(`/koordinator/KoTA/edit_KoTA/${ID_KoTA}`);
@@ -442,7 +442,7 @@ export default {
 
       axios({
         method:'delete',
-        url: 'http://localhost:3000/api/KoTAwithLaporan/'+ this.$route.params.id
+        url: this.$root.BASE_URL + '/api/KoTAwithLaporan/'+ this.$route.params.id
         
       })
       .then(response => {
