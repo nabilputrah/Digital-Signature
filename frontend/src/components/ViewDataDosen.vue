@@ -631,7 +631,7 @@ import axios from 'axios'
       const formData = new FormData();
       formData.append('file', this.file);
 
-      await axios.post('http://localhost:3000/api/dosenimport/', formData, {
+      await axios.post(this.$root.BASE_URL + '/api/dosenimport/', formData, {
         headers : {
           'Content-Type' : 'multipart/form-data'
         }
@@ -696,7 +696,7 @@ import axios from 'axios'
 
       async initializeKajurList() {
         try {
-          const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
+          const responseKajur = await axios.get(this.$root.BASE_URL + '/api/jurusan')
           this.kajurData = responseKajur.data.data[0]
 
           this.formKajur.selectedItem = this.kajurData.NIP
@@ -709,7 +709,7 @@ import axios from 'axios'
 
       async initializeKaprodiList(){
         try {
-          const responseKaprodi = await axios.get('http://localhost:3000/api/prodi')
+          const responseKaprodi = await axios.get(this.$root.BASE_URL + '/api/prodi')
           this.kaprodiData = responseKaprodi.data.data
  
         } catch (error) {
@@ -763,7 +763,7 @@ import axios from 'axios'
         if (this.kajurData.length === 0 ) {
            await axios({
             method:'post',
-            url: 'http://localhost:3000/api/jurusan/',
+            url: this.$root.BASE_URL + '/api/jurusan/',
             data: {
               id_jurusan : 'JRS001',
               NIP: this.formKajur.selectedItem,
@@ -782,7 +782,7 @@ import axios from 'axios'
         } else {
             await axios({
             method:'put',
-            url: 'http://localhost:3000/api/jurusan/'+ this.kajurData.id_jurusan,
+            url: this.$root.BASE_URL + '/api/jurusan/'+ this.kajurData.id_jurusan,
             data: {
               id_jurusan : this.kajurData.id_jurusan,
               NIP: this.formKajur.selectedItem,
@@ -803,7 +803,7 @@ import axios from 'axios'
 
         await axios({
             method:'put',
-            url: 'http://localhost:3000/api/prodi/'+ this.kaprodiData[0].id_prodi,
+            url: this.$root.BASE_URL + '/api/prodi/'+ this.kaprodiData[0].id_prodi,
             data: {
               id_prodi: this.kaprodiData[0].id_prodi,
               NIP: this.formKaprodiD4.selectedItem,
@@ -822,7 +822,7 @@ import axios from 'axios'
           })
         await axios({
             method:'put',
-            url: 'http://localhost:3000/api/prodi/'+ this.kaprodiData[1].id_prodi,
+            url: this.$root.BASE_URL + '/api/prodi/'+ this.kaprodiData[1].id_prodi,
             data: {
               id_prodi: this.kaprodiData[1].id_prodi,
               NIP: this.formKaprodiD3.selectedItem,
@@ -853,7 +853,7 @@ import axios from 'axios'
 
       async initialize () {
          try {
-          const response = await axios.get(`http://localhost:3000/api/dosen`);
+          const response = await axios.get(this.$root.BASE_URL + `/api/dosen`);
           this.dosen = response.data.data
 
           this.formKajur.items = this.dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
@@ -888,7 +888,7 @@ import axios from 'axios'
       deleteItemConfirm () {
         axios({
             method:'delete',
-            url: 'http://localhost:3000/api/dosen/'+ this.editedItem.NIP
+            url: this.$root.BASE_URL + '/api/dosen/'+ this.editedItem.NIP
             
           })
           .then(response => {
@@ -911,7 +911,7 @@ import axios from 'axios'
         console.log(this.sendEmailTo)
         axios({
           method:'post',
-          url: 'http://localhost:3000/api/dosen/sendemail/'+ this.sendEmailTo,
+          url: this.$root.BASE_URL + '/api/dosen/sendemail/'+ this.sendEmailTo,
         })
         .then(response => {
           console.log(response.data)
@@ -930,7 +930,7 @@ import axios from 'axios'
           console.log(item.NIP)
           // axios({
           //   method:'post',
-          //   url: 'http://localhost:3000/api/dosen/sendemail/'+ item.NIP,
+          //   url: this.$root.BASE_URL + '/api/dosen/sendemail/'+ item.NIP,
           // })
           // .then(response => {
           //   console.log(response.data)
@@ -973,7 +973,7 @@ import axios from 'axios'
         if (this.editedIndex > -1) {
           axios({
             method:'put',
-            url: 'http://localhost:3000/api/dosen/'+ this.editedItem.NIP,
+            url: this.$root.BASE_URL + '/api/dosen/'+ this.editedItem.NIP,
             data: this.editedItem
           })
           .then(response => {
@@ -997,7 +997,7 @@ import axios from 'axios'
         } else {
           axios({
             method:'post',
-            url: 'http://localhost:3000/api/signupuser/dosen/',
+            url: this.$root.BASE_URL + '/api/signupuser/dosen/',
             data: {
              username: this.editedItem.NIP,
              nama: this.editedItem.nama,

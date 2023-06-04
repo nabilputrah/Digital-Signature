@@ -26,7 +26,7 @@
         :headers="headers"
         :search="search"
         :items="KoTA"
-        item-key="id_KoTA"
+        item-key="dokumen"
         sort-by="id_KoTA"
         show-expand
         class="elevation-1"
@@ -311,12 +311,12 @@ import axios from 'axios'
         const headers = { Authorization: `Bearer ${token}` };
         
         try {
-          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
+          const response = await axios.get(this.$root.BASE_URL + `/api/getkoordata/${this.navbar.id_user}`, { headers });
           this.loggedIn = response.data.data[0]
           //Get All Mahasiswa
-          // const responseList = await axios.get(`http://localhost:3000/api/mahasiswa/`);
+          // const responseList = await axios.get(this.$root.BASE_URL + `/api/mahasiswa/`);
           // const listMahasiswa = responseList.data.data
-          const responseListKoTA = await axios.get('http://localhost:3000/api/KoTA/Prodi/'+this.loggedIn.id_prodi)
+          const responseListKoTA = await axios.get(this.$root.BASE_URL + '/api/KoTA/Prodi/'+this.loggedIn.id_prodi)
           const list = responseListKoTA.data.data
           const regex = /^(\d{4})(\d{3})(\d{4})$/;
           const mappedKoTA = list.map((item) => ({
@@ -334,14 +334,14 @@ import axios from 'axios'
         this.KoTA.forEach(async (item, index) => {
           try {
             //Get Anggota
-            const response = await axios.get('http://localhost:3000/api/mahasiswakota/' + item.dokumen);
+            const response = await axios.get(this.$root.BASE_URL + '/api/mahasiswakota/' + item.dokumen);
             this.mahasiswaKoTA[index] = response.data.data;
             console.log(this.mahasiswaKoTA[index])
             //Get Pembimbing
-            const responsePembimbing = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ item.dokumen)
+            const responsePembimbing = await axios.get(this.$root.BASE_URL + '/api/relasibykota/pembimbing/'+ item.dokumen)
             this.pembimbingKoTA[index] = responsePembimbing.data.data
 
-            const responsePenguji = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ item.dokumen)
+            const responsePenguji = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ item.dokumen)
             this.pengujiKoTA[index] = responsePenguji.data.data
 
             const selectedItem = this.mahasiswaKoTA[index].map((item) => ({
@@ -364,7 +364,7 @@ import axios from 'axios'
       },
 
       async redirectToAddKoTA () {
-        const response = await axios.get(`http://localhost:3000/api/checkkajurkaprodi`);
+        const response = await axios.get(this.$root.BASE_URL + `/api/checkkajurkaprodi`);
         const CanADD = response.data
         if ((CanADD.kajur == 1) && (CanADD.kaprodi == 2)){
           this.$router.push(`/koordinator/KoTA/tambah_KoTA`);
@@ -399,7 +399,7 @@ import axios from 'axios'
         console.log(this.isLoading)
         axios({
           method:'post',
-          url: 'http://localhost:3000/api/mahasiswa/sendemail/'+ this.sendEmailTo,
+          url: this.$root.BASE_URL + '/api/mahasiswa/sendemail/'+ this.sendEmailTo,
         })
         .then(response => {
           console.log(response.data)
@@ -421,7 +421,7 @@ import axios from 'axios'
           // console.log(item.dokumen)
           axios({
             method:'post',
-            url: 'http://localhost:3000/api/mahasiswa/sendemail/'+ item.dokumen,
+            url: this.$root.BASE_URL + '/api/mahasiswa/sendemail/'+ item.dokumen,
           })
           .then(response => {
             console.log(response.data)

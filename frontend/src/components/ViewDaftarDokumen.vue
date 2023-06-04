@@ -120,14 +120,14 @@ import axios from 'axios'
         
 
          try {
-            const response = await axios.get(`http://localhost:3000/api/getdosendata/${this.dataFromToken.id_user}`)
+            const response = await axios.get(this.$root.BASE_URL + `/api/getdosendata/${this.dataFromToken.id_user}`)
             this.dosen = response.data.data[0]
           } catch (error) {
             console.error(error.message);
           }
 
           try {
-            const responseRelasiDosen = await axios.get('http://localhost:3000/api/relasibynip/'+ this.dosen.NIP)
+            const responseRelasiDosen = await axios.get(this.$root.BASE_URL + '/api/relasibynip/'+ this.dosen.NIP)
             const regex = /^(\d{4})(\d{3})(\d{4})$/;
             const list = responseRelasiDosen.data.data
 
@@ -155,7 +155,7 @@ import axios from 'axios'
 
           this.KoTA.forEach(async (item) => {
             try {
-              const response = await axios.get(`http://localhost:3000/api/relasi/accessttd/${item.role}/${item.id_detailLaporan}`)
+              const response = await axios.get(this.$root.BASE_URL + `/api/relasi/accessttd/${item.role}/${item.id_detailLaporan}`)
               const akses = response.data.data
               console.log(akses)
               if (akses > 0 && (item.role==='Kaprodi')){

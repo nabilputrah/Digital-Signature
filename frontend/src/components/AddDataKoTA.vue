@@ -259,6 +259,23 @@
     </div>
     </v-card>
     <!-- End Card -->
+    <v-snackbar 
+      v-model="snackbar.show" 
+      :color="snackbar.color" 
+      top 
+      right 
+      :timeout="3000"
+      style="margin-right: 1%;"
+    >
+      <span>
+        {{ snackbar.message }}
+      </span>
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 
 </template>
@@ -320,6 +337,13 @@ export default {
         tahun_ajaran: [
           v => !!v || "Tahun Ajaran wajib diisi",
         ],
+      },
+
+      // Notifikasi Berhasil
+      snackbar: {
+        show: false,
+        message: "",
+        color: "",
       },
 
     }
@@ -387,7 +411,7 @@ export default {
   methods: {
   
     async CheckPimpinan(){
-      const response = await axios.get(`http://localhost:3000/api/checkkajurkaprodi`);
+      const response = await axios.get(this.$root.BASE_URL + `/api/checkkajurkaprodi`);
         const CanADD = response.data
         if ((CanADD.kajur < 1) || (CanADD.kaprodi < 2)){
           console.log("MASUUK")
@@ -396,9 +420,9 @@ export default {
     },
 
      async initializePimpinanList() {
-        const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
+        const responseKajur = await axios.get(this.$root.BASE_URL + '/api/jurusan')
         this.kajurData = responseKajur.data.data[0]
-        const responseKaprodi = await axios.get('http://localhost:3000/api/prodi')
+        const responseKaprodi = await axios.get(this.$root.BASE_URL + '/api/prodi')
         this.kaprodiData = responseKaprodi.data.data
      },
 
@@ -407,7 +431,7 @@ export default {
         const headers = { Authorization: `Bearer ${token}` };
         
         try {
-          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
+          const response = await axios.get(this.$root.BASE_URL + `/api/getkoordata/${this.navbar.id_user}`, { headers });
           this.loggedIn = response.data.data[0]
           // console.log(this.loggedIn.nama_prodi)
          
@@ -458,7 +482,7 @@ export default {
 
     async initializeMahasiswaList () {
         try {
-          const response = await axios.get(`http://localhost:3000/api/mahasiswa/`);
+          const response = await axios.get(this.$root.BASE_URL + `/api/mahasiswa/`);
           const mahasiswa = response.data.data
 
           if (this.loggedIn.nama_prodi === 'D4') {
@@ -495,7 +519,7 @@ export default {
 
     async initializePembimbingList () {
         try {
-          const response = await axios.get(`http://localhost:3000/api/dosen`);
+          const response = await axios.get(this.$root.BASE_URL + `/api/dosen`);
           const dosen = response.data.data
         
           this.formPembimbing.forEach((item) => {
@@ -508,7 +532,7 @@ export default {
 
     async initializePengujiList () {
         try {
-          const response = await axios.get(`http://localhost:3000/api/dosen`);
+          const response = await axios.get(this.$root.BASE_URL + `/api/dosen`);
           const dosen = response.data.data
         
           this.formPenguji.forEach((item) => {
@@ -537,7 +561,7 @@ export default {
       // insert data to kota 
       await axios({
         method:'post',
-        url: 'http://localhost:3000/api/signupuser/kota',
+        url: this.$root.BASE_URL + '/api/signupuser/kota',
         data: {
           username: generatedIdKota,
           nama_KoTA: namaKota,
@@ -553,12 +577,19 @@ export default {
 
       })
       .catch(error => {
-          console.log(error.request.response)
+          console.log(error.request.response) 
+          this.MessageError = error.request.response
+          if (this.MessageError.includes('Username must be unique')){
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "ID_KoTA sudah terdaftar!";
+            throw "ID_KoTA sudah terdaftar!";
+          }
       })
       // insert data to laporan 
       await axios({
         method:'post',
-        url: 'http://localhost:3000/api/laporan',
+        url: this.$root.BASE_URL + '/api/laporan',
         data: {
           id_laporan:generatedIdKota,
           id_KoTA: generatedIdKota,
@@ -579,7 +610,7 @@ export default {
       if (this.form.length === 1) {
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[0].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: true 
@@ -598,7 +629,7 @@ export default {
       else if (this.form.length === 2) {
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[0].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: true 
@@ -615,7 +646,7 @@ export default {
 
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[1].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[1].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: false 
@@ -634,7 +665,7 @@ export default {
       else if (this.form.length === 3) {
         axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[0].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: true 
@@ -651,7 +682,7 @@ export default {
 
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[1].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[1].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: false 
@@ -668,7 +699,7 @@ export default {
 
         await axios({
           method:'put',
-          url: 'http://localhost:3000/api/mahasiswastatus/'+ this.form[2].selectedItem,
+          url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[2].selectedItem,
           data: {
             id_KoTA: generatedIdKota,
             isKetua: false 
@@ -689,7 +720,7 @@ export default {
       if (this.formPembimbing.length === 2) {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[0].selectedItem,
@@ -708,7 +739,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[1].selectedItem,
@@ -731,7 +762,7 @@ export default {
       else if (this.formPembimbing.length === 3) {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[0].selectedItem,
@@ -750,7 +781,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[1].selectedItem,
@@ -769,7 +800,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPembimbing[2].selectedItem,
@@ -793,7 +824,7 @@ export default {
       if (this.formPenguji.length === 2) {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[0].selectedItem,
@@ -812,7 +843,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[1].selectedItem,
@@ -832,7 +863,7 @@ export default {
       else if (this.formPenguji.length === 3) {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[0].selectedItem,
@@ -851,7 +882,7 @@ export default {
 
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[1].selectedItem,
@@ -869,7 +900,7 @@ export default {
         })
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.formPenguji[2].selectedItem,
@@ -891,7 +922,7 @@ export default {
       if (this.loggedIn.id_prodi === 'PRD001') {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.kaprodiData[0].NIP,
@@ -912,7 +943,7 @@ export default {
       else if (this.loggedIn.id_prodi === 'PRD002') {
         await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.kaprodiData[1].NIP,
@@ -932,7 +963,7 @@ export default {
       // relasi Kajur
       await axios({
           method:'post',
-          url: 'http://localhost:3000/api/relasi/',
+          url: this.$root.BASE_URL + '/api/relasi/',
           data: {
             id_KoTA: generatedIdKota,
             NIP: this.kajurData.NIP,
@@ -951,7 +982,7 @@ export default {
       // relasi Secret Key
       await axios({
           method:'post',
-          url: 'http://localhost:3000/api/sharekey/',
+          url: this.$root.BASE_URL + '/api/sharekey/',
           data: {
             id_laporan:'Laporan_' + generatedIdKota,
             

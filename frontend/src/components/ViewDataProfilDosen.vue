@@ -20,76 +20,78 @@
         <v-card-title>Profil Dosen</v-card-title>
         <v-card-text >
           <v-form>
-            <!-- Start Form Nama NIP -->
-            <v-row>
-              <v-col cols="4">
-                <div class="justify-center">
-                  <span 
-                  style="font-size:1rem;"
-                  >NIP</span>
-                </div>
-              </v-col>
-              <v-col cols="8" >
-                <v-text-field 
-                v-model="dosen.NIP"
-                :rules="rules"
-                placeholder="Nama NIP"
-                dense
-                outlined
-                disabled
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <!-- End Form Nama NIP -->
-            <!-- Start Form Nama Dosen -->
-            <v-row>
-              <v-col cols="4">
-                <div class="justify-center">
-                  <span 
-                  style="font-size:1rem;"
-                  >Nama Dosen</span>
-                  <v-text-field__details></v-text-field__details>
-                </div>
-              </v-col>
-              <v-col cols="8" >
-                <v-text-field 
-                v-model="dosen.nama"
-                :rules="rules"
-                placeholder="Nama Dosen"
-                dense
-                outlined
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <!-- End Form Nama Dosen -->
-            <!-- Start Form Email -->
-            <v-row>
-              <v-col cols="4">
-                <div class="justify-center">
-                  <span 
-                  style="font-size:1rem;"
-                  >Email</span>
-                  <v-text-field__details></v-text-field__details>
-                </div>
-              </v-col>
-              <v-col cols="8" >
-                <v-text-field 
-                v-model="dosen.email"
-                :rules="rules"
-                placeholder="Email"
-                dense
-                outlined
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <!-- End Form Email -->
-            <!-- Start Button Simpan Perubahan -->
-            <v-row >
-              <v-col class="text-right" >
-                <v-btn color="primary" @click="save">Simpan Perubahan</v-btn>
-              </v-col>
-            </v-row>
-            <!-- End Button Simpan Perubahan -->
+            <v-form ref="form" v-model="validasiProfil">
+              <!-- Start Form Nama NIP -->
+              <v-row>
+                <v-col cols="4">
+                  <div class="justify-center">
+                    <span 
+                    style="font-size:1rem;"
+                    >NIP</span>
+                  </div>
+                </v-col>
+                <v-col cols="8" >
+                  <v-text-field 
+                  v-model="dosen.NIP"
+                  :rules="rules"
+                  placeholder="Nama NIP"
+                  dense
+                  outlined
+                  disabled
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <!-- End Form Nama NIP -->
+              <!-- Start Form Nama Dosen -->
+              <v-row>
+                <v-col cols="4">
+                  <div class="justify-center">
+                    <span 
+                    style="font-size:1rem;"
+                    >Nama Dosen</span>
+                    <v-text-field__details></v-text-field__details>
+                  </div>
+                </v-col>
+                <v-col cols="8" >
+                  <v-text-field 
+                  v-model="dosen.nama"
+                  :rules="rules"
+                  placeholder="Nama Dosen"
+                  dense
+                  outlined
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <!-- End Form Nama Dosen -->
+              <!-- Start Form Email -->
+              <v-row>
+                <v-col cols="4">
+                  <div class="justify-center">
+                    <span 
+                    style="font-size:1rem;"
+                    >Email</span>
+                    <v-text-field__details></v-text-field__details>
+                  </div>
+                </v-col>
+                <v-col cols="8" >
+                  <v-text-field 
+                  v-model="dosen.email"
+                  :rules="rules"
+                  placeholder="Email"
+                  dense
+                  outlined
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <!-- End Form Email -->
+              <!-- Start Button Simpan Perubahan -->
+              <v-row >
+                <v-col class="text-right" >
+                  <v-btn color="primary" :disabled="!validasiProfil" @click="save">Simpan Perubahan</v-btn>
+                </v-col>
+              </v-row>
+              <!-- End Button Simpan Perubahan -->
+            </v-form>
             <!-- Start Form Password -->
             <v-form ref="form" v-model="validasiFormPass">
               <v-row>
@@ -201,6 +203,7 @@ export default {
     return {
 
       validasiFormPass: false,
+      validasiProfil:false,
       dataFromToken: '',
       dosen:'',
       // // Data Form Nama
@@ -245,7 +248,7 @@ export default {
     async save() {
       axios({
           method:'put',
-          url: 'http://localhost:3000/api/dosen/'+ this.dosen.NIP,
+          url: this.$root.BASE_URL + '/api/dosen/'+ this.dosen.NIP,
           data: {
             NIP: this.dosen.NIP,
             nama: this.dosen.nama,
@@ -268,7 +271,7 @@ export default {
 
     async initialize() {
        try {
-            const response = await axios.get(`http://localhost:3000/api/getdosendata/${this.dataFromToken.id_user}`)
+            const response = await axios.get(this.$root.BASE_URL + `/api/getdosendata/${this.dataFromToken.id_user}`)
             this.dosen = response.data.data[0]
           } catch (error) {
             console.error(error.message);
@@ -282,7 +285,7 @@ export default {
     changePassword() {
       axios({
           method:'post',
-          url: 'http://localhost:3000/api/checkCurrentPassword/',
+          url: this.$root.BASE_URL + '/api/checkCurrentPassword/',
           data: {
            username: this.dosen.NIP,
            password: this.currentPassword
@@ -317,7 +320,7 @@ export default {
       // change password in db
       axios({
           method:'put',
-          url: 'http://localhost:3000/api/user/change-password/'+ this.dosen.id_user,
+          url: this.$root.BASE_URL + '/api/user/change-password/'+ this.dosen.id_user,
           data: {
            currentPassword: this.currentPassword,
            newPassword: this.newPassword

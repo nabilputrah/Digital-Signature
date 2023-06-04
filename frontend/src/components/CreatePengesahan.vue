@@ -1,7 +1,6 @@
 <template>
   <div>
-    <!-- End HTML Lembar Pengesahan Halaman 2 -->
-    <!-- End HTML Lembar Pengesahan Halaman 2 -->
+    <!-- Start HTML Lembar Pengesahan Halaman 1 --> 
     <div 
     :hidden="true"
     >
@@ -97,9 +96,9 @@
         </div>
       </div>
     </div>
+    <!-- End HTML Lembar Pengesahan Halaman 1 -->
 
-    <!-- Start HTML Lembar Pengesahan Halaman 2 -->
-    <!-- Start HTML Lembar Pengesahan Halaman 2 -->
+     <!-- Start HTML Lembar Pengesahan Halaman 2 -->
     <div 
       :hidden="true"      
     >
@@ -158,13 +157,17 @@
                   <p>NIP. {{ dosen.NIP }}</p>
                 </v-col>
                 <v-col cols="3" >
-                  <!-- <img width="100px" height="70px" src="../assets/uploads/img_ttd/20224022023/Penguji_234234234234234232.png"> -->
+                  <p 
+                    style="margin-top: 50px; position: absolute;"
+                  >
+                  ..................................
+                  </p>
                   <img 
                     width="100px" 
                     height="70px" 
                     :src="dosen.img"
+                    style="position: relative; "
                     >
-                  <!-- <img src="imageURL" alt=""> -->
                 </v-col>
               </v-row>
             </v-col>
@@ -175,6 +178,7 @@
         </div>
       </div>
     </div>
+    <!-- End HTML Lembar Pengesahan Halaman 2 -->
     <!-- <button @click="generatePDF">Generate PDF</button> -->
     <!-- <button @click="Do_Sign"> Tanda Tangan</button> -->
 
@@ -442,10 +446,10 @@ export default {
 
   methods: {
     async checkLembarPengesahan(){
-      const responseKoTA = await axios.get(`http://localhost:3000/api/getkotadata/${this.dataFromToken.id_user}`)
+      const responseKoTA = await axios.get(this.$root.BASE_URL + `/api/getkotadata/${this.dataFromToken.id_user}`)
       this.kota = responseKoTA.data.data[0]
       console.log(this.kota.id_KoTA)
-      const response = await axios.get(`http://localhost:3000/api/ceklembarpengesahan/Laporan_${this.kota.id_KoTA}`)
+      const response = await axios.get(this.$root.BASE_URL + `/api/ceklembarpengesahan/Laporan_${this.kota.id_KoTA}`)
       const message = response.data.message
       console.log(message)
 
@@ -458,44 +462,44 @@ export default {
     async initialize () {
 
     try {
-        const response = await axios.get(`http://localhost:3000/api/getkotadata/${this.dataFromToken.id_user}`)
+        const response = await axios.get(this.$root.BASE_URL + `/api/getkotadata/${this.dataFromToken.id_user}`)
         this.kota = response.data.data[0]
         console.log(this.kota)
         const id_kota = this.kota.id_KoTA
 
-        const responseAnggota = await axios.get('http://localhost:3000/api/mahasiswakota/' + id_kota);
+        const responseAnggota = await axios.get(this.$root.BASE_URL + '/api/mahasiswakota/' + id_kota);
         this.Anggota = responseAnggota.data.data;
 
-        const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +id_kota)
+        const responseListLaporan = await axios.get(this.$root.BASE_URL + '/api/laporankota/' +id_kota)
         this.laporan = responseListLaporan.data.data
 
         // Get Data Pembimbing
-        const responsePembimbing = await axios.get('http://localhost:3000/api/relasibykota/pembimbing/'+ this.laporan.id_KoTA)
+        const responsePembimbing = await axios.get(this.$root.BASE_URL + '/api/relasibykota/pembimbing/'+ this.laporan.id_KoTA)
         this.Pembimbing = responsePembimbing.data.data
 
         // Get Image TTD Pembimbing
         try {
-          this.Pembimbing[0].img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Pembimbing[0].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
-          this.Pembimbing[1].img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Pembimbing[1].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
+          this.Pembimbing[0].img = this.$root.BASE_URL + '/api/relasi/gambarttd/'+ this.Pembimbing[0].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
+          this.Pembimbing[1].img = this.$root.BASE_URL + '/api/relasi/gambarttd/'+ this.Pembimbing[1].NIP +'/Pembimbing/'+ this.laporan.id_KoTA
         } catch (error) {
           console.error(error);
         }
 
         // Get Data Penguji
-        const responsePenguji = await axios.get('http://localhost:3000/api/relasibykota/penguji/'+ this.laporan.id_KoTA)
+        const responsePenguji = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ this.laporan.id_KoTA)
         this.Penguji = responsePenguji.data.data
 
         // Get Image TTD Penguji
         this.Penguji.forEach(async (item) => {
           try {
-            item.img = 'http://localhost:3000/api/relasi/gambarttd/'+ item.NIP +'/Penguji/'+ this.laporan.id_KoTA
+            item.img = this.$root.BASE_URL + '/api/relasi/gambarttd/'+ item.NIP +'/Penguji/'+ this.laporan.id_KoTA
           } catch (error) {
             console.error(error.message);
           }
         });
 
         // Get Data Kaprodi
-        const responseKaprodi = await axios.get('http://localhost:3000/api/prodi/'+this.Anggota[0].id_prodi)
+        const responseKaprodi = await axios.get(this.$root.BASE_URL + '/api/prodi/'+this.Anggota[0].id_prodi)
         this.kaprodiData = responseKaprodi.data.data
 
         if (this.Anggota[0].id_prodi === 'PRD001'){
@@ -504,19 +508,19 @@ export default {
             this.Prodi = 'D3'
         }
 
-        const DataKaprodi = await axios.get('http://localhost:3000/api/dosen/'+ this.kaprodiData.NIP,)
+        const DataKaprodi = await axios.get(this.$root.BASE_URL + '/api/dosen/'+ this.kaprodiData.NIP,)
         this.Kaprodi = DataKaprodi.data.data    
 
         // Get Data Kajur
-        const responseKajur = await axios.get('http://localhost:3000/api/jurusan')
+        const responseKajur = await axios.get(this.$root.BASE_URL + '/api/jurusan')
         this.Kajur = responseKajur.data.data[0]    
-        const DataKajur = await axios.get('http://localhost:3000/api/dosen/'+ this.Kajur.NIP,)
+        const DataKajur = await axios.get(this.$root.BASE_URL + '/api/dosen/'+ this.Kajur.NIP,)
         this.Kajur = DataKajur.data.data
 
         // Get TTD image Kajur n Kaprodi
         try {
-          this.Kaprodi.img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Kaprodi.NIP +'/Kaprodi/'+ this.laporan.id_KoTA
-          this.Kajur.img = 'http://localhost:3000/api/relasi/gambarttd/'+ this.Kajur.NIP +'/Kajur/'+ this.laporan.id_KoTA
+          this.Kaprodi.img = this.$root.BASE_URL + '/api/relasi/gambarttd/'+ this.Kaprodi.NIP +'/Kaprodi/'+ this.laporan.id_KoTA
+          this.Kajur.img = this.$root.BASE_URL + '/api/relasi/gambarttd/'+ this.Kajur.NIP +'/Kajur/'+ this.laporan.id_KoTA
         } catch (error) {
           console.error(error.message.request);
         }
@@ -540,7 +544,7 @@ export default {
 
         this.checkLembarPengesahan()
 
-        const responsePDF = await axios.get('http://localhost:3000/api/lembarpengesahan/'+ this.laporan.id_laporan,{responseType:'blob'})
+        const responsePDF = await axios.get(this.$root.BASE_URL + '/api/lembarpengesahan/'+ this.laporan.id_laporan,{responseType:'blob'})
         this.pdfUrl = URL.createObjectURL(responsePDF.data);
         this.showPdf();
 
@@ -610,7 +614,7 @@ export default {
       this.isLoading = true
       await axios({
           method:'put',
-          url: 'http://localhost:3000/api/laporan/'+ this.kota.id_KoTA,
+          url: this.$root.BASE_URL + '/api/laporan/'+ this.kota.id_KoTA,
           data: this.laporan
         })
         .then(response => {
@@ -657,7 +661,7 @@ export default {
 
               formData.append('lembar_pengesahan',blob)
 
-              await axios.put('http://localhost:3000/api/lembarpengesahan/'+ this.laporan.id_laporan, formData, {
+              await axios.put(this.$root.BASE_URL + '/api/lembarpengesahan/'+ this.laporan.id_laporan, formData, {
                 headers : {
                   'Content-Type' : 'multipart/form-data'
                 }

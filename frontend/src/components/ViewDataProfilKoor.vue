@@ -28,58 +28,71 @@
       <div style="width: 97%;margin-left: auto;margin-right: auto;">
         <v-card-title>Profil Koordinator</v-card-title>
         <v-card-text >
-          <v-form>
-            <!-- Start Form Nama Koordinator -->
-            <v-row>
-              <v-col cols="4">
-                <div class="justify-center">
-                  <span 
-                  style="font-size:1rem;"
-                  >Nama Koordinator</span>
-                  <v-text-field__details></v-text-field__details>
-                </div>
-              </v-col>
-              <v-col cols="8" >
-                <v-text-field 
-                v-model="koordinator.nama_koordinator"
-                :rules="rules"
-                placeholder="Nama Koordinator"
-                dense
-                outlined
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <!-- End Form Nama Koordinator -->
-            <!-- Start Form Tahun Ajaran -->
-            <v-row>
-              <v-col cols="4">
-                <div class="justify-center">
-                  <span 
-                  style="font-size:1rem;"
-                  >Tahun Ajaran</span>
-                  <v-text-field__details></v-text-field__details>
-                </div>
-              </v-col>
-              <v-col>
-                <v-select
-                  v-model="koordinator.tahun_ajaran"
-                  :items="listTahunAjaran"
-                  item-text="tahunAjaran"
-                  item-value="tahunAjaran"
-                  @change="onChangeTahunAjaran"
-                  dense
+          <v-form ref="form">
+            <v-form ref="form" v-model="validasiProfil">
+              <!-- Start Form Nama Koordinator -->
+              <v-row>
+                <v-col cols="4">
+                  <div class="justify-center">
+                    <span 
+                    style="font-size:1rem;"
+                    >Nama Koordinator</span>
+                    <v-text-field__details></v-text-field__details>
+                  </div>
+                </v-col>
+                <v-col cols="8" >
+                  <v-select
+                  v-model="formKoordinator.selectedItem"
+                  :items="filteredKoordinator()"
                   outlined
-                  :menu-props="{ offsetY: true, maxHeight: '200px' }"
-                />
-              </v-col>
-            </v-row>
-            <!-- End Form Tahun Ajaran -->
-            <!-- Start Button Simpan Perubahan -->
-            <v-row >
-              <v-col class="text-right" >
-                <v-btn color="primary" @click="save">Simpan Perubahan</v-btn>
-              </v-col>
-            </v-row>
+                  dense
+                  :menu-props="{ offsetY: true}"
+                  :placeholder="'Pilih Nama Dosen'"
+                >
+                  <template v-slot:prepend-item>
+                    <v-text-field
+                    style="width: 97%;margin-left: auto;margin-right: auto;"
+                      v-model="formKoordinator.search"
+                      :label="'Cari Dosen'"
+                      hide-details
+                      @input="onSearchKoor()"
+                    />
+                  </template>
+                </v-select>
+                </v-col>
+              </v-row>
+              <!-- End Form Nama Koordinator -->
+              <!-- Start Form Tahun Ajaran -->
+              <v-row>
+                <v-col cols="4">
+                  <div class="justify-center">
+                    <span 
+                    style="font-size:1rem;"
+                    >Tahun Ajaran</span>
+                    <v-text-field__details></v-text-field__details>
+                  </div>
+                </v-col>
+                <v-col>
+                  <v-select
+                    v-model="koordinator.tahun_ajaran"
+                    :items="listTahunAjaran"
+                    item-text="tahunAjaran"
+                    item-value="tahunAjaran"
+                    @change="onChangeTahunAjaran"
+                    dense
+                    outlined
+                    :menu-props="{ offsetY: true, maxHeight: '200px' }"
+                  />
+                </v-col>
+              </v-row>
+              <!-- End Form Tahun Ajaran -->
+              <!-- Start Button Simpan Perubahan -->
+              <v-row >
+                <v-col class="text-right" >
+                  <v-btn color="primary" :disabled="!validasiProfil" @click="save">Simpan Perubahan</v-btn>
+                </v-col>
+              </v-row>
+            </v-form>
             <!-- End Button Simpan Perubahan -->
             <!-- Start Form Password -->
             <v-form ref="form" v-model="validasiFormPass">
@@ -138,7 +151,7 @@
                     ></v-text-field>
                   </v-col>
               </v-row>
-          </v-form>
+            </v-form>
 
             <!-- End Form Password -->
             <!-- Start Button Change Password -->
@@ -193,8 +206,16 @@ export default {
   data() {
     return {
       validasiFormPass: false,
+      validasiProfil:false,
       dataFromToken: '',
       koordinator:'',
+
+      formKoordinator: {
+        selectedItem: '',
+        items: ['Dosen 1', 'Dosen 2'],
+        search: '',
+      },
+
       // Data Form Nama
       // name : "Djoko Cahyo Utomo Lieharyani",
       rules: [
@@ -229,22 +250,52 @@ export default {
       const payload = JSON.parse(atob(token.split('.')[1]));
       this.dataFromToken= payload.user;
     }
-
     this.initialize()
-    
+    this.initializeKoordinatorList()
     this.generateListTahunAjaran();
   },
 
+  computed: {
+    filteredKoordinator() {
+      return () => {
+        const items = this.formKoordinator.items;
+        const search = this.formKoordinator.search;
+        if (search.length === 0) {
+          return items;
+        } else {
+          return items.filter((item) =>
+            item.text.toLowerCase().includes(search.toLowerCase())
+          );
+        }
+      };
+    },
+  },
+  
   methods: {
+    async initializeKoordinatorList() {
+      try {
+        const token = localStorage.getItem('token'); 
+        const headers = { Authorization: `Bearer ${token}` };
+        const responseKoor = await axios.get(this.$root.BASE_URL + `/api/getkoordata/${this.dataFromToken.id_user}`, { headers });
+        const KoorData = responseKoor.data.data[0]
+
+        this.formKoordinator.selectedItem = KoorData.nama_koordinator
+      
+      } catch (error) {
+        console.log(error.message.request)
+      }
+    
+    },
+
     async save() {
       axios({
           method:'put',
-          url: 'http://localhost:3000/api/koordinator/'+ this.koordinator.id_koor,
+          url: this.$root.BASE_URL + '/api/koordinator/'+ this.koordinator.id_koor,
           data: {
             id_koor: this.koordinator.id_koor,
             id_user: this.koordinator.id_user,
             id_prodi: this.koordinator.id_prodi,
-            nama_koordinator: this.koordinator.nama_koordinator,
+            nama_koordinator: this.formKoordinator.selectedItem,
             tahun_ajaran: this.koordinator.tahun_ajaran,
           }
         })
@@ -266,8 +317,15 @@ export default {
       try {
           const token = localStorage.getItem('token'); 
           const headers = { Authorization: `Bearer ${token}` };
-          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.dataFromToken.id_user}`, { headers });
+          const response = await axios.get(this.$root.BASE_URL + `/api/getkoordata/${this.dataFromToken.id_user}`, { headers });
+          const responseDosen = await axios.get(this.$root.BASE_URL + `/api/dosen`);
+          this.dosen = responseDosen.data.data
           this.koordinator = response.data.data[0]
+          console.log(this.koordinator.nama_koordinator)
+
+          this.formKoordinator.items = this.dosen.map((dsn) => ({ value: dsn.nama, text: `${dsn.nama}` }));
+
+          console.log(this.formKoordinator.items)
           console.log(this.koordinator)
         } catch (error) {
           console.error(error.message);
@@ -283,6 +341,12 @@ export default {
       }
       this.listTahunAjaran = list;
     },
+
+    onSearchKoor() {
+        if (this.formKoordinator.search.length > 0) {
+          this.formKoordinator.selectedItem = null;
+        }
+      },
 
     onChangeTahunAjaran() {
       console.log(`Anda memilih tahun ajaran ${this.tahunAjaran}`);
@@ -300,7 +364,7 @@ export default {
     changePassword() {
       axios({
           method:'post',
-          url: 'http://localhost:3000/api/checkCurrentPassword/',
+          url: this.$root.BASE_URL + '/api/checkCurrentPassword/',
           data: {
            username: this.koordinator.id_koor,
            password: this.currentPassword
@@ -334,7 +398,7 @@ export default {
       // change password in db
       axios({
           method:'put',
-          url: 'http://localhost:3000/api/user/change-password/'+ this.koordinator.id_user,
+          url: this.$root.BASE_URL + '/api/user/change-password/'+ this.koordinator.id_user,
           data: {
            currentPassword: this.currentPassword,
            newPassword: this.newPassword

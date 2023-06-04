@@ -396,7 +396,7 @@ export default {
     },
     async initializeToken() {
        try {
-            const response = await axios.get(`http://localhost:3000/api/getdosendata/${this.dataFromToken.id_user}`)
+            const response = await axios.get(this.$root.BASE_URL + `/api/getdosendata/${this.dataFromToken.id_user}`)
             this.dosen = response.data.data[0]
           } catch (error) {
             console.error(error.message);
@@ -405,10 +405,10 @@ export default {
 
     async initializeAksesTTD() {
 
-        const response = await axios.get(`http://localhost:3000/api/ceklembarpengesahan/Laporan_${this.$route.params.id}`)
+        const response = await axios.get(this.$root.BASE_URL + `/api/ceklembarpengesahan/Laporan_${this.$route.params.id}`)
         const message = response.data.message
 
-        const responseFinal = await axios.get(`http://localhost:3000/api/getstatuscanTTD/${this.$route.params.id}`)
+        const responseFinal = await axios.get(this.$root.BASE_URL + `/api/getstatuscanTTD/${this.$route.params.id}`)
         const messageFinal = responseFinal.data.statusLaporan
 
         console.log(messageFinal)
@@ -421,7 +421,7 @@ export default {
 
         if (this.$route.params.role === "Kaprodi" || this.$route.params.role === "Kajur"){
           try {
-            const response = await axios.get(`http://localhost:3000/api/relasi/accessttd/${this.$route.params.role}/${this.$route.params.id}`)
+            const response = await axios.get(this.$root.BASE_URL + `/api/relasi/accessttd/${this.$route.params.role}/${this.$route.params.id}`)
             const akses = response.data.data
             console.log(akses)
             if (akses > 0){
@@ -437,16 +437,16 @@ export default {
       try {
         this.id_KoTA = this.$route.params.id
 
-        const responseListLaporan = await axios.get('http://localhost:3000/api/laporankota/' +this.id_KoTA)
+        const responseListLaporan = await axios.get(this.$root.BASE_URL + '/api/laporankota/' +this.id_KoTA)
         this.laporan = responseListLaporan.data.data
 
-         const responseRelasi = await axios.get('http://localhost:3000/api/relasi/KoTA/' +  this.id_KoTA)
+         const responseRelasi = await axios.get(this.$root.BASE_URL + '/api/relasi/KoTA/' +  this.id_KoTA)
         this.Pengampu = responseRelasi.data.data
 
         this.convertDateDisetujui()
         this.convertDateDisidangkan()
         
-        const responseListDokumen = await axios.get('http://localhost:3000/api/dokumenlaporan/'+this.laporan.id_laporan)
+        const responseListDokumen = await axios.get(this.$root.BASE_URL + '/api/dokumenlaporan/'+this.laporan.id_laporan)
         const list = responseListDokumen.data.data
 
         this.Laporan = list.map((item) =>({
@@ -506,7 +506,7 @@ export default {
     async Open_Dokumen(ID_laporan) {
       this.Dokumen_Dialog = !this.Dokumen_Dialog
       // console.log(ID_laporan)
-      const response = await axios.get('http://localhost:3000/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      const response = await axios.get(this.$root.BASE_URL + '/api/dokumen/'+ ID_laporan,{responseType:'blob'})
       this.previewUrl = URL.createObjectURL(response.data);
       // console.log(this.previewUrl)
       this.showPdf();
@@ -532,7 +532,7 @@ export default {
 
     async unduhItem(ID_laporan) {
       const link = document.createElement('a');
-      const response = await axios.get('http://localhost:3000/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      const response = await axios.get(this.$root.BASE_URL + '/api/dokumen/'+ ID_laporan,{responseType:'blob'})
       this.previewUrl = URL.createObjectURL(response.data);
       link.href = this.previewUrl; // Ganti dengan URL dokumen PDF yang ingin diunduh
       link.download = ID_laporan; // Nama file yang akan diunduh
@@ -591,7 +591,7 @@ export default {
 
       await axios({
           method:'post',
-          url: 'http://localhost:3000/api/getonesharekey/',
+          url: this.$root.BASE_URL + '/api/getonesharekey/',
           data: {
            NIP: this.dosen.NIP,
            id_laporan: "Laporan_" + this.$route.params.id,

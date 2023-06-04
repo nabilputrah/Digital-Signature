@@ -205,9 +205,6 @@ module.exports = {
   
       const hex = hashSum2.digest('hex');
 
-      console.log('ini nilai hash  =' + hex)
-      console.log(recoveredPrivateKey)
-      console.log(PrivateKeyBaru)
       const digitalSignature = crypto.privateEncrypt(recoveredPrivateKey,hex)
 
       await Laporan.update({

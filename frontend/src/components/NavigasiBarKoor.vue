@@ -68,7 +68,7 @@ import axios from 'axios'
         const headers = { Authorization: `Bearer ${token}` };
         
         try {
-          const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.navbar.id_user}`, { headers });
+          const response = await axios.get(this.$root.BASE_URL + `/api/getkoordata/${this.navbar.id_user}`, { headers });
           this.loggedIn = response.data.data[0]
          
         } catch (error) {
