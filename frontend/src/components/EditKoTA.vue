@@ -465,18 +465,21 @@ export default {
       this.mahasiswaKoTA= response.data.data
     
       if (this.loggedIn.nama_prodi === 'D4') {
-          this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD001");
+          this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD001"  && item.id_KoTA == null) ;
 
       } else if(this.loggedIn.nama_prodi === 'D3'){
-          this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD002");
+          this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD002"  && item.id_KoTA == null );
       }
       
       const selectedItem = this.mahasiswaKoTA.map((item) => ({
-        selectedItem: item.NIM,
-        items: this.MahasiswaFiltered.map((mhs) =>({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` })),
-        search: ""
-      }));
-      this.form = selectedItem;
+      selectedItem: item.NIM,
+      items: [...this.MahasiswaFiltered, ...this.mahasiswaKoTA].map((mhs) => ({
+        value: mhs.NIM,
+        text: `${mhs.NIM} - ${mhs.nama}`
+      })),
+      search: ""
+    }));
+    this.form = selectedItem;
 
 
       } catch (error) {
