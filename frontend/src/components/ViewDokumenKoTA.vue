@@ -576,6 +576,12 @@ export default {
           this.snackbar.show = true;
           this.snackbar.color = "primary";
           this.snackbar.message = "Dokumen Laporan TA berhasil ditambahkan";
+          this.MessageError = response.data.message
+          if (this.MessageError.includes('File harus berupa PDF')){
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Gagal menambahkan dokumen, File harus berupa PDF!!!";
+          }
         })
         .catch(error => {
           console.log(error.message);

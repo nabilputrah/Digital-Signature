@@ -53,6 +53,7 @@
               <v-text-field label="Username" :rules="rules.username" v-model="forgotUsername"></v-text-field>
               <p dense v-if="role === 'KoTA'">Masukkan email Ketua KoTA yang terdaftar di aplikasi</p>
               <p dense v-else-if="role === 'Dosen'">Masukkan email Anda yang terdaftar di aplikasi</p>
+              <p dense v-else-if="role === 'Koordinator'">Masukkan email Dosen yang terdaftar sebagai Koordinator</p>
               <v-text-field label="Email" :rules="rules.email" v-model="forgotEmail"></v-text-field>
 
               <v-btn color="primary" :disabled="!inputValid" block @click="resetPassword">Submit</v-btn>
@@ -121,7 +122,7 @@ export default {
       forgotUsername: '',
       forgotEmail: '',
       role: 'KoTA',
-      roleOptions: ['KoTA', 'Dosen'],
+      roleOptions: ['KoTA', 'Dosen', 'Koordinator'],
       rules: {
         role: [
           v => !!v || "Role wajib diisi",

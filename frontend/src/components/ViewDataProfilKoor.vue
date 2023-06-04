@@ -41,13 +41,25 @@
                   </div>
                 </v-col>
                 <v-col cols="8" >
-                  <v-text-field 
+                  <v-select
                   v-model="koordinator.nama_koordinator"
-                  :rules="rules"
-                  placeholder="Nama Koordinator"
-                  dense
+                  :items="filteredKoordinator()"
+                  clearable
                   outlined
-                  ></v-text-field>
+                  dense
+                  :menu-props="{ offsetY: true}"
+                  :placeholder="'Pilih Nama Dosen'"
+                >
+                  <template v-slot:prepend-item>
+                    <v-text-field
+                    style="width: 97%;margin-left: auto;margin-right: auto;"
+                      v-model="koordinator.search"
+                      :label="'Cari Dosen'"
+                      hide-details
+                      @input="onSearchKajur()"
+                    />
+                  </template>
+                </v-select>
                 </v-col>
               </v-row>
               <!-- End Form Nama Koordinator -->
@@ -232,12 +244,26 @@ export default {
       const payload = JSON.parse(atob(token.split('.')[1]));
       this.dataFromToken= payload.user;
     }
-
     this.initialize()
-    
     this.generateListTahunAjaran();
   },
 
+  computed: {
+    filteredKoordinator() {
+      return () => {
+        const items = this.koordinator.items;
+        const search = this.koordinator.search;
+        if (search.length === 0) {
+          return items;
+        } else {
+          return items.filter((item) =>
+            item.text.toLowerCase().includes(search.toLowerCase())
+          );
+        }
+      };
+    },
+  },
+  
   methods: {
     async save() {
       axios({
@@ -270,7 +296,13 @@ export default {
           const token = localStorage.getItem('token'); 
           const headers = { Authorization: `Bearer ${token}` };
           const response = await axios.get(`http://localhost:3000/api/getkoordata/${this.dataFromToken.id_user}`, { headers });
+          const responseDosen = await axios.get(`http://localhost:3000/api/dosen`);
+          this.dosen = responseDosen.data.data
           this.koordinator = response.data.data[0]
+          console.log(this.koordinator.nama_koordinator)
+          this.koordinator.search = ''
+          this.koordinator.items = this.dosen.map((dsn) => ({ value: dsn.nama, text: `${dsn.nama}` }));
+          console.log(this.koordinator.items)
           console.log(this.koordinator)
         } catch (error) {
           console.error(error.message);
@@ -286,6 +318,12 @@ export default {
       }
       this.listTahunAjaran = list;
     },
+
+    onSearchKajur() {
+        if (this.koordinator.search.length > 0) {
+          this.koordinator.nama_koordinator = null;
+        }
+      },
 
     onChangeTahunAjaran() {
       console.log(`Anda memilih tahun ajaran ${this.tahunAjaran}`);
