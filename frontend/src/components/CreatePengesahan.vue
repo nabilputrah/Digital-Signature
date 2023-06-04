@@ -1,7 +1,6 @@
 <template>
   <div>
-    <!-- End HTML Lembar Pengesahan Halaman 2 -->
-    <!-- End HTML Lembar Pengesahan Halaman 2 -->
+    <!-- Start HTML Lembar Pengesahan Halaman 1 --> 
     <div 
     :hidden="true"
     >
@@ -97,9 +96,9 @@
         </div>
       </div>
     </div>
+    <!-- End HTML Lembar Pengesahan Halaman 1 -->
 
-    <!-- Start HTML Lembar Pengesahan Halaman 2 -->
-    <!-- Start HTML Lembar Pengesahan Halaman 2 -->
+     <!-- Start HTML Lembar Pengesahan Halaman 2 -->
     <div 
       :hidden="true"      
     >
@@ -158,13 +157,17 @@
                   <p>NIP. {{ dosen.NIP }}</p>
                 </v-col>
                 <v-col cols="3" >
-                  <!-- <img width="100px" height="70px" src="../assets/uploads/img_ttd/20224022023/Penguji_234234234234234232.png"> -->
+                  <p 
+                    style="margin-top: 50px; position: absolute;"
+                  >
+                  ..................................
+                  </p>
                   <img 
                     width="100px" 
                     height="70px" 
                     :src="dosen.img"
+                    style="position: relative; "
                     >
-                  <!-- <img src="imageURL" alt=""> -->
                 </v-col>
               </v-row>
             </v-col>
@@ -175,6 +178,7 @@
         </div>
       </div>
     </div>
+    <!-- End HTML Lembar Pengesahan Halaman 2 -->
     <!-- <button @click="generatePDF">Generate PDF</button> -->
     <!-- <button @click="Do_Sign"> Tanda Tangan</button> -->
 
