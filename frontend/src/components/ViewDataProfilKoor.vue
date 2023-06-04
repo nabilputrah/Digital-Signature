@@ -42,9 +42,8 @@
                 </v-col>
                 <v-col cols="8" >
                   <v-select
-                  v-model="koordinator.nama_koordinator"
+                  v-model="formKoordinator.selectedItem"
                   :items="filteredKoordinator()"
-                  clearable
                   outlined
                   dense
                   :menu-props="{ offsetY: true}"
@@ -53,10 +52,10 @@
                   <template v-slot:prepend-item>
                     <v-text-field
                     style="width: 97%;margin-left: auto;margin-right: auto;"
-                      v-model="koordinator.search"
+                      v-model="formKoordinator.search"
                       :label="'Cari Dosen'"
                       hide-details
-                      @input="onSearchKajur()"
+                      @input="onSearchKoor()"
                     />
                   </template>
                 </v-select>
@@ -210,6 +209,13 @@ export default {
       validasiProfil:false,
       dataFromToken: '',
       koordinator:'',
+
+      formKoordinator: {
+        selectedItem: '',
+        items: ['Dosen 1', 'Dosen 2'],
+        search: '',
+      },
+
       // Data Form Nama
       // name : "Djoko Cahyo Utomo Lieharyani",
       rules: [
@@ -245,14 +251,15 @@ export default {
       this.dataFromToken= payload.user;
     }
     this.initialize()
+    this.initializeKoordinatorList()
     this.generateListTahunAjaran();
   },
 
   computed: {
     filteredKoordinator() {
       return () => {
-        const items = this.koordinator.items;
-        const search = this.koordinator.search;
+        const items = this.formKoordinator.items;
+        const search = this.formKoordinator.search;
         if (search.length === 0) {
           return items;
         } else {
@@ -265,6 +272,21 @@ export default {
   },
   
   methods: {
+    async initializeKoordinatorList() {
+      try {
+        const token = localStorage.getItem('token'); 
+        const headers = { Authorization: `Bearer ${token}` };
+        const responseKoor = await axios.get(`http://localhost:3000/api/getkoordata/${this.dataFromToken.id_user}`, { headers });
+        const KoorData = responseKoor.data.data[0]
+
+        this.formKoordinator.selectedItem = KoorData.nama_koordinator
+      
+      } catch (error) {
+        console.log(error.message.request)
+      }
+    
+    },
+
     async save() {
       axios({
           method:'put',
@@ -273,7 +295,7 @@ export default {
             id_koor: this.koordinator.id_koor,
             id_user: this.koordinator.id_user,
             id_prodi: this.koordinator.id_prodi,
-            nama_koordinator: this.koordinator.nama_koordinator,
+            nama_koordinator: this.formKoordinator.selectedItem,
             tahun_ajaran: this.koordinator.tahun_ajaran,
           }
         })
@@ -300,9 +322,10 @@ export default {
           this.dosen = responseDosen.data.data
           this.koordinator = response.data.data[0]
           console.log(this.koordinator.nama_koordinator)
-          this.koordinator.search = ''
-          this.koordinator.items = this.dosen.map((dsn) => ({ value: dsn.nama, text: `${dsn.nama}` }));
-          console.log(this.koordinator.items)
+
+          this.formKoordinator.items = this.dosen.map((dsn) => ({ value: dsn.nama, text: `${dsn.nama}` }));
+
+          console.log(this.formKoordinator.items)
           console.log(this.koordinator)
         } catch (error) {
           console.error(error.message);
@@ -319,9 +342,9 @@ export default {
       this.listTahunAjaran = list;
     },
 
-    onSearchKajur() {
-        if (this.koordinator.search.length > 0) {
-          this.koordinator.nama_koordinator = null;
+    onSearchKoor() {
+        if (this.formKoordinator.search.length > 0) {
+          this.formKoordinator.selectedItem = null;
         }
       },
 
