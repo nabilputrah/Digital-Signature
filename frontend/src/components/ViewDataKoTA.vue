@@ -26,7 +26,7 @@
         :headers="headers"
         :search="search"
         :items="KoTA"
-        item-key="id_KoTA"
+        item-key="dokumen"
         sort-by="id_KoTA"
         show-expand
         class="elevation-1"

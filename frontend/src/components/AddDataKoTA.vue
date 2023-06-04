@@ -259,6 +259,23 @@
     </div>
     </v-card>
     <!-- End Card -->
+    <v-snackbar 
+      v-model="snackbar.show" 
+      :color="snackbar.color" 
+      top 
+      right 
+      :timeout="3000"
+      style="margin-right: 1%;"
+    >
+      <span>
+        {{ snackbar.message }}
+      </span>
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 
 </template>
@@ -320,6 +337,13 @@ export default {
         tahun_ajaran: [
           v => !!v || "Tahun Ajaran wajib diisi",
         ],
+      },
+
+      // Notifikasi Berhasil
+      snackbar: {
+        show: false,
+        message: "",
+        color: "",
       },
 
     }
@@ -553,7 +577,14 @@ export default {
 
       })
       .catch(error => {
-          console.log(error.request.response)
+          console.log(error.request.response) 
+          this.MessageError = error.request.response
+          if (this.MessageError.includes('Username must be unique')){
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "ID_KoTA sudah terdaftar!";
+            throw "ID_KoTA sudah terdaftar!";
+          }
       })
       // insert data to laporan 
       await axios({

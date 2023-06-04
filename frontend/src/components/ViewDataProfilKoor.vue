@@ -28,58 +28,60 @@
       <div style="width: 97%;margin-left: auto;margin-right: auto;">
         <v-card-title>Profil Koordinator</v-card-title>
         <v-card-text >
-          <v-form>
-            <!-- Start Form Nama Koordinator -->
-            <v-row>
-              <v-col cols="4">
-                <div class="justify-center">
-                  <span 
-                  style="font-size:1rem;"
-                  >Nama Koordinator</span>
-                  <v-text-field__details></v-text-field__details>
-                </div>
-              </v-col>
-              <v-col cols="8" >
-                <v-text-field 
-                v-model="koordinator.nama_koordinator"
-                :rules="rules"
-                placeholder="Nama Koordinator"
-                dense
-                outlined
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <!-- End Form Nama Koordinator -->
-            <!-- Start Form Tahun Ajaran -->
-            <v-row>
-              <v-col cols="4">
-                <div class="justify-center">
-                  <span 
-                  style="font-size:1rem;"
-                  >Tahun Ajaran</span>
-                  <v-text-field__details></v-text-field__details>
-                </div>
-              </v-col>
-              <v-col>
-                <v-select
-                  v-model="koordinator.tahun_ajaran"
-                  :items="listTahunAjaran"
-                  item-text="tahunAjaran"
-                  item-value="tahunAjaran"
-                  @change="onChangeTahunAjaran"
+          <v-form ref="form">
+            <v-form ref="form" v-model="validasiProfil">
+              <!-- Start Form Nama Koordinator -->
+              <v-row>
+                <v-col cols="4">
+                  <div class="justify-center">
+                    <span 
+                    style="font-size:1rem;"
+                    >Nama Koordinator</span>
+                    <v-text-field__details></v-text-field__details>
+                  </div>
+                </v-col>
+                <v-col cols="8" >
+                  <v-text-field 
+                  v-model="koordinator.nama_koordinator"
+                  :rules="rules"
+                  placeholder="Nama Koordinator"
                   dense
                   outlined
-                  :menu-props="{ offsetY: true, maxHeight: '200px' }"
-                />
-              </v-col>
-            </v-row>
-            <!-- End Form Tahun Ajaran -->
-            <!-- Start Button Simpan Perubahan -->
-            <v-row >
-              <v-col class="text-right" >
-                <v-btn color="primary" @click="save">Simpan Perubahan</v-btn>
-              </v-col>
-            </v-row>
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <!-- End Form Nama Koordinator -->
+              <!-- Start Form Tahun Ajaran -->
+              <v-row>
+                <v-col cols="4">
+                  <div class="justify-center">
+                    <span 
+                    style="font-size:1rem;"
+                    >Tahun Ajaran</span>
+                    <v-text-field__details></v-text-field__details>
+                  </div>
+                </v-col>
+                <v-col>
+                  <v-select
+                    v-model="koordinator.tahun_ajaran"
+                    :items="listTahunAjaran"
+                    item-text="tahunAjaran"
+                    item-value="tahunAjaran"
+                    @change="onChangeTahunAjaran"
+                    dense
+                    outlined
+                    :menu-props="{ offsetY: true, maxHeight: '200px' }"
+                  />
+                </v-col>
+              </v-row>
+              <!-- End Form Tahun Ajaran -->
+              <!-- Start Button Simpan Perubahan -->
+              <v-row >
+                <v-col class="text-right" >
+                  <v-btn color="primary" :disabled="!validasiProfil" @click="save">Simpan Perubahan</v-btn>
+                </v-col>
+              </v-row>
+            </v-form>
             <!-- End Button Simpan Perubahan -->
             <!-- Start Form Password -->
             <v-form ref="form" v-model="validasiFormPass">
@@ -138,7 +140,7 @@
                     ></v-text-field>
                   </v-col>
               </v-row>
-          </v-form>
+            </v-form>
 
             <!-- End Form Password -->
             <!-- Start Button Change Password -->
@@ -193,6 +195,7 @@ export default {
   data() {
     return {
       validasiFormPass: false,
+      validasiProfil:false,
       dataFromToken: '',
       koordinator:'',
       // Data Form Nama

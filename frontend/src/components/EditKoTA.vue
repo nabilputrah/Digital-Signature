@@ -298,6 +298,23 @@
     </v-dialog>
     <!-- End Card Pop up Email Data KoTA -->
     <!-- End Card -->
+    <v-snackbar 
+      v-model="snackbar.show" 
+      :color="snackbar.color" 
+      top 
+      right 
+      :timeout="3000"
+      style="margin-right: 1%;"
+    >
+      <span>
+        {{ snackbar.message }}
+      </span>
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar.show = false">
+          <v-icon>mdi-window-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -362,6 +379,14 @@ export default {
           v => !!v || "Tahun Ajaran wajib diisi",
         ],
       },
+
+      // Notifikasi Berhasil
+      snackbar: {
+        show: false,
+        message: "",
+        color: "",
+      },
+      ChangedAble : true
 
     }
   },
@@ -1081,18 +1106,6 @@ export default {
     }
 
     else if (this.tahunAjaran !== this.detailKoTA.tahun_ajaran) {
-      //  delete kota with laporan
-      await axios({
-        method:'delete',
-        url: 'http://localhost:3000/api/KoTAwithLaporan/'+ this.$route.params.id
-        
-      })
-      .then(response => {
-        console.log(response.data)
-      })
-      .catch(error => {
-          console.log(error.request.response)
-      })
 
       // add kota
       // insert data to kota 
@@ -1115,7 +1128,30 @@ export default {
       })
       .catch(error => {
           console.log(error.request.response)
+          this.MessageError = error.request.response
+          if (this.MessageError.includes('Username must be unique')){
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "ID_KoTA sudah terdaftar!";
+            this.ChangedAble = false
+            throw "ID_KoTA sudah terdaftar!";
+          }
       })
+
+      //  delete kota with laporan
+      await axios({
+        method:'delete',
+        url: 'http://localhost:3000/api/KoTAwithLaporan/'+ this.$route.params.id
+        
+      })
+      .then(response => {
+        console.log(response.data)
+      })
+      .catch(error => {
+          console.log(error.request.response)
+      })
+
+
       // insert data to laporan 
       await axios({
         method:'post',
@@ -1586,7 +1622,11 @@ export default {
     },
 
     BackToDetail () {
-      this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.$route.params.id}`);
+      if (this.id_KoTA_Generated && this.ChangedAble){
+        this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.id_KoTA_Generated}`)
+      } else {
+        this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.$route.params.id}`);
+      }
     },
 
     generateListTahunAjaran() {
