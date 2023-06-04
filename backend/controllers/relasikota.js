@@ -358,11 +358,22 @@ module.exports = {
       if (fs.existsSync(folderPath)) {
         // Menghapus folder dan isinya secara rekursif
         fs.rmdirSync(folderPath, { recursive: true });
+   
+        
+        await Relasi_KoTA.update({
+          img_ttd: null
+        }, {
+          where: {
+            id_KoTA: id
+          }
+        })
 
         return res.status(200).send({ message: `Folder dengan ID KoTA ${id} berhasil dihapus.` });
       } else {
         return res.status(404).send({ message: `Folder dengan ID KoTA ${id} tidak ditemukan.` });
       }
+      
+   
     } catch (error) {
       return res.status(400).send({
         message:error.message

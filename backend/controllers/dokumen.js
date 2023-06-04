@@ -250,6 +250,12 @@ module.exports = {
     const fullDatetime = formattedDate + " " + formattedTimeFull
     const { dokumen_laporan } = req.files
     const { id_dokumen, id_laporan, version} = req.body
+
+    if (dokumen_laporan.mimetype !== 'application/pdf') {
+      return res.send({
+        message: 'File harus berupa PDF'
+      });
+    }
     
     const options = {
       fields: ['id_dokumen','id_laporan','dokumen_laporan', 'version', 'tgl_unggah'],
