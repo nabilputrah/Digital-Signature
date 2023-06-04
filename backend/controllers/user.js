@@ -806,6 +806,68 @@ module.exports = {
 
       }
 
+      else if (role ==='Koordinator') {
+        const selectQuery = `SELECT U."username",D."nama",D."email", K."tahun_ajaran" FROM "User" as U
+                            JOIN "Koordinator" as K 
+                            ON K."id_koor" = U."username"
+                            JOIN "Dosen" as D
+                            ON D."nama" = K."nama_koordinator"
+                            WHERE U."username" = $1 AND D."email" = $2` 
+        const paramsQuery = [username, email ]
+
+        const result =  await db.query(selectQuery,paramsQuery)
+
+          if(result.rows.length === 0) {
+            return res.status(404).send({
+              message:'email dan username KoTA yang diinputkan tidak sinkron'
+            })
+          }
+        }
+
+        const dataKoordinator = result.rows[0]
+        
+        const passwordKoordinator = dataKoordinator.tahun_ajaran.substring(0, 4) + username + dataKoordinator.tahun_ajaran.substring(dataKoordinator.tahun_ajaran.length - 4)
+        const hashedNewPassword = await bcrypt.hash(passwordKoordinator, 10)
+
+        await User.update({
+          password:hashedNewPassword
+        },{
+            where :{
+              username : username
+            }
+          }
+        )
+
+        res.render('forgotPasswordKoordinator', { nama: dataKoordinator.nama, username: username, newPass: passwordKoordinator }, function (err, renderedHtml) {
+          if (err) {
+            console.log(err);
+          } else {
+            const mailOptions = {
+              from: 'hello@example.com',
+              to: email,
+              subject: 'Reset Password Koordinator',
+              html: renderedHtml
+            };
+        
+            transporter.sendMail(mailOptions, function (error, info) {
+              if (error) {
+                console.log(error);
+              } else {
+                return res.status(200).send({
+                  message:'Email terkirim' + info.response
+                })
+             
+              }
+            });
+          }
+        });
+
+
+      
+
+      
+    
+
     } catch (error) {
       
       return res.status(400).send({
