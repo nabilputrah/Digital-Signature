@@ -626,7 +626,7 @@ import axios from 'axios'
               this.snackbar.color = "error";
               this.snackbar.message = "Email Sudah Terdaftar!!!";
             }
-            if (this.MessageError.includes('Validation')){
+            if (this.MessageError.includes('NIM')){
               this.snackbar.show = true;
               this.snackbar.color = "error";
               this.snackbar.message = "NIM Sudah Terdaftar!!!";
