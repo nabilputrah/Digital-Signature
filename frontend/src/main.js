@@ -9,8 +9,8 @@ Vue.config.productionTip = false
 new Vue({
   data() {
     return {
-      // BASE_URL: 'http://localhost:3000',
-      BASE_URL: 'http://192.168.43.136:3000',
+      BASE_URL: 'http://localhost:3000',
+      // BASE_URL: 'http://192.168.43.136:3000',
     };
   },
   router,

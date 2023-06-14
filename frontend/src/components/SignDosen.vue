@@ -222,7 +222,7 @@
         </v-col>
 
         <v-col cols="4">
-          <v-card style="height: 100%;">
+          <v-card v-if="!validasiDokumen" style="height: 100%;">
             <div class="signature-page">
                   <h2>Detail Tanda Tangan</h2>
                   <br>
@@ -263,6 +263,71 @@
                   </form>
             </div>
           </v-card>
+          <v-card v-if="validasiDokumen">
+            <v-card-title class="headline">Pilih Gambar Tanda Tangan</v-card-title>
+            <v-card-text>
+              <v-tabs v-model="tab">
+                <v-tab v-for="(item, index) in InputFile" @click="handleTabClick(item)" :key="index">{{ item.text }}</v-tab>
+
+                <v-tab-item v-for="(item, index) in InputFile" :key="index" >
+                  <v-card flat>
+                    <v-card-text>
+                      <v-form ref="form" @submit.prevent="validateFile">
+                        <template v-if="item.text === 'Browse'">
+                          <v-file-input
+                            v-model="file"
+                            label="Pilih File"
+                            accept=".png"
+                            prepend-icon="mdi-paperclip"
+                          ></v-file-input>
+                        </template>
+                        <template v-if="item.text === 'Drop'">
+                          <div 
+                            class="drop-area" 
+                            @dragenter="dragEnter" 
+                            @dragover="dragOver" 
+                            @dragleave="dragLeave" 
+                            @drop="dropFile">
+                            <div v-if="!file">
+                              <v-icon class="mr-2" style="color: rgba(145, 187, 203, 1);">mdi-folder-outline</v-icon>
+                              <span class="placeholder">Drag and drop file here</span>
+                            </div>
+                            <div v-else class="file-info">
+                              <span class="file-name">{{ file.name }}</span>
+                              <button class="remove-button" @click="removeFile">Remove</button>
+                            </div>
+                          </div>
+                        </template>
+                        <v-alert
+                          v-if="validationError"
+                          type="error"
+                          dismissible
+                        >
+                          {{ validationError }}
+                        </v-alert>
+                      </v-form>
+                    </v-card-text>
+                  </v-card>
+                </v-tab-item>
+              </v-tabs>
+            </v-card-text>
+            <div :hidden="!dialogDrawTTD">
+              <canvas class="canvas_class" style="border: 1px solid #000;; margin-left: 15%;" ref="canvas" @mousedown="startDrawing" @mousemove="draw" @mouseup="finishDrawing"></canvas>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="primary" @click="close_Popup_AddDokumen">Kembali</v-btn>
+                <v-btn color="primary" @click="clearSignature">Clear Signature</v-btn>
+                <v-btn color="primary" @click="saveSignature">Save Signature</v-btn>
+              </v-card-actions>
+            </div>
+            <div :hidden="dialogDrawTTD">
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="primary" @click="close_Popup_AddDokumen">Kembali</v-btn>
+                <v-btn color="primary" @click="add_Dokumen_succes">Unggah Gambar</v-btn>
+              </v-card-actions>
+            </div>
+          </v-card>
         </v-col>
 
       </v-row>
@@ -299,13 +364,13 @@
     <!-- End Dialog input Sharekey  -->
       
     <!-- Start Card Upload Dokumen -->
-    <v-dialog
+    <!-- <v-dialog
     v-model="validasiDokumen"
     class="text-center" 
     max-width="600"
     color="white"
     >
-    <v-card >
+      <v-card >
         <v-card-title class="headline">Pilih Gambar Tanda Tangan</v-card-title>
         <v-card-text>
           <v-tabs v-model="tab">
@@ -359,8 +424,19 @@
           <v-btn color="primary" @click="add_Dokumen_succes">Unggah Gambar</v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
     <!-- End Card Upload Dokumen -->
+
+    <!-- Start Try gambar ttd -->
+    <!-- <div>
+      <button @click="openDialog">Gambar TTD</button>
+         <dialog :open="dialogOpen">
+          <canvas ref="canvas" @mousedown="startDrawing" @mousemove="draw" @mouseup="finishDrawing"></canvas>
+          <button @click="clearSignature">Clear Signature</button>
+          <button @click="saveSignature">Save Signature</button>
+        </dialog>
+    </div> -->
+    <!-- End Try gambar ttd -->
 
     <v-snackbar 
       v-model="snackbar.show" 
@@ -390,6 +466,7 @@
 </template>
         
 <script>
+  import SignaturePad from 'signature_pad';
   import jsPDF from 'jspdf';
   import PDFObject from 'pdfobject';
   import { format, parseISO } from 'date-fns';
@@ -445,10 +522,14 @@
         InputFile: [
             { text: "Browse" },
             { text: "Drop" },
+            { text: "Gambar" },
         ],
         file: null,
         dragging: false,
         validationError: null,
+        dialogOpen: false,
+        dialogDrawTTD:false,
+        signaturePad: null,
         // End Data Dialog Add Dokumen
 
         // Start Dialog Input Share Key
@@ -499,11 +580,89 @@
     },
 
     methods: {
+      handleTabClick(item) {
+        if (item.text === 'Gambar') {
+          this.initSignaturePad();
+          this.dialogDrawTTD = true
+        } else {
+          this.dialogDrawTTD = false
+        }
+      },
+
+      initSignaturePad() {
+        this.signaturePad = new SignaturePad(this.$refs.canvas, {
+          backgroundColor: 'rgba(0, 0, 0, 0)', // Mengatur latar belakang transparan
+        });
+      },
+
+      openDialog() {
+        this.dialogOpen = true; // Membuka dialog
+      },
+      startDrawing() {
+        this.signaturePad.clear(); // Bersihkan tanda tangan saat mulai menggambar
+      },
+      draw(event) {
+        if (event.buttons === 1) {
+          var point = {
+            x: event.clientX,
+            y: event.clientY,
+          };
+          this.signaturePad.addPoint(point);
+        }
+      },
+      finishDrawing() {
+        this.signaturePad.removeBlanks(); // Menghapus latar belakang kosong
+      },
+      clearSignature() {
+        this.signaturePad.clear(); // Membersihkan tanda tangan
+      },
+      saveSignature() {
+        const signatureData = this.signaturePad.toDataURL(); // Mendapatkan data gambar tanda tangan
+
+        this.convertToImage(signatureData)
+        console.log(this.file)
+        this.add_Dokumen_succes()
+        // this.downloadImage(signatureData, 'signature.png'); // Mengunduh gambar tanda tangan
+        this.dialogOpen = false; // Menutup dialog setelah menyimpan tanda tangan
+      },
+
+      convertToImage(imageURL) {
+        const dataURL = imageURL; // Mengambil data URL gambar dari signature_pad
+        const byteString = atob(dataURL.split(',')[1]); // Mengkonversi data URL menjadi byte string
+        const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0]; // Mendapatkan tipe MIME gambar
+
+        // Mengonversi byte string menjadi Uint8Array
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+
+        // Membuat Blob dari Uint8Array
+        const newBlob = new Blob([ab], { type: mimeString });
+
+        // Membuat File dari Blob
+        const newFile = new File([newBlob], 'signature.png', { type: mimeString });
+
+        this.file = newFile; // Menyimpan file dalam variabel this.file
+      },
+
+      downloadImage(dataURL, filename) {
+        // Membuat elemen tautan (link) sementara
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = filename;
+
+        // Men-trigger klik pada tautan dan menghapus elemen tautan
+        link.click();
+        link.remove();
+      },
+
       async checkLembarPengesahan(){
         const response = await axios.get(this.$root.BASE_URL + `/api/ceklembarpengesahan/Laporan_${this.$route.params.id}`)
         const message = response.data.message
 
-        console.log(message)
+        // console.log(message)
         if (message === 'lembar pengesahaan tidak ada'){
           this.BackToDetail()
         }
@@ -514,7 +673,7 @@
             try {
               const response = await axios.get(this.$root.BASE_URL + `/api/relasi/accessttd/${this.$route.params.role}/${this.$route.params.id}`)
               const akses = response.data.data
-              console.log(akses)
+              // console.log(akses)
               if (akses > 0){
                 // this.AksesTTD = true
                 // this.dialogShareKey = false
@@ -569,7 +728,7 @@
                 console.error(error.message);
               }
             });
-            console.log(this.Penguji)
+            // console.log(this.Penguji)
 
             // Get Data Kaprodi
             const responseKaprodi = await axios.get(this.$root.BASE_URL + '/api/prodi/'+this.Anggota[0].id_prodi)
@@ -728,10 +887,10 @@
         async validateShareKey() {
           // Lakukan sesuatu dengan shareKey
           if (this.ShareKeyValid){
-          console.log('Share Key:', this.shareKey);
-          console.log(this.dosen.NIP)
-          console.log(this.$route.params.id)
-          console.log(this.$route.params.role)
+          // console.log('Share Key:', this.shareKey);
+          // console.log(this.dosen.NIP)
+          // console.log(this.$route.params.id)
+          // console.log(this.$route.params.role)
 
           await axios({
               method:'post',
@@ -757,7 +916,7 @@
             this.shareKey = null
 
             this.validasiDokumen = true
-
+            // this.initSignaturePad()
           }else{
             this.dialogShareKey = false;
             this.snackbar.show = true;
@@ -848,7 +1007,7 @@
         handleFiles(files) {
             if (files.length > 0) {
                 this.file = files[0];
-                console.log(this.file)
+                // console.log(this.file)
             }
         },
         removeFile() {
@@ -861,6 +1020,11 @@
   
 <style scoped>
 
+  .canvas_class{
+    margin-left: auto;
+    margin-right: auto;
+    object-fit: cover;
+  }
   .custom-card {
     width: 97%;
     margin-left: auto;

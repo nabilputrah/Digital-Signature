@@ -1,160 +1,98 @@
 <template>
   <div>
-    <!-- <v-data-table
-      :headers="headers"
-      :items="items"
-      item-key="id"
-      show-expand
-      :expanded.sync="expandedItems"
-    >
-      <template v-slot:expanded-item="{ headers, item }">
-          <td :colspan="headers.length">
-            <div class="detail-container">
-              <span><strong>ID:</strong> {{ item.id }}</span>
-              <br>
-              <span><strong>Nama:</strong> {{ item.name }}</span>
-              <br>
-              <span><strong>Alamat:</strong> {{ item.address }}</span>
-              <br>
-              <span><strong>Detail:</strong></span>
-              <ul>
-                <li v-for="detail in item.details" :key="detail.detailId">
-                  <strong>ID Detail:</strong> {{ detail.detailId }}
-                  <br>
-                  <strong>Nama Detail:</strong> {{ detail.detailName }}
-                </li>
-              </ul>
-            </div>
-          </td>
-      </template>
-    </v-data-table> -->
-
-    <div class="drop-area" @dragenter="dragEnter" @dragover="dragOver" @dragleave="dragLeave" @drop="dropFile">
-      <p v-if="!file" class="placeholder">Drag and drop file here</p>
-      <div v-else class="file-info">
-        <p class="file-name">{{ file.name }}</p>
-        <button class="remove-button" @click="removeFile">Remove</button>
-      </div>
-    </div>
-
+    <button @click="openDialog">Gambar TTD</button>
+    <dialog :open="dialogOpen">
+      <canvas ref="canvas" @mousedown="startDrawing" @mousemove="draw" @mouseup="finishDrawing"></canvas>
+      <button @click="clearSignature">Clear Signature</button>
+      <button @click="saveSignature">Save Signature</button>
+    </dialog>
   </div>
 </template>
 
 <script>
-export default {
-  // data() {
-  //   return {
-  //     headers: [
-  //       { text: 'ID', value: 'id' },
-  //       { text: 'Nama', value: 'name' },
-  //       { text: 'Alamat', value: 'address' },
-  //     ],
-  //     items: [
-  //       {
-  //         id: 1,
-  //         name: 'Item 1',
-  //         address: 'Alamat 1',
-  //         details: [
-  //           { detailId: 1, detailName: 'Detail 1' },
-  //           { detailId: 2, detailName: 'Detail 2' },
-  //         ],
-  //       },
-  //       {
-  //         id: 2,
-  //         name: 'Item 2',
-  //         address: 'Alamat 2',
-  //         details: [
-  //           { detailId: 1, detailName: 'Detail 1' },
-  //           { detailId: 2, detailName: 'Detail 2' },
-  //           { detailId: 3, detailName: 'Detail 3' },
-  //         ],
-  //       },
-  //     ],
-  //     expandedItems: [],
-  //   };
-  // },
+import SignaturePad from 'signature_pad';
 
+export default {
   data() {
     return {
-      file: null
+      dialogOpen: false,
+      signaturePad: null,
     };
   },
-
+  mounted() {
+    this.signaturePad = new SignaturePad(this.$refs.canvas, {
+      backgroundColor: 'rgba(0, 0, 0, 0)', // Mengatur latar belakang transparan
+    });
+  },
   methods: {
-    dragEnter(e) {
-      e.preventDefault();
-      e.target.classList.add('highlight');
+    openDialog() {
+      this.dialogOpen = true; // Membuka dialog
     },
-    dragOver(e) {
-      e.preventDefault();
+    startDrawing() {
+      this.signaturePad.clear(); // Bersihkan tanda tangan saat mulai menggambar
     },
-    dragLeave(e) {
-      e.preventDefault();
-      e.target.classList.remove('highlight');
-    },
-    dropFile(e) {
-      e.preventDefault();
-      e.target.classList.remove('highlight');
-
-      const files = e.dataTransfer.files;
-      this.handleFiles(files);
-    },
-    handleFiles(files) {
-      if (files.length > 0) {
-        this.file = files[0];
-        console.log(this.file)
+    draw(event) {
+      if (event.buttons === 1) {
+        var point = {
+          x: event.clientX,
+          y: event.clientY,
+        };
+        this.signaturePad.addPoint(point);
       }
     },
-    removeFile() {
-      this.file = null;
-    }
-  }
+    finishDrawing() {
+      this.signaturePad.removeBlanks(); // Menghapus latar belakang kosong
+    },
+    clearSignature() {
+      this.signaturePad.clear(); // Membersihkan tanda tangan
+    },
+    saveSignature() {
+      const signatureData = this.signaturePad.toDataURL(); // Mendapatkan data gambar tanda tangan
+      this.downloadImage(signatureData, 'signature.png'); // Mengunduh gambar tanda tangan
+      this.dialogOpen = false; // Menutup dialog setelah menyimpan tanda tangan
+    },
+    // saveSignature() {
+    //   if (!this.signaturePad._isEmpty){
+    //     console.log(this.signaturePad._isEmpty)
+    //     const signatureData = this.signaturePad.toDataURL(); // Mendapatkan data gambar tanda tangan
+        
+    //     // Membuat elemen gambar sementara untuk merender ulang gambar dengan ukuran yang diinginkan
+    //     const tempImage = new Image();
+    //     tempImage.src = signatureData;
 
+    //     tempImage.onload = () => {
+    //       // Membuat elemen canvas baru dengan ukuran 160x110 pixel
+    //       const canvas = document.createElement('canvas');
+    //       canvas.width = 160;
+    //       canvas.height = 110;
+        
+    //       // Menggambar gambar tanda tangan pada canvas dengan ukuran yang diinginkan
+    //       const context = canvas.getContext('2d');
+    //       context.drawImage(tempImage, 0, 0, 160, 110);
+        
+    //       // Mendapatkan data URL gambar dengan ukuran yang diinginkan
+    //       const resizedSignatureData = canvas.toDataURL();
+        
+    //       // Mengunduh gambar tanda tangan dengan ukuran yang diinginkan
+    //       this.downloadImage(resizedSignatureData, 'signature.png');
+    //     };
+
+    //     this.dialogOpen = false; // Menutup dialog setelah menyimpan tanda tangan
+    //   } else {
+    //     console.log("TTD ga ada")
+    //   }
+    // },
+
+    downloadImage(dataURL, filename) {
+      // Membuat elemen tautan (link) sementara
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = filename;
+
+      // Men-trigger klik pada tautan dan menghapus elemen tautan
+      link.click();
+      link.remove();
+    },
+  },
 };
 </script>
-
-<style scoped>
-.detail-container {
-  margin: 1% 2%;
-}
-
-.drop-area {
-  width: 300px;
-  height: 200px;
-  border: 2px dashed #ccc;
-  text-align: center;
-  padding: 30px;
-  font-size: 20px;
-}
-
-.highlight {
-  background: lightgray;
-}
-
-.placeholder {
-  color: #888;
-}
-
-.file-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px;
-  background-color: #f1f1f1;
-  border-radius: 5px;
-}
-
-.file-name {
-  margin: 0;
-}
-
-.remove-button {
-  background-color: #ff5555;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-</style>
