@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Email Template</title>
+    <style>
+        .copy-button {
+	        background-color: #1a5f7a;
+            border-radius: 4px;
+	        display: inline-block;
+	        text-decoration: none;
+            padding: 5px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>ShareKey D-SIGN JTK POLBAN</h2>
+    <hr>
+    <h3>Halo, <%= username %>!</h3>
+    <p>Ini adalah email yang berisi informasi ShareKey yang digunakan untuk dapat menandatangani dokumen laporan Tugas Akhir untuk :</p>
+    <p>KoTA : <%= formattedUKoTA %></p>
+    <p>Peran : <%= role %></p>
+    <p>Silahkan klik tombol berikut untuk mengarahkan anda ke halaman validasi ShareKey</p>
+
+    <a href="http://192.168.43.136:8080/dosen/daftar_dokumen/dokumen_detail/do_sign/<%= role %>/<%= id_KoTA %>?DialogShareKey=true&shareKey=<%= ShareKey %>" style="color: #ffffff;"  class="copy-button">Link To Sign</a>
+    
+    <p><strong>*Pastikan Anda sudah login di website D-Sign JTK POLBAN.</strong></p>
+
+    <p>
+        ShareKey ini hanya dapat digunakan oleh anda.
+        <br>
+        Namun harap tetap jaga informasi ini dengan baik dan jangan berikan kepada orang lain.
+        <br>
+        Jika Anda memiliki pertanyaan atau membutuhkan bantuan, jangan ragu untuk menghubungi Koordinator.
+        <br>
+        Terima kasih!
+    </p>
+    <script>
+    </script>
+</body>
+</html>
