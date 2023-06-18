@@ -18,17 +18,18 @@ const transporter = nodemailer.createTransport({
 module.exports = {
 
   async sendShareKeyToDosen(req, res){
-    const { id_laporan, NIP, role} = req.body
+    const { id_laporan, Dosen_id_user, role, KoTA_id_user} = req.body
 
     try {
       const id_KoTA = id_laporan.substr(8);
+
       const selectQuery = `SELECT D."nama", D."email", R."id_relasi" FROM "Relasi_KoTA" as R 
-                            JOIN "Dosen" as D ON D."NIP" = R."NIP"
-                            WHERE R."NIP" = $1
+                            JOIN "Dosen" as D ON D."id_user" = R."Dosen_id_user"
+                            WHERE R."Dosen_id_user" = $1
                             AND R."role" = $2
-                            AND R."id_KoTA" = $3
+                            AND R."KoTA_id_user" = $3
                            `
-      const paramsQuery =[NIP,role,id_KoTA]
+      const paramsQuery =[Dosen_id_user,role,KoTA_id_user]
 
       const resultRelasi = await db.query(selectQuery,paramsQuery)
 
@@ -119,12 +120,12 @@ module.exports = {
     const { id_laporan } = req.body
 
     try {
-      const selectQuery = `SELECT  L."id_KoTA", L."private_key" FROM "Laporan" as L 
+      const selectQuery = `SELECT  L."KoTA_id_user", L."private_key" FROM "Laporan" as L 
                           WHERE L."id_laporan" = $1`
       const paramsQuery = [id_laporan]
 
       const resultGetPrivateKey = await db.query(selectQuery, paramsQuery)
-      const id_KoTA = resultGetPrivateKey.rows[0].id_KoTA
+      const KoTA_id_user = resultGetPrivateKey.rows[0].KoTA_id_user
       const privateKey = resultGetPrivateKey.rows[0].private_key
       
       // if (Object.keys(resultGetPrivateKey).length > 0) {
@@ -134,9 +135,9 @@ module.exports = {
       //   })
       // } 
 
-      const selectQueryRelasi = `SELECT R."id_relasi",R."NIP" FROM "Relasi_KoTA" as R WHERE R."id_KoTA" = $1
+      const selectQueryRelasi = `SELECT R."id_relasi",R."Dosen_id_user" FROM "Relasi_KoTA" as R WHERE R."KoTA_id_user" = $1
                                 `
-      const paramsQueryRelasi = [id_KoTA]                          
+      const paramsQueryRelasi = [KoTA_id_user]                          
       const resultGetDosen = await db.query(selectQueryRelasi,paramsQueryRelasi)
 
       const jumlahRelasi = resultGetDosen.rows.length
@@ -149,26 +150,22 @@ module.exports = {
 
       dataDosen.forEach(async (item, index) => {
         const options = {
-          fields: ['id_secret','id_laporan','NIP','secret_key'],
+          fields: ['id_secret','Laporan_id_laporan','Dosen_id_user','secret_key'],
           returning:true
         }
 
         const secret_key = await SecretKey.create({
           id_secret: id_laporan + "_secretkey_" + item.id_relasi,
-          id_laporan: id_laporan,
-          NIP: item.NIP,
+          Laporan_id_laporan: id_laporan,
+          Dosen_id_user: item.Dosen_id_user,
           secret_key: shares[index].toString('hex')
         },options)
 
-        
       });
 
       return res.status(200).send({
         message: 'sukses'
       })
-
-
-
 
                        
     } catch (error) {
@@ -345,7 +342,7 @@ module.exports = {
     try {
       const secret_key = await SecretKey.findAll({
         where: {
-          id_laporan: id
+          Laporan_id_laporan: id
         },
         attributes: {
           exclude:['id']
@@ -360,7 +357,7 @@ module.exports = {
 
       await SecretKey.destroy({
         where: {
-          id_laporan:id
+          Laporan_id_laporan:id
         }
       })
    

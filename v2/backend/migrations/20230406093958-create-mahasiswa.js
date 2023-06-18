@@ -22,6 +22,7 @@ module.exports = {
           model:"KoTA",
           key:"id_user"
         },
+        allowNull:true,
         onDelete:'cascade',
         onUpdate:'cascade'
       },

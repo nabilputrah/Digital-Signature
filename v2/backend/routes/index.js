@@ -13,6 +13,7 @@ const fs = require('fs')
 const userController = require('../controllers').user;
 const dosenController = require('../controllers').dosen;
 const jurusanController = require('../controllers').jurusan;
+const jabatanController = require('../controllers').jabatan;
 const prodiController = require('../controllers').prodi;
 const koordinatorController = require('../controllers').koordinator;
 const koTAController = require('../controllers').kota;
@@ -63,28 +64,6 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express', andika:'andika' });
 });
 
-router.get('/emailAccountKoTA', function(req, res, next) {
-  const username = '20224022023';
-  const formattedUsername = 'KoTA ' + username.substr(4, 3);
-  const password = 'abc123';
-  res.render('emailAccountKoTA', { username, password, formattedUsername });
-});
-
-router.get('/emailAccountDosen', function(req, res, next) {
-  const username = '199304262019032028';
-  const formattedUsername = 'Dosen ' + username.substr(4, 3);
-  const password = 'Dosen19932028';
-  res.render('emailAccountDosen', { username, password, formattedUsername });
-});
-
-router.get('/emailShareKey', function(req, res, next) {
-  const username = '199304262019032028';
-  const id_KoTA = '20224022023';
-  const formattedUKoTA = 'Dosen ' + id_KoTA.substr(4, 3);
-  const ShareKey = 'Dosen19932028';
-  res.render('emailShareKey', { username, id_KoTA, ShareKey, formattedUKoTA });
-});
-
 router.get('/pdf', (req, res) => {
   // Menampilkan file PDF pada halaman HTML
   res.send(`
@@ -95,39 +74,7 @@ router.get('/pdf', (req, res) => {
     </html>
   `);
 });
-// // /* GET home page. */
-// router.get('/dashboard', function(req, res, next) {
-//   pdfjs.getDocument({ data: './uploads/img_ttd/2023-05-02-235405-Andika_4034.pdf' }).promise.then((pdf) => {
-//     // get the first page of the PDF
-//     pdf.getPage(1).then((page) => {
-//       // render the PDF page using an embedded PDF viewer
-//       const embedUrl = `/pdfjs/web/viewer.html?file=data:application/pdf;base64,${btoa(pdfStream)}`;
-//       res.render('pdf', { embedUrl: embedUrl });
-//     });
-//   });
-// });
 
-/* Exercise upload file. */
-router.post('/api/upload', (req, res) => {
-  // Log the files to the console
-  try {
-    const { image } = req.files
-    console.log(image)
-    // image.mv(__dirname + '/upload/' + image.name)
-    image.mv(path.resolve('./uploads/', Date.now() + '-' + image.name))
-
-    return res.status(200).send({
-      data: image.name
-    })
-  
-  } catch (error) {
-    return res.status(400).send({
-      message : 'upload image file failed'
-    })
-  }
-
-  
-});
 
 
 /* Endpoint User Controller */ 
@@ -166,6 +113,13 @@ router.post('/api/jurusan', jurusanController.addJurusan)
 router.put('/api/jurusan/:id',jurusanController.updateJurusan)
 router.delete('/api/jurusan/:id', jurusanController.deleteJurusan)
 
+/* Endpoint Jabatan Controller*/
+router.get('/api/jabatan', jabatanController.getAllJabatan)
+router.get('/api/jabatan/:id', jabatanController.getJabatanById)
+router.post('/api/jabatan', jabatanController.addJabatan)
+router.put('/api/jabatan/:id',jabatanController.updateJabatan)
+router.delete('/api/jabatan/:id', jabatanController.deleteJabatan)
+
 /* Endpoint Prodi Controller*/
 router.get('/api/prodi', prodiController.getAllProdi)
 router.get('/api/prodi/:id', prodiController.getProdiById)
@@ -190,7 +144,7 @@ router.delete('/api/KoTA/:id', koTAController.deleteKoTA)
 router.delete('/api/KoTAwithLaporan/:id', koTAController.deleteKoTAWithLaporan)
 
 /* Endpoint Mahasiswa Controller*/
-router.get('/api/mahasiswa', mahasiswaController.getAllMahasiswa)
+router.get('/api/mahasiswa/:prodi_koordinator', mahasiswaController.getAllMahasiswa)
 
 router.get('/api/mahasiswakota/:id', mahasiswaController.getAllMahasiswaByKoTA)
 router.get('/api/mahasiswa/nullkotad4', mahasiswaController.getAllMahasiswaNullKoTAD4)
@@ -226,6 +180,9 @@ router.get('/api/relasi/accessttd/:role/:id_KoTA', relasiController.getAccessTTD
 router.delete('/api/relasi/deletettd/:id', relasiController.deleteImageTTDRelasiKoTA)
 
 /* Endpoint Laporan Controller*/
+router.put('/api/laporan/addDokumen', laporanController.addDokumen)
+router.get('/api/laporan/openDokumen/:id', laporanController.openDokumen)
+router.put('/api/laporan/deleteDokumen/:id', laporanController.deleteDokumen)
 router.get('/api/laporan', laporanController.getAllLaporan)
 router.get('/api/laporan/:id', laporanController.getLaporanById)
 router.get('/api/laporankota/:id', laporanController.getLaporanByKoTA)

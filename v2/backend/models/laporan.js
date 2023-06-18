@@ -57,6 +57,7 @@ module.exports = (sequelize, DataTypes) => {
     judul_TA: DataTypes.BLOB,
     lembar_pengesahan: DataTypes.BLOB,
     dokumen_laporan: DataTypes.BLOB,
+    dokumen_laporan_final: DataTypes.BLOB,
 
     digital_signature: {
       type: DataTypes.BLOB,
@@ -64,6 +65,7 @@ module.exports = (sequelize, DataTypes) => {
     tgl_disetujui: DataTypes.DATE,
     tgl_disidangkan: DataTypes.DATE,
     tgl_unggah: DataTypes.DATE,
+    tgl_finalisasi: DataTypes.DATE,
     // version: DataTypes.STRING,
     private_key: {
       type: DataTypes.TEXT,

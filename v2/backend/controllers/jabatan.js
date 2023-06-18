@@ -1,28 +1,28 @@
 const db = require('../db/index')
-const Koordinator = require('../models').Koordinator;
+const Jabatan = require('../models').Jabatan;
 
 
 module.exports = {
-  async getAllKoordinator(req, res) {
+  async getAllJabatan(req, res) {
     try {
-        const koordinator = await Koordinator.findAll({
+        const jabatan = await Jabatan.findAll({
             attributes: {
                 exclude: ['createdAt', 'updatedAt','id']
             },
             order: [
-                ['id_koor', 'ASC']
+                ['id_jabatan', 'ASC']
             ]
         })
         
-        if (koordinator.length == 0) {
+        if (jabatan.length == 0) {
             return res.status(400).send({
-                message:'Data koordinator tidak ada'
+                message:'Data jabatan tidak ada'
             })
         }
 
         return res.status(200).send({
-            message:'Get all data koordinator berhasil',
-            data: koordinator
+            message:'Get all data jabatan berhasil',
+            data: jabatan
         })
     } catch (error) {
         return res.status(400).send({
@@ -33,28 +33,28 @@ module.exports = {
 
   },
   
-  async getKoordinatorById(req, res) {
+  async getJabatanById(req, res) {
     const { id } = req.params
 
     try {
-      const koordinator = await Koordinator.findOne({
+      const jabatan = await Jabatan.findOne({
         where: {
-          id_koor: id
+          id_jabatan: id
         },
         attributes: {
           exclude:['id']
         }
       })
 
-      if (!koordinator) {
+      if (!jabatan) {
         return res.status(404).send({
-          message:'Data koordinator tidak ditemukan'
+          message:'Data jabatan tidak ditemukan'
         })
       }
 
       return res.status(200).send({
-        message:`Get data koordinator dengan id ${id} berhasil`,
-        data: koordinator
+        message:`Get data jabatan dengan id ${id} berhasil`,
+        data: jabatan
       })
     } catch (error) {
       return res.status(400).send({
@@ -63,26 +63,25 @@ module.exports = {
     }
   },
  
- 
-  async addKoordinator(req, res) {
+  async addJabatan(req, res) {
     const data = req.body
     const options = {
-        fields: ['id_koor','id_user','id_prodi','nama_koordinator','tahun_ajaran'],
+        fields: ['id_jabatan','Dosen_id_user','nama_jabatan'],
         returning:false
     }
     try {
-        await Koordinator.create(data,options)
-        const selectKoordinator = await Koordinator.findOne({
+        await Jabatan.create(data,options)
+        const selectJabatan = await Jabatan.findOne({
             where: {
-                id_koor: req.body.id_koor,
+                id_jabatan: req.body.id_jabatan,
             },
             attributes: {
                 exclude: ['id']
             }
         })
         return res.status(200).send({
-            message:'add new Koordinator berhasil',
-            data: selectKoordinator
+            message:'add new Jabatan berhasil',
+            data: selectJabatan
         })
     } catch (error) {
         return res.status(400).send({
@@ -91,37 +90,36 @@ module.exports = {
     }
   },
 
-  async updateKoordinator(req, res) {
+  async updateJabatan(req, res) {
     const { id } = req.params
-    const { id_koor, id_user, email, Prodi_id_prodi, nama_koordinator, tahun_ajaran } = req.body
+    const { id_jabatan, Dosen_id_user, nama_jabatan, } = req.body
 
     try {
-      const koordinator = await Koordinator.findOne({
+      const jabatan = await Jabatan.findOne({
         where: {
-          id_koor: id
+          id_jabatan: id
         },
         attributes: {
           exclude:['id']
         }
       })
 
-      if (!koordinator) {
+      if (!jabatan) {
         return res.status(404).send({
-          message:'Data koordinator tidak ditemukan'
+          message:'Data jabatan tidak ditemukan'
         })
       }
 
-      const updateQuery = `UPDATE "Koordinator" SET "id_koor" = $1, "id_user" = $2, "email" = $3, "Prodi_id_prodi"=$4,
-                           "nama_koordinator"=$5, "tahun_ajaran"=$6 
-                           WHERE "id_koor"= $7 RETURNING *`
+      const updateQuery = `UPDATE "Jabatan" SET "id_jabatan" = $1, "Dosen_id_user" = $2, "nama_jabatan"=$3
+                           WHERE "id_jabatan"= $4 RETURNING *`
 
-      const paramsQuery = [ id_koor, id_user, email, Prodi_id_prodi, nama_koordinator, tahun_ajaran, id]
+      const paramsQuery = [ id_jabatan, Dosen_id_user, nama_jabatan, id]
 
       const result = await db.query(updateQuery, paramsQuery)
 
       if (Object.keys(result).length > 0) {
         return res.status(200).send({
-          message: `Update data koordinator dengan id koordinator ${id} berhasil`,
+          message: `Update data jabatan dengan id jabatan berhasil`,
           data: result.rows
         })
       } 
@@ -131,34 +129,36 @@ module.exports = {
       })
     }
   },
-  
-  async deleteKoordinator(req, res) {
+
+ 
+  async deleteJabatan(req, res) {
     const { id } = req.params
-   
+
     try {
-      const koordinator = await Koordinator.findOne({
+      const jabatan = await Jabatan.findOne({
         where: {
-          id_koor: id
+          id_jabatan: id
         },
         attributes: {
           exclude:['id']
         }
       })
 
-      if (!koordinator) {
+      if (!jabatan) {
         return res.status(404).send({
-          message:'Data koordinator tidak ditemukan'
+          message:'Data jabatan tidak ditemukan'
         })
       }
 
-      await Koordinator.destroy({
+      await Jabatan.destroy({
         where: {
-          id_koor:id
+          id_jabatan:id
         }
       })
    
       return res.status(200).send({
-        message:`Data koordinator dengan id ${id} berhasil dihapus`
+        message:`Data jabatan dengan id ${id} berhasil dihapus`,
+        data: jabatan
       })
     } catch (error) {
       return res.status(400).send({

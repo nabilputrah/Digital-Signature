@@ -45,12 +45,12 @@ module.exports = {
     const { id } = req.params
 
     try {
-        const selectQuery = `SELECT DISTINCT (m."id_KoTA"), kt."tahun_ajaran" FROM "Mahasiswa" as m 
+        const selectQuery = `SELECT DISTINCT (m."KoTA_id_user"), kt."id_KoTA", kt."tahun_ajaran" FROM "Mahasiswa" as m 
                               JOIN "KoTA" as kt ON
-                              m."id_KoTA" = kt."id_KoTA"
+                              m."KoTA_id_user" = kt."id_user"
                               JOIN "Koordinator" as k ON 
-                              m."id_prodi" = k."id_prodi"
-                              WHERE k."id_prodi" = $1 AND m."id_KoTA" IS NOT NULL 
+                              m."Prodi_id_prodi" = k."Prodi_id_prodi"
+                              WHERE k."Prodi_id_prodi" = $1 AND m."KoTA_id_user" IS NOT NULL 
                             `
         const paramsQuery = [id]
 
@@ -103,7 +103,7 @@ module.exports = {
   async addKoTA(req, res) {
     const data = req.body
     const options = {
-        fields: ['id_KoTA', 'id_prodi', 'id_user', 'tahun_ajaran', 'nama_KoTA', 'jumlah_pembimbing', 'jumlah_penguji'],
+        fields: ['id_KoTA', 'id_user', 'tahun_ajaran', 'nama_KoTA', 'jumlah_pembimbing', 'jumlah_penguji'],
         returning:false
     }
     try {
@@ -176,7 +176,7 @@ module.exports = {
      
       const kota = await KoTA.findOne({
         where: {
-          id_KoTA: id
+          id_user: id
         },
         attributes: {
           exclude:['id']
@@ -193,7 +193,7 @@ module.exports = {
     // select mahasiswa
 
     const selectQuery = ` SELECT m."NIM", k."id_user" FROM "Mahasiswa" as m
-                        JOIN "KoTA" as k ON m."id_KoTA" = k."id_KoTA" WHERE k."id_user" = $1`
+                        JOIN "KoTA" as k ON m."KoTA_id_user" = k."id_user" WHERE k."id_user" = $1`
     const paramsQuery = [id_user]
     const result = await db.query(selectQuery, paramsQuery)
 
@@ -204,11 +204,11 @@ module.exports = {
 
     // update mahasiswa kota to null  
     const update = await Mahasiswa.update({
-      id_KoTA : null,
+      KoTA_id_user : null,
       isKetua : false
       }, {
         where: {
-          id_KoTA: id,
+          KoTA_id_user: id,
           NIM: nimArray
         }
       }
@@ -216,37 +216,29 @@ module.exports = {
 
       await KoTA.destroy({
         where: {
-          id_KoTA:id
+          id_user:id
         }
       })
 
       
       await User.destroy({
         where: {
-          id_user: id_user
+          id_user: id
         }
       })
       
       await Laporan.destroy({
         where: {
-          id_KoTA: id
+          KoTA_id_user: id
         }
       })
 
       await SecretKey.destroy({
         where: {
-          id_laporan:'Laporan_' + id
+          Laporan_id_laporan:'Laporan_' + kota.id_KoTA
         }
       })
       
-      await Dokumen.destroy({
-        where: {
-          id_laporan:'Laporan_' + id
-        }
-      })
-
-      
-   
       return res.status(200).send({
         message:`Data KoTA dengan id ${id} berhasil dihapus`,
         data: update,
@@ -265,7 +257,7 @@ module.exports = {
     try {
       const laporan = await Laporan.findOne({
         where: {
-          id_KoTA: id
+          KoTA_id_user: id
         },
         attributes: {
           exclude: ['id']
@@ -280,7 +272,7 @@ module.exports = {
       }
       const kota = await KoTA.findOne({
         where: {
-          id_KoTA: id
+          id_user: id
         },
         attributes: {
           exclude:['id']
@@ -297,7 +289,7 @@ module.exports = {
     // select mahasiswa
 
     const selectQuery = ` SELECT m."NIM", k."id_user" FROM "Mahasiswa" as m
-                        JOIN "KoTA" as k ON m."id_KoTA" = k."id_KoTA" WHERE k."id_user" = $1`
+                        JOIN "KoTA" as k ON m."KoTA_id_user" = k."id_user" WHERE k."id_user" = $1`
     const paramsQuery = [id_user]
     const result = await db.query(selectQuery, paramsQuery)
 
@@ -308,18 +300,18 @@ module.exports = {
 
     // update mahasiswa kota to null  
     const update = await Mahasiswa.update({
-      id_KoTA : null,
+      KoTA_id_user : null,
       isKetua : false
       }, {
         where: {
-          id_KoTA: id,
+          KoTA_id_user: id,
           NIM: nimArray
         }
       }
     )
     // update laporan kota to null  
     const updateLaporan = await Laporan.update({
-      id_KoTA : null,
+      KoTA_id_user : null,
       }, {
         where: {
           id_laporan: id_laporan
@@ -330,7 +322,7 @@ module.exports = {
 
       await KoTA.destroy({
         where: {
-          id_KoTA:id
+          id_user:id
         }
       })
 

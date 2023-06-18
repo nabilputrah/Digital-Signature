@@ -373,32 +373,53 @@ export default {
   methods: {
     async initialize () {
       try {
-        this.id_KoTA = this.$route.params.id
+        const responseKoTA = await axios.get(this.$root.BASE_URL + '/api/KoTA/' +this.$route.params.id)
+        this.id_KoTA = responseKoTA.data.data.id_user
+        // console.log(this.id_KoTA)
 
         const responseListLaporan = await axios.get(this.$root.BASE_URL + '/api/laporankota/' +this.id_KoTA)
         this.laporan = responseListLaporan.data.data
+        // console.log(this.laporan)
 
         const responseRelasi = await axios.get(this.$root.BASE_URL + '/api/relasi/KoTA/' +  this.id_KoTA)
         this.Pengampu = responseRelasi.data.data
-        console.log(this.Pengampu)
+        // console.log(this.Pengampu)
  
-
-        this.convertDateDisetujui()
-        this.convertDateDisidangkan()
-        
-        const responseListDokumen = await axios.get(this.$root.BASE_URL + '/api/dokumenlaporan/'+this.laporan.id_laporan)
-        const list = responseListDokumen.data.data
-
-        this.Laporan = list.map((item) =>({
-          ID_laporan: item.id_dokumen,
-          tanggal_dibuat:this.convertDateDibuat(item.tgl_unggah),
-          dokumen: item.id_dokumen
-        }))
-
         const tempElement = document.createElement('div');
         tempElement.innerHTML = this.laporan.judul_TA;
         this.Judul_Tugas_Akhir = tempElement.innerText;
-        console.log(this.Laporan)           
+
+
+        if (this.laporan.tgl_disidangkan){
+            this.convertDateDisidangkan()
+        }
+        else {
+          this.laporan.tgl_disidangkan = ''
+        }
+        if (this.laporan.tgl_disetujui){
+            this.convertDateDisetujui()
+        }
+        else {
+          this.laporan.tgl_disetujui = ''
+        }
+        
+        if (this.laporan.dokumen_laporan){
+          this.Laporan.push({
+            ID_laporan: "Laporan Pertama",
+            tanggal_dibuat: this.convertDateDibuat(this.laporan.tgl_unggah),
+            dokumen: this.laporan.id_laporan + '_Awal'
+          });
+        }
+
+        if (this.laporan.dokumen_laporan_final){
+          this.Laporan.push({
+            ID_laporan: "Laporan Final",
+            tanggal_dibuat: this.convertDateDibuat(this.laporan.tgl_finalisasi),
+            dokumen: this.laporan.id_laporan + '_Final'
+        });
+        }
+        
+        console.log(this.Judul_Tugas_Akhir)           
 
 
       } catch (error) {
@@ -409,9 +430,9 @@ export default {
     async Open_Dokumen(ID_laporan) {
       this.Dokumen_Dialog = !this.Dokumen_Dialog
       // console.log(ID_laporan)
-      const response = await axios.get(this.$root.BASE_URL + '/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      const response = await axios.get(this.$root.BASE_URL + '/api/laporan/openDokumen/'+ ID_laporan,{responseType:'blob'})
       this.previewUrl = URL.createObjectURL(response.data);
-      // console.log(this.previewUrl)
+      // console.log(response.data)
       this.showPdf();
     },
 
@@ -480,20 +501,22 @@ export default {
       return item.ID_laporan.includes('Final');
     },
 
-    sendEmail (NIP) {
-      this.sendEmailTo = NIP
+    sendEmail (item) {
+      this.sendEmailTo = item
       this.dialogEmail = true
     },
 
     async sendEmailConfirm () {
+      console.log(this.id_KoTA)
       this.isLoading = true
       await axios({
         method:'post',
         url: this.$root.BASE_URL + '/api/secret/sendemail/',
         data : {
-          NIP : this.sendEmailTo.NIP,
+          Dosen_id_user : this.sendEmailTo.Dosen_id_user,
+          KoTA_id_user: this.id_KoTA,
           role : this.sendEmailTo.role,
-          id_laporan : this.laporan.id_laporan
+          id_laporan : this.laporan.id_laporan,
         }
       })
       .then(response => {

@@ -460,13 +460,13 @@ export default {
 
   methods: {
 
-    shouldShowAddDokumen(Laporan) {
+    shouldShowAddDokumen(laporan) {
       // Ambil semua tanggal dibuat yang tidak memiliki kata "Final"
-      console.log(Laporan)
-      const allCreatedDates = Laporan
-        .filter((laporan) => laporan.ID_laporan.includes('Final'))
-      if (allCreatedDates.length === 1){
+      console.log(laporan.dokumen_laporan)
+      if (laporan.dokumen_laporan){
         this.canAddDoc = true
+      } else if (!laporan.dokumen_laporan){
+        this.canAddDoc = false
       }
       console.log(this.canAddDoc)
     },
@@ -554,17 +554,12 @@ export default {
         return;
       }
       this.isLoading = true
-      const response = await axios.get(this.$root.BASE_URL + '/api/dokumenversion/'+ this.laporan.id_laporan)
-      console.log(response.data.data)
-      const version = response.data.data + 1
 
       const formData = new FormData();
       formData.append('dokumen_laporan', this.file);
       formData.append('id_laporan', this.laporan.id_laporan)
-      formData.append('id_dokumen', this.laporan.id_laporan + '_' + 'v' + version)
-      formData.append('version', 'v' + version)
 
-      await axios.post(this.$root.BASE_URL + '/api/dokumen/', formData, {
+      await axios.put(this.$root.BASE_URL + '/api/laporan/addDokumen', formData, {
         headers : {
           'Content-Type' : 'multipart/form-data'
         }
@@ -623,9 +618,9 @@ export default {
     async Open_Dokumen(ID_laporan) {
       this.Dokumen_Dialog = !this.Dokumen_Dialog
       // console.log(ID_laporan)
-      const response = await axios.get(this.$root.BASE_URL + '/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      const response = await axios.get(this.$root.BASE_URL + '/api/laporan/openDokumen/'+ ID_laporan,{responseType:'blob'})
       this.previewUrl = URL.createObjectURL(response.data);
-      // console.log(this.previewUrl)
+      // console.log(response.data)
       this.showPdf();
     },
 
@@ -672,28 +667,37 @@ export default {
     try {
         const response = await axios.get(this.$root.BASE_URL + `/api/getkotadata/${this.dataFromToken.id_user}`)
         this.kota = response.data.data[0]
-        const id_kota = response.data.data[0].id_KoTA
+        const id_kota = response.data.data[0].id_user
+        console.log(id_kota)
 
         const responseRelasi = await axios.get(this.$root.BASE_URL + '/api/relasi/KoTA/' + id_kota)
         this.Pengampu = responseRelasi.data.data
 
         const responseListLaporan = await axios.get(this.$root.BASE_URL + '/api/laporankota/' +id_kota)
         this.laporan = responseListLaporan.data.data
+        console.log(this.laporan)
 
         const tempElement = document.createElement('div');
         tempElement.innerHTML = this.laporan.judul_TA;
         this.Judul_Tugas_Akhir = tempElement.innerText;
 
-        const responseListDokumen = await axios.get(this.$root.BASE_URL + '/api/dokumenlaporan/'+this.laporan.id_laporan)
-        const list = responseListDokumen.data.data
+        if (this.laporan.dokumen_laporan){
+          this.Laporan.push({
+            ID_laporan: "Laporan Pertama",
+            tanggal_dibuat: this.convertDateDibuat(this.laporan.tgl_unggah),
+            dokumen: this.laporan.id_laporan + '_Awal'
+          });
+        }
 
-        this.Laporan = list.map((item) =>({
-          ID_laporan: item.id_dokumen,
-          tanggal_dibuat:this.convertDateDibuat(item.tgl_unggah),
-          dokumen: item.id_dokumen
-        }))
+        if (this.laporan.dokumen_laporan_final){
+          this.Laporan.push({
+            ID_laporan: "Laporan Final",
+            tanggal_dibuat: this.convertDateDibuat(this.laporan.tgl_finalisasi),
+            dokumen: this.laporan.id_laporan + '_Final'
+        });
+        }
 
-        this.shouldShowAddDokumen(this.Laporan)
+        this.shouldShowAddDokumen(this.laporan)
 
         if (this.laporan.tgl_disidangkan){
             this.convertDateDisidangkan()
@@ -708,11 +712,11 @@ export default {
           this.laporan.tgl_disetujui = ''
         }
 
-        // Get Status TTD Kajur
-        const ResultStatusGenerate = await axios.get(this.$root.BASE_URL + '/api/getstatuskajur/' + id_kota)
-        const StatusKajur = ResultStatusGenerate.data.data;
-        this.StatusKajur = StatusKajur
-        console.log(ResultStatusGenerate.data)
+        // // Get Status TTD Kajur
+        // const ResultStatusGenerate = await axios.get(this.$root.BASE_URL + '/api/getstatuskajur/' + id_kota)
+        // const StatusKajur = ResultStatusGenerate.data.data;
+        // this.StatusKajur = StatusKajur
+        // console.log(ResultStatusGenerate.data)
 
         // this.StatusKajur = false
 
@@ -758,18 +762,17 @@ export default {
     },
     deleteItemConfirm () {
       axios({
-            method:'delete',
-            url: this.$root.BASE_URL + '/api/dokumen/'+ this.id_delete_dokumen
+            method:'put',
+            url: this.$root.BASE_URL + '/api/laporan/deleteDokumen/'+ this.laporan.id_laporan
             
           })
           .then(response => {
           
             console.log(response.data)
+            this.Laporan.splice(0, 1);
             this.snackbar.show = true;
             this.snackbar.color = "primary";
             this.snackbar.message = "Data Dokumen Laporan TA berhasil dihapus";
-            this.initialize()
-    
           })
           .catch(error => {
               console.log(error.request.response)
@@ -780,6 +783,7 @@ export default {
 
     closeDelete () {
       this.dialogDelete = false
+      this.initialize()
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1

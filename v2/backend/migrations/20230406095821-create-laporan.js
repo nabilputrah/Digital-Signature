@@ -24,7 +24,9 @@ module.exports = {
   
       dokumen_laporan: {
         type: Sequelize.BLOB,
-       
+      },
+      dokumen_laporan_final: {
+        type: Sequelize.BLOB,
       },
       lembar_pengesahan: {
         type: Sequelize.BLOB,
@@ -40,6 +42,9 @@ module.exports = {
         type: Sequelize.DATE
       },
       tgl_unggah: {
+        type: Sequelize.DATE
+      },
+      tgl_finalisasi: {
         type: Sequelize.DATE
       },
    

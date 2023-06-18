@@ -11,7 +11,7 @@ const Dosen = require('../models').Dosen;
 const User = require('../models').User;
 const Prodi = require('../models').Prodi;
 
-const Jurusan = require('../models').Jurusan;
+const Jabatan = require('../models').Jabatan;
 
 require('dotenv').config()
 
@@ -105,7 +105,7 @@ module.exports = {
     try {
       const dosen = await Dosen.findOne({
         where: {
-          NIP: req.params.id
+          id_user: req.params.id
         },
         attributes: {
           exclude:['id']
@@ -161,7 +161,14 @@ module.exports = {
     const { NIP, nama, email } = req.body
 
     try {
-      const dosen = await Dosen.findByPk(id)
+      const dosen = await Dosen.findOne({
+        where: {
+          NIP: id
+        },
+        attributes:{
+          exclude: ['id','createdAt','updatedAt']
+        }
+      })
 
       if (!dosen) {
         return res.status(404).send({
@@ -172,7 +179,7 @@ module.exports = {
       const updateQuery = `UPDATE "Dosen" SET "NIP" = $1,  nama = $2, email = $3
                            WHERE "NIP" = $4 RETURNING *`
 
-      const paramsQuery = [NIP, nama, email, id]
+      const paramsQuery = [NIP.toString(), nama, email, id]
 
       const result = await db.query(updateQuery, paramsQuery)
 
@@ -192,24 +199,15 @@ module.exports = {
   async checkIsExistKaprodiKajur (req, res){
     try {
       // Cek Kaprodi
-      const selectQueryKaprodi  = `SELECT * FROM "Prodi" as P
-                                    WHERE P."NIP" IS NOT NULL
+      const selectQueryPimpinan  = `SELECT * FROM "Jabatan" as J
+                                  WHERE J."Dosen_id_user" IS NOT NULL
                                   `
 
-      const resultKaprodi = await db.query(selectQueryKaprodi)
-
-      // Cek Kajur
-      const selectQueryKajur  = `SELECT * FROM "Jurusan" as J
-                                    WHERE J."NIP" IS NOT NULL
-                                  `
-
-      const resultKajur = await db.query(selectQueryKajur)
-
+      const resultPimpinan = await db.query(selectQueryPimpinan)
 
       return res.status(200).send({
         message: 'check kaprodi kajur',
-        kaprodi: resultKaprodi.rows.length,
-        kajur: resultKajur.rows.length
+        pimpinan: resultPimpinan.rows.length
       })
     } catch (error) {
       return res.status(400).send({
@@ -222,7 +220,14 @@ module.exports = {
     const { id } = req.params
 
     try {
-      const dosen = await Dosen.findByPk(id)
+      const dosen = await Dosen.findOne({
+        where: {
+          NIP: id
+        },
+        attributes:{
+          exclude: ['id','createdAt','updatedAt']
+        }
+      })
 
       if (!dosen) {
         return res.status(404).send({
@@ -230,44 +235,23 @@ module.exports = {
         })
       }
       // cek ke prodi 
-      const selectQuery  = `SELECT D."NIP" FROM "Dosen" as D
-                            JOIN "Prodi" as P ON P."NIP" = D."NIP"
-                            WHERE D."NIP" = $1
+      const selectQuery  = `SELECT * FROM "Jabatan" as J 
+                            WHERE J."Dosen_id_user" = $1
                            `
 
-      const paramsQuery = [id]
+      const paramsQuery = [dosen.id_user]
 
       const result = await db.query(selectQuery,paramsQuery)
 
       if(result.rows.length > 0) {
-        await Prodi.update({
-          NIP: null
+        await Jabatan.update({
+          Dosen_id_user: null
         }, {
           where: {
-            NIP: id
+            Dosen_id_user: dosen.id_user
           }
         })
       }
-      // cek ke kajur 
-      const selectQueryKajur  = `SELECT D."NIP" FROM "Dosen" as D
-                            JOIN "Jurusan" as J ON J."NIP" = D."NIP"
-                            WHERE D."NIP" = $1
-                           `
-
-      const paramsQueryKajur = [id]
-
-      const resultKajur = await db.query(selectQueryKajur,paramsQueryKajur)
-
-      if(resultKajur.rows.length > 0) {
-        await Jurusan.update({
-          NIP: null
-        }, {
-          where: {
-            NIP: id
-          }
-        })
-      }
-      
 
       // await dosen.destroy()
       await User.destroy({
@@ -331,7 +315,7 @@ module.exports = {
           });
   
           await Dosen.upsert({
-            NIP: row[0],
+            NIP: row[0].toString(),
             id_user: user.id_user,
             nama: row[1],
             email: row[2]
@@ -354,119 +338,6 @@ module.exports = {
   
   
 
-  // async importAllDosenWithUser(req,res) {
-  //   fs.createReadStream('./CSV/DataDosen.tsv')
-  //   .pipe(csv({
-  //     separator: '\t'
-  //   }))
-  //   .on('data', async (row) => {
-  //     try {
-  //       let user = ''
-  //       const password = "Dosen" + row.NIP.substring(0, 4) + row.NIP.substring(row.NIP.length - 4)
-  //       const hashPassword = await bcrypt.hash(password, 10)
-
-  //       const optionsUser = {
-  //         fields: ['username', 'password', 'role'],
-  //         returning: false
-  //       }
-
-  //       await User.create({
-  //         username: row.NIP,
-  //         password: hashPassword,
-  //         role: 'Dosen'
-  //       }, optionsUser)
-
-  //        user = await User.findOne({
-  //         where: {
-  //           username: row.NIP
-  //         },
-  //         attributes: {
-  //           exclude: ['id','createdAt','updatedAt']
-  //         }
-  //       })
-  //       // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
-  //       await Dosen.upsert({
-  //         NIP: row.NIP,
-  //         id_user:user.id_user,
-  //         nama: row.nama,
-  //         email: row.email,
-  //       });
-      
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   })
-  //   .on('end', () => {
-  //     return res.status(200).send({
-  //       message: 'data berhasil diimpor ke database '
-  //     })
-  //   });
-  // },
-  
-
-  // async updateDosen(req, res) {
-  //   const { id } = req.params
-  //   const { NIP } = req.body
-  //   try {
-  //     const dosen = await Dosen.findOne({
-  //       where: {
-  //         NIP: id
-  //       },
-  //       attributes: {
-  //         exclude: ['id']
-  //       }
-  //     })
-
-  //     // kondisi jika data dosen dicari tidak ada
-  //     if (!dosen) {
-  //       return res.status(404).send({
-  //         message:'data dosen tidak ditemukan'
-  //       })
-  //     }
-
-  //     // cek param NIP dengan body NIP
-  //     if (NIP && NIP !== dosen.NIP)  {
-  //       const dosenWithNewNIP = await Dosen.findOne({
-  //         where: {
-  //           NIP : NIP
-  //         }
-  //       })
-  //       // cek jika ganti NIP tetapi NIP sudah digunakan oleh dosen lain
-  //       if (dosenWithNewNIP) {
-  //         return res.status(400).send({
-  //           message:'NIP sudah digunakan'
-  //         })
-        
-  //       // Jika NIP yang akan dirubah belum digunakan dosen lain
-  //       } else {
-         
-  //         await Dosen.destroy({
-  //           where: {
-  //             NIP: id
-  //           }
-  //         })
-       
-  //         const createNewDosen = await Dosen.create(req.body)
-
-  //         return res.status(200).send({
-  //           message: `update data dosen dengan mengubah NIP`,
-  //           data: createNewDosen
-  //         })
-  //       }
-  //     }
-
-  //     const updateDosen = await dosen.update(req.body)
-  //     return res.status(200).send({
-  //       message:'update data dosen berhasil',
-  //       data: updateDosen
-  //     })
-  //   } catch (error) {
-  //     return res.status(400).send({
-  //       message: error.message
-  //     })
-  //   }
-  // },
- 
 
 
 };

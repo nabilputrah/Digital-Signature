@@ -74,6 +74,7 @@ module.exports = {
       if (user) {
         return res.status(200).send({
           message: 'signUp new user success',
+          // KoTA_id_user : user.id_user,
           data: user
         })
       }
@@ -117,7 +118,7 @@ module.exports = {
       // insert data dosen 
 
       const optionsDosen = {
-        fields:['NIP', 'id_user', 'nama', 'email'],
+        fields:['id_user', 'NIP', 'nama', 'email'],
         returning: true
       }
 
@@ -142,7 +143,7 @@ module.exports = {
   },
 
   async signUpUserKoorD4(req, res) {
-    const { username, nama, tahun_ajaran} = req.body
+    const { username, nama, tahun_ajaran, email} = req.body
     const password = tahun_ajaran.substring(0, 4) + username + tahun_ajaran.substring(tahun_ajaran.length - 4)
     const hashPassword = await bcrypt.hash(password, 10)
 
@@ -156,7 +157,8 @@ module.exports = {
       await User.create({
         username: username,
         password: hashPassword,
-        role: 'Koordinator'
+        role: 'Koordinator',
+        email:email
       }, optionsUser)
 
       // select id_user from table user
@@ -173,14 +175,15 @@ module.exports = {
       // insert data Koor 
 
       const optionsKoor = {
-        fields:['id_koor', 'id_user', 'id_prodi', 'nama_koordinator', 'tahun_ajaran'],
+        fields:['id_koor', 'id_user', 'Prodi_id_prodi', 'nama_koordinator', 'tahun_ajaran','email'],
         returning: true
       }
 
       const koordinator = await Koordinator.create({
         id_koor: username,
         id_user: user.id_user,
-        id_prodi: 'PRD001',
+        email:email,
+        Prodi_id_prodi: 'PRD001',
         nama_koordinator: nama,
         tahun_ajaran: tahun_ajaran
       }, optionsKoor)
@@ -196,7 +199,7 @@ module.exports = {
     }
   },
   async signUpUserKoorD3(req, res) {
-    const { username, nama, tahun_ajaran} = req.body
+    const { username, nama, tahun_ajaran, email} = req.body
     const password = tahun_ajaran.substring(0, 4) + username + tahun_ajaran.substring(tahun_ajaran.length - 4)
     const hashPassword = await bcrypt.hash(password, 10)
 
@@ -227,14 +230,15 @@ module.exports = {
       // insert data Koor 
 
       const optionsKoor = {
-        fields:['id_koor', 'id_user', 'id_prodi', 'nama_koordinator', 'tahun_ajaran'],
+        fields:['id_koor', 'id_user', 'Prodi_id_prodi', 'nama_koordinator', 'tahun_ajaran','email'],
         returning: true
       }
 
       const koordinator = await Koordinator.create({
         id_koor: username,
         id_user: user.id_user,
-        id_prodi: 'PRD002',
+        Prodi_id_prodi: 'PRD002',
+        email:email,
         nama_koordinator: nama,
         tahun_ajaran: tahun_ajaran
       }, optionsKoor)
@@ -253,7 +257,7 @@ module.exports = {
   async signUpUserKoTA(req, res) {
     
     
-    const { username, nama_KoTA, tahun_ajaran, id_prodi, jumlah_pembimbing, jumlah_penguji } = req.body
+    const { username, nama_KoTA, tahun_ajaran, jumlah_pembimbing, jumlah_penguji } = req.body
 
     const password = "KoTA"+ username + jumlah_pembimbing + jumlah_penguji
     const hashPasword = await bcrypt.hash(password, 10)
@@ -285,13 +289,12 @@ module.exports = {
        // insert data KoTA 
 
        const optionsKoTA = {
-        fields:['id_KoTA', 'id_prodi', 'id_user','tahun_ajaran','nama_KoTA','jumlah_pembimbing','jumlah_penguji'],
+        fields:['id_KoTA', 'id_user','tahun_ajaran','nama_KoTA','jumlah_pembimbing','jumlah_penguji'],
         returning: true
       }
 
        const kota = await KoTA.create({
         id_KoTA: username,
-        id_prodi: id_prodi,
         id_user: user.id_user,
         tahun_ajaran: tahun_ajaran,
         nama_KoTA: nama_KoTA,
@@ -317,6 +320,7 @@ module.exports = {
 
       return res.status(200).send({
         message: 'add KoTA with user success',
+        KoTA_id_user : user.id_user,
         data: kota
       })
     } catch (error) {
@@ -408,12 +412,12 @@ module.exports = {
     const { id } = req.params
 
     try {
-      const selectQuery = `SELECT u."id_user", k."nama_koordinator", k."id_koor", k."tahun_ajaran", p."nama_prodi", p."id_prodi"
+      const selectQuery = `SELECT u."id_user", k."email", k."nama_koordinator", k."id_koor", k."tahun_ajaran", p."nama_prodi", p."id_prodi"
                            FROM "User" as u
                            JOIN "Koordinator" as k 
                               ON k."id_user" = u."id_user"
                            JOIN "Prodi" as p
-                              ON p."id_prodi" = k."id_prodi"
+                              ON p."id_prodi" = k."Prodi_id_prodi"
                            WHERE u."id_user" = $1`
       const paramsQuery = [id]
       const result = await db.query(selectQuery, paramsQuery)

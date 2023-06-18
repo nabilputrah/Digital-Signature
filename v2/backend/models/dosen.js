@@ -38,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
     id_user: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      primaryKey:true,
       unique: true,
       // validate: {
       //   isUnique: async function (value) {

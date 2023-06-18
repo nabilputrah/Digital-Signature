@@ -265,7 +265,8 @@ import axios from 'axios'
 export default {
   data() {
     return {
-
+      loggedIn:'',
+      navbar:'',
       detailKoTA:'',
       mahasiswaKoTA:'',
       pembimbingKoTA:'',
@@ -304,8 +305,13 @@ export default {
     }
   },
   mounted() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      this.navbar= payload.user;
+    }
     this.generateListTahunAjaran();
-    this.initializeDetailKoTA()
+    this.initializeNavbarLoggedIn()
   },
 
   computed: {
@@ -351,10 +357,24 @@ export default {
   },
 
   methods: {
+    async initializeNavbarLoggedIn (){
+        const token = localStorage.getItem('token'); 
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        try {
+          const response = await axios.get(this.$root.BASE_URL + `/api/getkoordata/${this.navbar.id_user}`, { headers });
+          this.loggedIn = response.data.data[0]
+          console.log(this.loggedIn.nama_prodi)
+          this.initializeDetailKoTA()
+        } catch (error) {
+          console.error(error.message);
+        }
+     },
+
     async initializeDetailKoTA() {
       // detail kotga
         try {
-        const response = await axios.get(this.$root.BASE_URL + '/api/KoTA/'+ this.$route.params.id)
+      const response = await axios.get(this.$root.BASE_URL + '/api/KoTA/'+ this.$route.params.id)
         this.detailKoTA = response.data.data
         this.tahunAjaran = this.detailKoTA.tahun_ajaran
         this.ID_KoTA = this.detailKoTA.nama_KoTA
@@ -363,12 +383,13 @@ export default {
       }
       // mahasiswa kota
       try {
-          const responseList = await axios.get(this.$root.BASE_URL + `/api/mahasiswa/`);
+          const responseList = await axios.get(this.$root.BASE_URL + `/api/mahasiswa/${this.loggedIn.id_prodi}`);
           const listMahasiswa = responseList.data.data
-          const response = await axios.get(this.$root.BASE_URL + '/api/mahasiswakota/'+ this.$route.params.id)
+          const response = await axios.get(this.$root.BASE_URL + '/api/mahasiswakota/' + this.detailKoTA.id_user);
           this.mahasiswaKoTA= response.data.data
-       
-        
+          // console.log(listMahasiswa)
+          // console.log(this.mahasiswaKoTA)
+               
           const selectedItem = this.mahasiswaKoTA.map((item) => ({
             selectedItem: item.NIM,
             items: listMahasiswa.map((mhs) =>({ value: mhs.NIM, text: `${mhs.NIM} - ${mhs.nama}` })),
@@ -376,7 +397,6 @@ export default {
           }));
           this.form = selectedItem;
            
-        
         } catch (error) {
           console.error(error.message);
         }
@@ -386,13 +406,13 @@ export default {
       try {
         const responseList = await axios.get(this.$root.BASE_URL + `/api/dosen/`);
         const listDosen = responseList.data.data
-        const response = await axios.get(this.$root.BASE_URL + '/api/relasibykota/pembimbing/'+ this.$route.params.id)
+        const response = await axios.get(this.$root.BASE_URL + '/api/relasibykota/pembimbing/'+ this.detailKoTA.id_user)
         this.pembimbingKoTA = response.data.data
         
         // Set nilai items dan search pada setiap elemen form
         const selectedItem = this.pembimbingKoTA.map((item) => ({
-          selectedItem: item.NIP,
-          items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })),
+          selectedItem: item.Dosen_id_user,
+          items: listDosen.map((dsn) =>({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` })),
           search: ""
         }));
    
@@ -405,13 +425,13 @@ export default {
       try {
         const responseList = await axios.get(this.$root.BASE_URL + `/api/dosen/`);
         const listDosen = responseList.data.data
-        const response = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ this.$route.params.id)
+        const response = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ this.detailKoTA.id_user)
         this.pengujiKoTA = response.data.data
        
          // Set nilai items dan search pada setiap elemen form
         const selectedItem = this.pengujiKoTA.map((item) => ({
-          selectedItem: item.NIP,
-          items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })),
+          selectedItem: item.Dosen_id_user,
+          items: listDosen.map((dsn) =>({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` })),
           search: ""
         }));
    
@@ -425,7 +445,7 @@ export default {
     async edit_data(ID_KoTA){
       const response = await axios.get(this.$root.BASE_URL + `/api/checkkajurkaprodi`);
       const CanADD = response.data
-      if ((CanADD.kajur == 1) && (CanADD.kaprodi == 2)){
+      if (CanADD.pimpinan == 3){
         this.$router.push(`/koordinator/KoTA/edit_KoTA/${ID_KoTA}`);
       }
       else {
@@ -442,7 +462,7 @@ export default {
 
       axios({
         method:'delete',
-        url: this.$root.BASE_URL + '/api/KoTAwithLaporan/'+ this.$route.params.id
+        url: this.$root.BASE_URL + '/api/KoTAwithLaporan/'+ this.detailKoTA.id_user
         
       })
       .then(response => {

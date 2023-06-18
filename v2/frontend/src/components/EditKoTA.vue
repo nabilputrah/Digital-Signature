@@ -325,7 +325,8 @@ export default {
     return {
       id_laporan:'',
       id_user:'',
-      kaprodiData:'',
+      KoTA_id_user:null,
+      kaprodiData:[],
       kajurData:'',
       statusAddKota: false,
       loggedIn:'',
@@ -400,9 +401,8 @@ export default {
     this.initializeNavbarLoggedIn()
     this.generateListTahunAjaran();
     this.initializePimpinanList()
-    this.initializeDetailKoTA();
-    this.initializeMahasiswaList();
-    this.initializePengampuList();
+    // this.initializeMahasiswaList();
+    // this.initializePengampuList();
     // this.initializePengujiList();
   },
 
@@ -453,18 +453,19 @@ export default {
       async CheckPimpinan(){
         const response = await axios.get(this.$root.BASE_URL + `/api/checkkajurkaprodi`);
           const CanADD = response.data
-          if ((CanADD.kajur < 1) || (CanADD.kaprodi < 2)){
-            console.log("MASUUK")
+          if (CanADD.kajur < 3) {
             this.$router.push(`/koordinator/KoTA/detail_KoTA/${this.$route.params.id}`);
           }
       },
 
      async initializePimpinanList() {
-        const responseKajur = await axios.get(this.$root.BASE_URL + '/api/jurusan')
-        this.kajurData = responseKajur.data.data[0]
-        const responseKaprodi = await axios.get(this.$root.BASE_URL + '/api/prodi')
-        this.kaprodiData = responseKaprodi.data.data
+        const responsePimpinan = await axios.get(this.$root.BASE_URL + '/api/jabatan')
+        this.PimpinanData = responsePimpinan.data.data
+        this.kajurData = this.PimpinanData[0].Dosen_id_user
+        this.kaprodiData[0] = this.PimpinanData[1].Dosen_id_user
+        this.kaprodiData[1] = this.PimpinanData[2].Dosen_id_user
      },
+
     async initializeNavbarLoggedIn (){
         const token = localStorage.getItem('token'); 
         const headers = { Authorization: `Bearer ${token}` };
@@ -473,6 +474,9 @@ export default {
           const response = await axios.get(this.$root.BASE_URL + `/api/getkoordata/${this.navbar.id_user}`, { headers });
           this.loggedIn = response.data.data[0]
           console.log(this.loggedIn.nama_prodi)
+          this.initializeDetailKoTA()
+          this.initializeMahasiswaList()
+          this.initializePengampuList()
          
         } catch (error) {
           console.error(error.message);
@@ -481,31 +485,25 @@ export default {
 
     async initializeMahasiswaList(){
       
-    try {
+      try {
+        const responseList = await axios.get(this.$root.BASE_URL + `/api/mahasiswa/${this.loggedIn.id_prodi}`);
+        const listMahasiswa = responseList.data.data
+        console.log(listMahasiswa)
+        const response = await axios.get(this.$root.BASE_URL + '/api/mahasiswakota/' + this.detailKoTA.id_user);
+        this.mahasiswaKoTA= response.data.data
+        console.log(this.mahasiswaKoTA)
 
-      // yang urang baru 
-      const responseList = await axios.get(this.$root.BASE_URL + `/api/mahasiswa/`);
-      const listMahasiswa = responseList.data.data
-      const response = await axios.get(this.$root.BASE_URL + '/api/mahasiswakota/'+ this.$route.params.id)
-      this.mahasiswaKoTA= response.data.data
-    
-      if (this.loggedIn.nama_prodi === 'D4') {
-          this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD001"  && item.id_KoTA == null) ;
+        this.MahasiswaFiltered = listMahasiswa.filter((item) => item.KoTA_id_user == null);
 
-      } else if(this.loggedIn.nama_prodi === 'D3'){
-          this.MahasiswaFiltered = listMahasiswa.filter((item) => item.id_prodi === "PRD002"  && item.id_KoTA == null );
-      }
-      
-      const selectedItem = this.mahasiswaKoTA.map((item) => ({
-      selectedItem: item.NIM,
-      items: [...this.MahasiswaFiltered, ...this.mahasiswaKoTA].map((mhs) => ({
-        value: mhs.NIM,
-        text: `${mhs.NIM} - ${mhs.nama}`
-      })),
-      search: ""
-    }));
-    this.form = selectedItem;
-
+        const selectedItem = this.mahasiswaKoTA.map((item) => ({
+        selectedItem: item.NIM,
+        items: [...this.MahasiswaFiltered, ...this.mahasiswaKoTA].map((mhs) => ({
+          value: mhs.NIM,
+          text: `${mhs.NIM} - ${mhs.nama}`
+        })),
+        search: ""
+      }));
+      this.form = selectedItem;
 
       } catch (error) {
         console.error(error.message);
@@ -518,39 +516,39 @@ export default {
       try {
         const responseList = await axios.get(this.$root.BASE_URL + `/api/dosen/`);
         const listDosen = responseList.data.data
-        const response = await axios.get(this.$root.BASE_URL + '/api/relasibykota/pembimbing/'+ this.$route.params.id)
+        const response = await axios.get(this.$root.BASE_URL + '/api/relasibykota/pembimbing/'+ this.detailKoTA.id_user)
         this.pembimbingKoTA = response.data.data
-        
-        const responsePenguji = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ this.$route.params.id)
+
+        const responsePenguji = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ this.detailKoTA.id_user)
         this.pengujiKoTA = responsePenguji.data.data
 
         if (this.pembimbingKoTA.length > 0){
         // Set nilai items dan search pada setiap elemen form
           this.formPembimbing = this.pembimbingKoTA.map((item) => ({
-            selectedItem: item.NIP,
-            items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })),
+            selectedItem: item.Dosen_id_user,
+            items: listDosen.map((dsn) =>({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` })),
             search: ""
           }));
         }
         else {
           this.formPembimbing = [
-              { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
-              { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
+              { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
+              { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
             ];
         }
 
         if (this.pengujiKoTA.length > 0){
          // Set nilai items dan search pada setiap elemen form
           this.formPenguji = this.pengujiKoTA.map((item) => ({
-            selectedItem: item.NIP,
-            items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })),
+            selectedItem: item.Dosen_id_user,
+            items: listDosen.map((dsn) =>({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` })),
             search: ""
           }));
         }
         else {
           this.formPenguji = [
-              { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
-              { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
+              { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
+              { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
             ];
         }
 
@@ -560,41 +558,6 @@ export default {
       }
     },
 
-    async initializePengujiList(){
-    // penguji kota
-      try {
-        const responseList = await axios.get(this.$root.BASE_URL + `/api/dosen/`);
-        const listDosen = responseList.data.data
-        const response = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ this.$route.params.id)
-        this.pengujiKoTA = response.data.data
-       
-        if (this.pengujiKoTA.length > 0){
-         // Set nilai items dan search pada setiap elemen form
-          this.formPenguji = this.pengujiKoTA.map((item) => ({
-            selectedItem: item.NIP,
-            items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })),
-            search: ""
-          }));
-        }
-        else {
-          this.formPenguji = [
-              { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
-              { selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' },
-            ];
-        }
-   
-        console.log(this.formPembimbing[0].selectedItem)
-        if (!this.formPembimbing[0].selectedItem){
-          console.log("MASUUUUK")
-          this.valid = false
-        }
-        // this.uniquePembimbingRule(0)
-
-
-      } catch (error) { 
-        console.log(error.message.request)
-      }
-    },
 
     async initializeDetailKoTA() {
       // detail kotga
@@ -614,6 +577,8 @@ export default {
       // Delete KoTA
       console.log(this.tahunAjaran)
       console.log(this.detailKoTA.tahun_ajaran)
+
+      this.KoTA_id_user = this.detailKoTA.id_user
         // Insert new KoTA
       const tahunAjaran = this.tahunAjaran;
       const namaKota = this.ID_KoTA;
@@ -627,11 +592,11 @@ export default {
       else if (this.loggedIn.nama_prodi === 'D3'){
         this.ProdiAktif = 'PRD002'
       }
-    
+
     if (this.tahunAjaran === this.detailKoTA.tahun_ajaran) {
       await axios({
         method:'delete',
-        url: this.$root.BASE_URL + '/api/KoTA/'+ this.$route.params.id,
+        url: this.$root.BASE_URL + '/api/KoTA/'+ this.KoTA_id_user,
         
       })
       .then(response => {
@@ -654,7 +619,6 @@ export default {
           id_user: this.id_user,
           nama_KoTA:namaKota,
           tahun_ajaran: tahunAjaran,
-          id_prodi: this.ProdiAktif,
           jumlah_pembimbing: this.formPembimbing.length,
           jumlah_penguji: this.formPenguji.length,
         } 
@@ -674,7 +638,7 @@ export default {
         url: this.$root.BASE_URL + '/api/laporanidkota/' + this.id_laporan,
         data: {
           // id_laporan:generatedIdKota,
-          id_KoTA: generatedIdKota,
+          KoTA_id_user: this.KoTA_id_user,
        
         } 
       })
@@ -695,7 +659,7 @@ export default {
           method:'put',
           url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
-            id_KoTA: generatedIdKota,
+            KoTA_id_user: this.KoTA_id_user,
             isKetua: true 
           } 
         })
@@ -714,7 +678,7 @@ export default {
           method:'put',
           url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
-            id_KoTA: generatedIdKota,
+            KoTA_id_user: this.KoTA_id_user,
             isKetua: true 
           } 
         })
@@ -731,7 +695,7 @@ export default {
           method:'put',
           url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[1].selectedItem,
           data: {
-            id_KoTA: generatedIdKota,
+            KoTA_id_user: this.KoTA_id_user,
             isKetua: false 
           } 
         })
@@ -750,7 +714,7 @@ export default {
           method:'put',
           url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
-            id_KoTA: generatedIdKota,
+            KoTA_id_user: this.KoTA_id_user,
             isKetua: true 
           } 
         })
@@ -767,7 +731,7 @@ export default {
           method:'put',
           url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[1].selectedItem,
           data: {
-            id_KoTA: generatedIdKota,
+            KoTA_id_user: this.KoTA_id_user,
             isKetua: false 
           } 
         })
@@ -784,7 +748,7 @@ export default {
           method:'put',
           url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[2].selectedItem,
           data: {
-            id_KoTA: generatedIdKota,
+            KoTA_id_user: this.KoTA_id_user,
             isKetua: false 
           } 
         })
@@ -797,6 +761,7 @@ export default {
             console.log(error.request.response)
         })
       }
+      
       // END update status mahasiswa (kota dan isketua)
       if (this.statusAddKota){
          // START Relasi Pembimbing
@@ -805,8 +770,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPembimbing[0].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPembimbing[0].selectedItem,
             role:'Pembimbing',
             urutan: 1
           } 
@@ -824,8 +789,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPembimbing[1].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPembimbing[1].selectedItem,
             role:'Pembimbing',
             urutan: 2
           } 
@@ -847,8 +812,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPembimbing[0].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPembimbing[0].selectedItem,
             role:'Pembimbing',
             urutan: 1
           } 
@@ -866,8 +831,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPembimbing[1].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPembimbing[1].selectedItem,
             role:'Pembimbing',
             urutan: 2
           } 
@@ -885,8 +850,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPembimbing[2].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPembimbing[2].selectedItem,
             role:'Pembimbing',
             urutan: 3
           } 
@@ -909,8 +874,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPenguji[0].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPenguji[0].selectedItem,
             role:'Penguji',
             urutan: 1
           } 
@@ -928,8 +893,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPenguji[1].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPenguji[1].selectedItem,
             role:'Penguji',
             urutan: 2
           } 
@@ -948,8 +913,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPenguji[0].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPenguji[0].selectedItem,
             role:'Penguji',
             urutan: 1
           } 
@@ -967,8 +932,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPenguji[1].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPenguji[1].selectedItem,
             role:'Penguji',
             urutan: 2
           } 
@@ -985,8 +950,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPenguji[2].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPenguji[2].selectedItem,
             role:'Penguji',
             urutan: 3
           } 
@@ -1007,8 +972,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.kaprodiData[0].NIP,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.kaprodiData[1],
             role:'Kaprodi',
             urutan: null
           } 
@@ -1028,8 +993,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.kaprodiData[1].NIP,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.kaprodiData[0],
             role:'Kaprodi',
             urutan: null
           } 
@@ -1048,8 +1013,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.kajurData.NIP,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.kajurData,
             role:'Kajur',
             urutan: null
           } 
@@ -1112,6 +1077,7 @@ export default {
 
       // add kota
       // insert data to kota 
+      const recent_id_KoTA = this.KoTA_id_user
       await axios({
         method:'post',
         url: this.$root.BASE_URL + '/api/signupuser/kota',
@@ -1119,13 +1085,13 @@ export default {
           username: generatedIdKota,
           nama_KoTA: namaKota,
           tahun_ajaran: tahunAjaran,
-          id_prodi: this.ProdiAktif,
           jumlah_pembimbing: this.formPembimbing.length,
           jumlah_penguji: this.formPenguji.length,
         } 
       })
       .then(response => {
         this.statusAddKota = true
+        this.KoTA_id_user = response.data.KoTA_id_user
         console.log(response.data)
 
       })
@@ -1144,7 +1110,7 @@ export default {
       //  delete kota with laporan
       await axios({
         method:'delete',
-        url: this.$root.BASE_URL + '/api/KoTAwithLaporan/'+ this.$route.params.id
+        url: this.$root.BASE_URL + '/api/KoTAwithLaporan/'+ recent_id_KoTA
         
       })
       .then(response => {
@@ -1161,7 +1127,7 @@ export default {
         url: this.$root.BASE_URL + '/api/laporan',
         data: {
           id_laporan:generatedIdKota,
-          id_KoTA: generatedIdKota,
+          KoTA_id_user: this.KoTA_id_user,
        
         } 
       })
@@ -1181,7 +1147,7 @@ export default {
           method:'put',
           url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
-            id_KoTA: generatedIdKota,
+            KoTA_id_user: this.KoTA_id_user,
             isKetua: true 
           } 
         })
@@ -1200,7 +1166,7 @@ export default {
           method:'put',
           url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
-            id_KoTA: generatedIdKota,
+            KoTA_id_user: this.KoTA_id_user,
             isKetua: true 
           } 
         })
@@ -1217,7 +1183,7 @@ export default {
           method:'put',
           url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[1].selectedItem,
           data: {
-            id_KoTA: generatedIdKota,
+            KoTA_id_user: this.KoTA_id_user,
             isKetua: false 
           } 
         })
@@ -1236,7 +1202,7 @@ export default {
           method:'put',
           url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[0].selectedItem,
           data: {
-            id_KoTA: generatedIdKota,
+            KoTA_id_user: this.KoTA_id_user,
             isKetua: true 
           } 
         })
@@ -1253,7 +1219,7 @@ export default {
           method:'put',
           url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[1].selectedItem,
           data: {
-            id_KoTA: generatedIdKota,
+            KoTA_id_user: this.KoTA_id_user,
             isKetua: false 
           } 
         })
@@ -1270,7 +1236,7 @@ export default {
           method:'put',
           url: this.$root.BASE_URL + '/api/mahasiswastatus/'+ this.form[2].selectedItem,
           data: {
-            id_KoTA: generatedIdKota,
+            KoTA_id_user: this.KoTA_id_user,
             isKetua: false 
           } 
         })
@@ -1291,8 +1257,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPembimbing[0].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPembimbing[0].selectedItem,
             role:'Pembimbing',
             urutan: 1
           } 
@@ -1310,8 +1276,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPembimbing[1].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPembimbing[1].selectedItem,
             role:'Pembimbing',
             urutan: 2
           } 
@@ -1333,8 +1299,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPembimbing[0].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPembimbing[0].selectedItem,
             role:'Pembimbing',
             urutan: 1
           } 
@@ -1352,8 +1318,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPembimbing[1].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPembimbing[1].selectedItem,
             role:'Pembimbing',
             urutan: 2
           } 
@@ -1371,8 +1337,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPembimbing[2].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPembimbing[2].selectedItem,
             role:'Pembimbing',
             urutan: 3
           } 
@@ -1395,8 +1361,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPenguji[0].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPenguji[0].selectedItem,
             role:'Penguji',
             urutan: 1
           } 
@@ -1414,8 +1380,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPenguji[1].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPenguji[1].selectedItem,
             role:'Penguji',
             urutan: 2
           } 
@@ -1434,8 +1400,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPenguji[0].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPenguji[0].selectedItem,
             role:'Penguji',
             urutan: 1
           } 
@@ -1453,8 +1419,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPenguji[1].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPenguji[1].selectedItem,
             role:'Penguji',
             urutan: 2
           } 
@@ -1471,8 +1437,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.formPenguji[2].selectedItem,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.formPenguji[2].selectedItem,
             role:'Penguji',
             urutan: 3
           } 
@@ -1493,8 +1459,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.kaprodiData[0].NIP,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.kaprodiData[1],
             role:'Kaprodi',
             urutan: null
           } 
@@ -1514,8 +1480,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.kaprodiData[1].NIP,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.kaprodiData[0],
             role:'Kaprodi',
             urutan: null
           } 
@@ -1534,8 +1500,8 @@ export default {
           method:'post',
           url: this.$root.BASE_URL + '/api/relasi/',
           data: {
-            id_KoTA: generatedIdKota,
-            NIP: this.kajurData.NIP,
+            KoTA_id_user: this.KoTA_id_user,
+            Dosen_id_user: this.kajurData,
             role:'Kajur',
             urutan: null
           } 
@@ -1677,7 +1643,7 @@ export default {
       const responseList = await axios.get(this.$root.BASE_URL + `/api/dosen/`);
       const listDosen = responseList.data.data
      
-      this.formPembimbing.push({ selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' });
+      this.formPembimbing.push({ selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' });
     },
 
     removeFormPembimbing(index) {
@@ -1688,7 +1654,7 @@ export default {
       const responseList = await axios.get(this.$root.BASE_URL + `/api/dosen/`);
       const listDosen = responseList.data.data
      
-      this.formPenguji.push({ selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' });
+      this.formPenguji.push({ selectedItem: null, items: listDosen.map((dsn) =>({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` })), search: '' });
     },
 
     removeFormPenguji(index) {
