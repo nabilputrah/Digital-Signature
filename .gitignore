@@ -1,5 +1,11 @@
-backend/.env
-backend/config/
-backend/node_modules
-backend/CSV
-backend/uploads
+v1/backend/.env
+v1/backend/config/
+v1/backend/node_modules
+v1/backend/CSV
+v1/backend/uploads
+
+v2/backend/.env
+v2/backend/config/
+v2/backend/node_modules
+v2/backend/CSV
+v2/backend/uploads
