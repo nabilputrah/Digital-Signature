@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   Koordinator.init({
     id_koor: {
       type: DataTypes.STRING,
-      primaryKey:true,
+   
       allowNull:false,
       validate: {
         async isDuplicatePK(value) {
@@ -37,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
     id_user: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      primaryKey:true,
       unique: true,
       validate: {
         isUnique: async function (value) {
@@ -54,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
     },
-    id_prodi: {
+    Prodi_id_prodi: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
@@ -62,7 +63,7 @@ module.exports = (sequelize, DataTypes) => {
         isUnique: async function (value) {
           const koordinator = await Koordinator.findOne({
              where: {
-               id_prodi: value 
+               Prodi_id_prodi: value 
               },
               attributes: {
                 exclude:['id']
@@ -75,7 +76,27 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     nama_koordinator: DataTypes.STRING,
-    tahun_ajaran: DataTypes.STRING
+    tahun_ajaran: DataTypes.STRING,
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isUnique: async function (value) {
+          const koordinator = await Koordinator.findOne({
+             where: {
+               email: value 
+              },
+              attributes: {
+                exclude:['id']
+              } 
+            });
+          if (koordinator) {
+            throw new Error('Email must be unique');
+          }
+        },
+      },
+    },
   }, {
     sequelize,
      timestamps:false,

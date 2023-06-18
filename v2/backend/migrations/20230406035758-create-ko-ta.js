@@ -3,13 +3,9 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('KoTA', {
-      id_KoTA: {
-        allowNull: false,
-        primaryKey: true,
-        type: Sequelize.STRING
-      },
       id_user: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
         references:{
           model:'User',
           key:'id_user'
@@ -18,17 +14,26 @@ module.exports = {
         onUpdate:'cascade',
         unique:true
       },
-      tahun_ajaran: {
+      id_KoTA: {
+        allowNull: false,
+        unique:true,
         type: Sequelize.STRING
+      },
+      tahun_ajaran: {
+        type: Sequelize.STRING,
+        allowNull:false,
       },
       nama_KoTA: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull:false
       },
       jumlah_pembimbing: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull:false
       },
       jumlah_penguji: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull:false
       },
     });
   },

@@ -8,7 +8,7 @@ module.exports = {
         primaryKey:true,
         type: Sequelize.STRING
       },
-      id_laporan: {
+      Laporan_id_laporan: {
         type: Sequelize.STRING,
         allowNull: false,
         references:{
@@ -18,12 +18,12 @@ module.exports = {
         onDelete:"cascade",
         onUpdate:"cascade"
       },
-      NIP: {
-        type: Sequelize.STRING,
+      Dosen_id_user: {
+        type: Sequelize.INTEGER,
         allowNull: false,
         references:{
           model:"Dosen",
-          key:"NIP"
+          key:"id_user"
         },
         onDelete:"cascade",
         onUpdate:"cascade"

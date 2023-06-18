@@ -8,7 +8,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.STRING
       },
-      id_prodi: {
+      Prodi_id_prodi: {
         type: Sequelize.STRING,
         references:{
           model:"Prodi",
@@ -16,11 +16,11 @@ module.exports = {
         },
         allowNull:false
       },
-      id_KoTA: {
-        type: Sequelize.STRING,
+      KoTA_id_user: {
+        type: Sequelize.INTEGER,
         references:{
           model:"KoTA",
-          key:"id_KoTA"
+          key:"id_user"
         },
         onDelete:'cascade',
         onUpdate:'cascade'

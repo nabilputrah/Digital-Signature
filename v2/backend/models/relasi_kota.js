@@ -20,8 +20,8 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.INTEGER
     },
-    id_KoTA: DataTypes.STRING,
-    NIP: DataTypes.STRING,
+    KoTA_id_user: DataTypes.INTEGER,
+    Dosen_id_user: DataTypes.INTEGER,
     role: {
       type: DataTypes.STRING, 
       allowNull:false,

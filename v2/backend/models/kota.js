@@ -16,14 +16,15 @@ module.exports = (sequelize, DataTypes) => {
   KoTA.init({
     id_KoTA: {
       type: DataTypes.STRING,
-      primaryKey:true,
+      unique: true,
       allowNull:false,
       
     },
     id_user: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      unique: true,
+      primaryKey:true,
+      
       validate: {
         isUnique: async function (value) {
           const kota = await KoTA.findOne({

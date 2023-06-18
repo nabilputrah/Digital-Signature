@@ -9,20 +9,20 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_KoTA: {
-        type: Sequelize.STRING,
+      KoTA_id_user: {
+        type: Sequelize.INTEGER,
         references:{
           model:"KoTA",
-          key:"id_KoTA"
+          key:"id_user"
         },
         onDelete:"cascade",
         onUpdate:"cascade"
       },
-      NIP: {
-        type: Sequelize.STRING,
+      Dosen_id_user: {
+        type: Sequelize.INTEGER,
         references:{
           model:"Dosen",
-          key:"NIP"
+          key:"id_user"
         },
         onDelete:"cascade",
         onUpdate:"cascade"

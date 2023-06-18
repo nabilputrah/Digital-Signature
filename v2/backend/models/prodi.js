@@ -34,7 +34,6 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    NIP:DataTypes.STRING,
     nama_prodi: DataTypes.STRING,
   }, {
     sequelize,
