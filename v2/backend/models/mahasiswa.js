@@ -31,11 +31,11 @@ module.exports = (sequelize, DataTypes) => {
       }
       
     },
-    id_prodi: {
+    Prodi_id_prodi: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    id_KoTA: DataTypes.STRING,
+    KoTA_id_user: DataTypes.INTEGER,
     nama: DataTypes.STRING,
     email: {
       type: DataTypes.STRING,

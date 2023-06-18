@@ -8,11 +8,11 @@ module.exports = {
         primaryKey:true,
         type: Sequelize.STRING
       },
-      id_KoTA: {
-        type: Sequelize.STRING,
+      KoTA_id_user: {
+        type: Sequelize.INTEGER,
         references:{
           model:"KoTA",
-          key:"id_KoTA"
+          key:"id_user"
         },
         onDelete:"cascade",
         onUpdate:"cascade",
@@ -22,6 +22,10 @@ module.exports = {
         type: Sequelize.TEXT
       },
   
+      dokumen_laporan: {
+        type: Sequelize.BLOB,
+       
+      },
       lembar_pengesahan: {
         type: Sequelize.BLOB,
        
@@ -33,6 +37,9 @@ module.exports = {
         type: Sequelize.DATE
       },
       tgl_disidangkan: {
+        type: Sequelize.DATE
+      },
+      tgl_unggah: {
         type: Sequelize.DATE
       },
    

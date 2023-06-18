@@ -8,17 +8,6 @@ module.exports = {
         primaryKey:true,
         type: Sequelize.STRING
       },
-      NIP: {
-        type: Sequelize.STRING,
-        references:{
-          model:'Dosen',
-          key:'NIP'
-        },
-        unique:true,
-        onDelete:'cascade',
-        onUpdate:'cascade',
-        allowNull:true
-      },
       nama_prodi: {
         type: Sequelize.STRING,
         allowNull:false

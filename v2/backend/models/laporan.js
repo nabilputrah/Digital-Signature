@@ -34,15 +34,15 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    id_KoTA: {
-      type: DataTypes.STRING,
+    KoTA_id_user: {
+      type: DataTypes.INTEGER,
     
       unique: true,
       validate: {
         isUnique: async function (value) {
           const laporan = await Laporan.findOne({
              where: {
-               id_KoTA: value 
+              KoTA_id_user: value 
               },
               attributes: {
                 exclude:['id']
@@ -56,12 +56,14 @@ module.exports = (sequelize, DataTypes) => {
     },
     judul_TA: DataTypes.BLOB,
     lembar_pengesahan: DataTypes.BLOB,
+    dokumen_laporan: DataTypes.BLOB,
 
     digital_signature: {
       type: DataTypes.BLOB,
     },
     tgl_disetujui: DataTypes.DATE,
     tgl_disidangkan: DataTypes.DATE,
+    tgl_unggah: DataTypes.DATE,
     // version: DataTypes.STRING,
     private_key: {
       type: DataTypes.TEXT,

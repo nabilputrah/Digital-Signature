@@ -34,12 +34,12 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    id_laporan: {
+    Laporan_id_laporan: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    NIP: {
-      type: DataTypes.STRING,
+    Dosen_id_user: {
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     secret_key: {

@@ -3,12 +3,9 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Dosen', {
-      NIP: {
-        allowNull: false,
-        primaryKey: true,
-        type: Sequelize.STRING
-      },
+     
       id_user: {
+        primaryKey: true,
         type: Sequelize.INTEGER,
         references: {
           model:'User',
@@ -18,6 +15,11 @@ module.exports = {
         onDelete:'cascade',
         onUpdate:'cascade',
         allowNull:false
+      },
+      NIP: {
+        allowNull: false,
+        unique:true,
+        type: Sequelize.STRING
       },
       nama: {
         allowNull:false,

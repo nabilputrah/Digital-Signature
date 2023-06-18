@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   Dosen.init({
     NIP: {
       type: DataTypes.STRING,
-      primaryKey:true,
+      // primaryKey:true,
       allowNull:false,
       // validate: {
       //   async isDuplicatePK(value) {

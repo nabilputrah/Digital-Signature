@@ -3,12 +3,8 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Koordinator', {
-      id_koor: {
-        allowNull: false,
-        primaryKey: true,
-        type: Sequelize.STRING
-      },
       id_user: {
+        primaryKey: true,
         type: Sequelize.INTEGER,
         references:{
           model:'User',
@@ -18,7 +14,12 @@ module.exports = {
         onUpdate:'cascade',
         onDelete:'cascade'
       },
-      id_prodi: {
+      id_koor: {
+        allowNull: false,
+        unique: true,
+        type: Sequelize.STRING
+      },
+      Prodi_id_prodi: {
         type: Sequelize.STRING,
         references:{
           model:'Prodi',
@@ -32,6 +33,11 @@ module.exports = {
         type: Sequelize.STRING
       },
       tahun_ajaran: {
+        type: Sequelize.STRING
+      },
+      email: {
+        allowNull:false,
+        unique:true,
         type: Sequelize.STRING
       },
     });
