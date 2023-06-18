@@ -17,6 +17,113 @@ const crypto = require('crypto');
 //  const fullDatetime = formattedDate + " " + formattedTimeFull
 
 module.exports = {
+  async deleteDokumen(req, res) {
+    try {
+      const laporan = await Laporan.update({
+        dokumen_laporan: null,
+        tgl_unggah:null
+      }, {
+        where: {
+          id_laporan:req.params.id
+        }
+      })
+
+      if (!laporan) {
+        return res.status(400).send({
+          message: 'gagal delete'
+        })
+      }
+
+      return res.status(200).send({
+        message:'delete dokumen sukses',
+        data: laporan
+      })
+    } catch (error) {
+      return res.status(400).send({
+        message:error.message
+      })
+    }
+  },
+
+  async openDokumen(req,res) {
+
+    const id_dokumen = req.params.id
+
+    const id_laporan = id_dokumen.substring(0, id_dokumen.lastIndexOf('_'));
+    const laporan = await Laporan.findOne({
+      where:{
+        id_laporan: id_laporan
+      }, attributes: {
+        exclude: ['id','createdAt','updatedAt']
+      }
+    })
+
+    if (!laporan) {
+      return res.status(404).send({
+        message:'Lporan tida ada'
+      })
+    }
+
+    res.set({
+      'Content-Type': 'application/pdf'
+    });
+
+
+    if(id_dokumen.includes('Final')){
+      res.send(laporan.dokumen_laporan_final)
+    } else {
+      res.send(laporan.dokumen_laporan)
+    }
+
+  },
+
+  async addDokumen(req, res) {
+    const moment = require('moment-timezone');
+    moment.tz.setDefault('Asia/Jakarta');
+
+
+    const now = moment();
+
+    const formattedDate = now.format('YYYY-MM-DD');
+
+    const formattedTimeFull = now.format('HH:mm:ss');
+
+    const fullDatetime = formattedDate + " " + formattedTimeFull
+    const { dokumen_laporan } = req.files
+
+    if (dokumen_laporan.mimetype !== 'application/pdf') {
+      return res.send({
+        message: 'File harus berupa PDF'
+      });
+    }
+
+    try {
+      const laporan = await Laporan.update({
+        dokumen_laporan: dokumen_laporan.data,
+        tgl_unggah:fullDatetime
+      }, {
+        where: {
+          id_laporan:req.body.id_laporan
+        }
+      })
+
+      if (!laporan) {
+        return res.status(400).send({
+          message: 'gagal input'
+        })
+      }
+
+      return res.status(200).send({
+        message:'add dokumen sukses',
+        data: laporan
+      })
+    } catch (error) {
+      return res.status(400).send({
+        message:error.message
+      })
+    }
+  },
+
   async getAllLaporan(req, res) {
     try {
         const laporan = await Laporan.findAll({
@@ -82,10 +189,10 @@ module.exports = {
     try {
       const laporan = await Laporan.findOne({
         where: {
-          id_KoTA: id
+          KoTA_id_user: id
         },
         attributes: {
-          exclude:['id','createdAt','updatedAt','lembar_pengesahan','public_key','private_key']
+          exclude:['id','createdAt','updatedAt','public_key','private_key']
         }
       })
 
@@ -120,27 +227,14 @@ module.exports = {
         format: 'pem',
       },
     });
-  //  const { lembar_pengesahan } = req.files 
-  //  const dokumenLaporanPath = formattedDate + "-" + formattedTime + '-' + dokumen_laporan.name
-  //  const lembarPengesahanPath = formattedDate + "-" + formattedTime + '-' + lembar_pengesahan.name
-//  
     const data = {
         id_laporan : 'Laporan_' +req.body.id_laporan,
-        id_KoTA: req.body.id_KoTA,
-        judul_TA: req.body.judul_TA,
-        // dokumen_laporan: dokumenLaporanPath,
-        // lembar_pengesahan: lembarPengesahanPath,
-        digital_signature: req.body.digital_signature,
-        tgl_disetujui: req.body.tgl_disetujui,
-        tgl_disidangkan: req.body.tgl_disidangkan,
-        // version: req.body.version,
+        KoTA_id_user: req.body.KoTA_id_user,
         private_key: privateKey,
         public_key: publicKey,
     }
     const options = {
-        fields: ['id_laporan','id_KoTA','judul_TA',
-                 'lembar_pengesahan','digital_signature','tgl_disetujui','tgl_disidangkan',
-                 ,'private_key','public_key',
+        fields: ['id_laporan','KoTA_id_user','private_key','public_key',
                 ],
         returning:false
     }
@@ -282,11 +376,11 @@ module.exports = {
 
   async updateIdKoTALaporan(req, res) {
     const { id } = req.params
-    const { id_KoTA } =  req.body
+    const { KoTA_id_user } =  req.body
     try {
        // update mahasiswa kota to null  
     const updateLaporan = await Laporan.update({
-      id_KoTA : id_KoTA,
+      KoTA_id_user : KoTA_id_user,
       lembar_pengesahan:null
       }, {
         where: {
@@ -448,7 +542,7 @@ module.exports = {
       tgl_disidangkan: tgl_disidangkan
       }, {
         where: {
-          id_KoTA: id
+          KoTA_id_user: id
         }
       }
     )

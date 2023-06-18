@@ -23,9 +23,10 @@ module.exports = {
     const { id } = req.params
 
     try {
-      const selectQuery = `SELECT m."email",m."id_KoTA", k."jumlah_pembimbing", k."jumlah_penguji" FROM "Mahasiswa" as m
-                        JOIN "KoTA" as k ON m."id_KoTA" = k."id_KoTA"
-                        WHERE m."id_KoTA" = $1 AND m."isKetua" = true` 
+      const selectQuery = `SELECT m."email",m."KoTA_id_user", K."id_KoTA", k."jumlah_pembimbing", k."jumlah_penguji" FROM "Mahasiswa" as m
+                              JOIN "KoTA" as k ON m."KoTA_id_user" = k."id_user"
+                              WHERE m."KoTA_id_user" = $1 AND m."isKetua" = true
+                              `
       const paramsQuery = [id]
 
       const result = await db.query(selectQuery,paramsQuery)
@@ -76,7 +77,7 @@ module.exports = {
     try {
         const mahasiswa = await Mahasiswa.findAll({
             where:{
-              id_KoTA: id
+              KoTA_id_user: id
             },
             attributes: {
                 exclude: ['createdAt', 'updatedAt','id']
@@ -104,16 +105,18 @@ module.exports = {
    
   },
   async getAllMahasiswa(req, res) {
+    const {prodi_koordinator} = req.params
     try {
-        const mahasiswa = await Mahasiswa.findAll({
-            attributes: {
-                exclude: ['createdAt', 'updatedAt','id']
-            },
-            order: [
-                ['NIM', 'ASC']
-            ]
-        })
-        
+    
+      const selectQuery = `SELECT * FROM "Mahasiswa" as M
+                            LEFT JOIN "KoTA" as K
+                            ON M."KoTA_id_user" = K.id_user 
+                            WHERE M."Prodi_id_prodi" = $1
+                            ` 
+      const paramsQuery = [prodi_koordinator]
+      const result = await db.query(selectQuery,paramsQuery)
+      const mahasiswa = result.rows
+
         if (mahasiswa.length == 0) {
             return res.status(400).send({
                 message:'Data mahasiswa tidak ada'
@@ -258,7 +261,7 @@ module.exports = {
   async addMahasiswa(req, res) {
     const data = req.body
     const options = {
-        fields: ['NIM','id_KoTA','id_prodi','nama','email','isKetua'],
+        fields: ['NIM','KoTA_id_user','Prodi_id_prodi','nama','email','isKetua'],
         returning:false
     }
     try {
@@ -324,7 +327,7 @@ module.exports = {
   },
   async updateMahasiswaWithoutIsKetua(req, res) {
     const { id } = req.params
-    const { NIM, id_KoTA, nama, email} = req.body
+    const { NIM, nama, email} = req.body
 
     try {
       const mahasiswa = await Mahasiswa.findOne({
@@ -342,11 +345,11 @@ module.exports = {
         })
       }
 
-      const updateQuery = `UPDATE "Mahasiswa" SET "NIM" = $1, "id_KoTA" = $2, "nama"=$3,
-                           "email"=$4 
-                           WHERE "NIM"= $5 RETURNING *`
+      const updateQuery = `UPDATE "Mahasiswa" SET "NIM" = $1, "nama"=$2,
+                           "email"=$3 
+                           WHERE "NIM"= $4 RETURNING *`
 
-      const paramsQuery = [ NIM, id_KoTA, nama, email, id]
+      const paramsQuery = [ NIM, nama, email, id]
 
       const result = await db.query(updateQuery, paramsQuery)
 
@@ -364,7 +367,7 @@ module.exports = {
   },
   async updateMahasiswaStatusKoTA(req, res) {
     const { id } = req.params
-    const { id_KoTA, isKetua} = req.body
+    const { KoTA_id_user, isKetua} = req.body
 
     try {
       const mahasiswa = await Mahasiswa.findOne({
@@ -382,10 +385,10 @@ module.exports = {
         })
       }
 
-      const updateQuery = `UPDATE "Mahasiswa" SET "id_KoTA" = $1,"isKetua"=$2 
+      const updateQuery = `UPDATE "Mahasiswa" SET "KoTA_id_user" = $1,"isKetua"=$2 
                            WHERE "NIM"= $3 RETURNING *`
 
-      const paramsQuery = [ id_KoTA, isKetua, id]
+      const paramsQuery = [ KoTA_id_user, isKetua, id]
 
       const result = await db.query(updateQuery, paramsQuery)
 
@@ -437,32 +440,6 @@ module.exports = {
     }
   },
 
-  // async importMahasiswaD4(req,res) {
-  //   fs.createReadStream('./CSV/D4Mahasiswa.csv')
-  //   .pipe(csv())
-  //   .on('data', async (row) => {
-  //     try {
-  //       // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
-  //       await Mahasiswa.upsert({
-  //         NIM: row.nim,
-  //         nama: row.nama,
-  //         email: row.email,
-  //         id_KoTA: null,
-  //         id_prodi:row.id_prodi,
-  //         isKetua: false
-  //       });
-      
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   })
-  //   .on('end', () => {
-  //     return res.status(200).send({
-  //       message: 'data berhasil diimpor ke database '
-  //     })
-  //   });
-  // },
-
   async importMahasiswaD4(req, res) {
     try {
       if (!req.files || !req.files.file) {
@@ -472,11 +449,7 @@ module.exports = {
       }
   
       const file = req.files.file;
-  
-      // const filePath = `CSV/${file.name}`;
-  
-      // await file.mv(filePath);
-  
+    
       const workbook = await XlsxPopulate.fromDataAsync(file.data);
       const sheet = workbook.sheet(0); 
   
@@ -485,11 +458,11 @@ module.exports = {
         try {
           // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
           await Mahasiswa.upsert({
-            NIM: row[0],
+            NIM: row[0].toString(),
             nama: row[1],
             email: row[2],
-            id_KoTA: null,
-            id_prodi: 'PRD001',
+            KoTA_id_user: null,
+            Prodi_id_prodi: 'PRD001',
             isKetua: false
           });
         } catch (err) {
@@ -516,11 +489,7 @@ module.exports = {
       }
   
       const file = req.files.file;
-  
-      // const filePath = `CSV/${file.name}`;
-  
-      // await file.mv(filePath);
-  
+    
       const workbook = await XlsxPopulate.fromDataAsync(file.data);
       const sheet = workbook.sheet(0); 
   
@@ -529,11 +498,11 @@ module.exports = {
         try {
           // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
           await Mahasiswa.upsert({
-            NIM: row[0],
+            NIM: row[0].toString(),
             nama: row[1],
             email: row[2],
-            id_KoTA: null,
-            id_prodi: 'PRD002',
+            KoTA_id_user: null,
+            Prodi_id_prodi: 'PRD002',
             isKetua: false
           });
         } catch (err) {
@@ -551,33 +520,5 @@ module.exports = {
       });
     }
   },
-
-  // async importMahasiswaD3(req,res) {
-  //   fs.createReadStream('./CSV/D3Mahasiswa.csv')
-  //   .pipe(csv())
-  //   .on('data', async (row) => {
-  //     try {
-  //       // Menggunakan method insertOrUpdate untuk menghindari duplikasi data
-  //       await Mahasiswa.upsert({
-  //         NIM: row.nim.toString(),
-  //         nama: row.nama.toString(),
-  //         email: row.email.toString(),
-  //         id_KoTA: null,
-  //         id_prodi:row.id_prodi.toString(),
-  //         isKetua: false
-  //       });
-      
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   })
-  //   .on('end', () => {
-  //     return res.status(200).send({
-  //       message: 'data berhasil diimpor ke database '
-  //     })
-  //   });
-  // },
-
-
 
 };

@@ -175,7 +175,7 @@
             mdi-pencil-outline
           </v-icon>
           <v-icon
-            @click="sendEmail(item.dokumen)"
+            @click="sendEmail(item.KoTA_id_user)"
           >
             mdi-email-outline
           </v-icon>
@@ -320,6 +320,7 @@ import axios from 'axios'
           const list = responseListKoTA.data.data
           const regex = /^(\d{4})(\d{3})(\d{4})$/;
           const mappedKoTA = list.map((item) => ({
+            KoTA_id_user : item.KoTA_id_user,
             id_KoTA : item.id_KoTA ? item.id_KoTA.replace(regex, "$2") : null,
             dokumen : item.id_KoTA,
             tahun_ajaran: item.tahun_ajaran
@@ -334,14 +335,14 @@ import axios from 'axios'
         this.KoTA.forEach(async (item, index) => {
           try {
             //Get Anggota
-            const response = await axios.get(this.$root.BASE_URL + '/api/mahasiswakota/' + item.dokumen);
+            const response = await axios.get(this.$root.BASE_URL + '/api/mahasiswakota/' + item.KoTA_id_user);
             this.mahasiswaKoTA[index] = response.data.data;
             console.log(this.mahasiswaKoTA[index])
             //Get Pembimbing
-            const responsePembimbing = await axios.get(this.$root.BASE_URL + '/api/relasibykota/pembimbing/'+ item.dokumen)
+            const responsePembimbing = await axios.get(this.$root.BASE_URL + '/api/relasibykota/pembimbing/'+ item.KoTA_id_user)
             this.pembimbingKoTA[index] = responsePembimbing.data.data
 
-            const responsePenguji = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ item.dokumen)
+            const responsePenguji = await axios.get(this.$root.BASE_URL + '/api/relasibykota/penguji/'+ item.KoTA_id_user)
             this.pengujiKoTA[index] = responsePenguji.data.data
 
             const selectedItem = this.mahasiswaKoTA[index].map((item) => ({
@@ -366,7 +367,7 @@ import axios from 'axios'
       async redirectToAddKoTA () {
         const response = await axios.get(this.$root.BASE_URL + `/api/checkkajurkaprodi`);
         const CanADD = response.data
-        if ((CanADD.kajur == 1) && (CanADD.kaprodi == 2)){
+        if (CanADD.pimpinan == 3){
           this.$router.push(`/koordinator/KoTA/tambah_KoTA`);
         }
         else {

@@ -470,6 +470,7 @@ import axios from 'axios'
   export default {
     data: () => ({
       kajurData: '',
+      PimpinanData:'',
       kaprodiData: '',
       search : '',
       dialog: false,
@@ -618,7 +619,6 @@ import axios from 'axios'
     mounted () {
       this.initialize()
       this.initializeKajurList()
-      this.initializeKaprodiList()
     },
 
     methods: {
@@ -696,47 +696,19 @@ import axios from 'axios'
 
       async initializeKajurList() {
         try {
-          const responseKajur = await axios.get(this.$root.BASE_URL + '/api/jurusan')
-          this.kajurData = responseKajur.data.data[0]
-
-          this.formKajur.selectedItem = this.kajurData.NIP
-        
+          const responseKajur = await axios.get(this.$root.BASE_URL + '/api/jabatan')
+          this.PimpinanData = responseKajur.data.data
+          console.log(this.PimpinanData[1])
+          this.formKajur.selectedItem = this.PimpinanData[0].Dosen_id_user
+          this.formKaprodiD3.selectedItem = this.PimpinanData[1].Dosen_id_user
+          this.formKaprodiD4.selectedItem = this.PimpinanData[2].Dosen_id_user
+          
         } catch (error) {
           console.log(error.message.request)
         }
       
       },
 
-      async initializeKaprodiList(){
-        try {
-          const responseKaprodi = await axios.get(this.$root.BASE_URL + '/api/prodi')
-          this.kaprodiData = responseKaprodi.data.data
- 
-        } catch (error) {
-          console.log(error.message.request)
-        }
-
-        try {
-           this.formKaprodiD4.selectedItem = this.kaprodiData[0].NIP
-        } catch (error) {
-          console.log(error.message.request) 
-        }
-
-        try {
-          this.formKaprodiD3.selectedItem = this.kaprodiData[1].NIP
-
-        } catch (error) {
-          console.log(error.message.request)
-        }
-
-        // console.log(this.formKaprodiD3.selectedItem)
-        // if (this.formKaprodiD3.selectedItem){
-        //   this.PimpinanValid = false
-        // } 
-        
-      },
-
-   
 
       onSearchKajur() {
         if (this.formKajur.search.length > 0) {
@@ -758,16 +730,16 @@ import axios from 'axios'
 
       async saveDataPimpinan () {
         
-        // console.log(this.kajurData.length === 0 ) 
-
-        if (this.kajurData.length === 0 ) {
-           await axios({
+        // Create ot Update Kajur
+        // Create ot Update Kajur
+        if (!this.PimpinanData[0] ) {
+          await axios({
             method:'post',
-            url: this.$root.BASE_URL + '/api/jurusan/',
+            url: this.$root.BASE_URL + '/api/jabatan/',
             data: {
-              id_jurusan : 'JRS001',
-              NIP: this.formKajur.selectedItem,
-              nama_jurusan: 'Teknik Komputer dan Informatika'
+              id_jabatan : 'JBT001',
+              Dosen_id_user: this.formKajur.selectedItem,
+              nama_jabatan: 'Ketua Jurusan'
             }
           })
           .then(response => {
@@ -778,15 +750,53 @@ import axios from 'axios'
           .catch(error => {
               console.log(error.request.response)
           })
-
         } else {
             await axios({
             method:'put',
-            url: this.$root.BASE_URL + '/api/jurusan/'+ this.kajurData.id_jurusan,
+            url: this.$root.BASE_URL + '/api/jabatan/'+ this.PimpinanData[0].id_jabatan,
             data: {
-              id_jurusan : this.kajurData.id_jurusan,
-              NIP: this.formKajur.selectedItem,
-              nama_jurusan: this.kajurData.nama_jurusan
+              id_jabatan : this.PimpinanData[0].id_jabatan,
+              Dosen_id_user: this.formKajur.selectedItem,
+              nama_jabatan: this.PimpinanData[0].nama_jabatan
+            }
+          })
+          .then(response => {
+          
+            console.log(response.data)
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
+        }
+        //Create or Update Kaprodi D3
+        //Create or Update Kaprodi D3
+        if (!this.PimpinanData[1]) {
+          await axios({
+            method:'post',
+            url: this.$root.BASE_URL + '/api/jabatan/',
+            data: {
+              id_jabatan : 'JBT002',
+              Dosen_id_user: this.formKaprodiD3.selectedItem,
+              nama_jabatan: 'Ketua Program Studi D3'
+            }
+          })
+          .then(response => {
+          
+            console.log(response.data)
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
+        } else {
+            await axios({
+            method:'put',
+            url: this.$root.BASE_URL + '/api/jabatan/'+ this.PimpinanData[1].id_jabatan,
+            data: {
+              id_jabatan : this.PimpinanData[1].id_jabatan,
+              Dosen_id_user: this.formKaprodiD3.selectedItem,
+              nama_jabatan: this.PimpinanData[1].nama_jabatan
             }
           })
           .then(response => {
@@ -799,34 +809,16 @@ import axios from 'axios'
           })
         }
 
-      
-
-        await axios({
-            method:'put',
-            url: this.$root.BASE_URL + '/api/prodi/'+ this.kaprodiData[0].id_prodi,
+        //Create or Update Kaprodi D4
+        //Create or Update Kaprodi D4
+        if (!this.PimpinanData[2]) {
+          await axios({
+            method:'post',
+            url: this.$root.BASE_URL + '/api/jabatan/',
             data: {
-              id_prodi: this.kaprodiData[0].id_prodi,
-              NIP: this.formKaprodiD4.selectedItem,
-              nama_prodi: this.kaprodiData[0].nama_prodi
-            }
-          })
-          .then(response => {
-            
-            console.log(this.kaprodiData)
-
-            console.log(response.data)
-    
-          })
-          .catch(error => {
-              console.log(error.request.response)
-          })
-        await axios({
-            method:'put',
-            url: this.$root.BASE_URL + '/api/prodi/'+ this.kaprodiData[1].id_prodi,
-            data: {
-              id_prodi: this.kaprodiData[1].id_prodi,
-              NIP: this.formKaprodiD3.selectedItem,
-              nama_prodi: this.kaprodiData[1].nama_prodi
+              id_jabatan : 'JBT003',
+              Dosen_id_user: this.formKaprodiD4.selectedItem,
+              nama_jabatan: 'Ketua Program Studi D4'
             }
           })
           .then(response => {
@@ -837,8 +829,26 @@ import axios from 'axios'
           .catch(error => {
               console.log(error.request.response)
           })
-
-
+        } else {
+            await axios({
+            method:'put',
+            url: this.$root.BASE_URL + '/api/jabatan/'+ this.PimpinanData[2].id_jabatan,
+            data: {
+              id_jabatan : this.PimpinanData[2].id_jabatan,
+              Dosen_id_user: this.formKaprodiD4.selectedItem,
+              nama_jabatan: this.PimpinanData[2].nama_jabatan
+            }
+          })
+          .then(response => {
+          
+            console.log(response.data)
+    
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
+        }
+        
         this.snackbar.show = true;
         this.snackbar.color = "primary";
         this.snackbar.message = "Data Ketua Jurusan dan Ketua Prodi Berhasil Disimpan!";
@@ -846,7 +856,6 @@ import axios from 'axios'
         setTimeout(() => {
           this.initialize()
           this.initializeKajurList()
-          this.initializeKaprodiList()
         }, 1000);
 
       },
@@ -856,9 +865,9 @@ import axios from 'axios'
           const response = await axios.get(this.$root.BASE_URL + `/api/dosen`);
           this.dosen = response.data.data
 
-          this.formKajur.items = this.dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
-          this.formKaprodiD4.items = this.dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
-          this.formKaprodiD3.items = this.dosen.map((dsn) => ({ value: dsn.NIP, text: `${dsn.NIP} - ${dsn.nama}` }));
+          this.formKajur.items = this.dosen.map((dsn) => ({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` }));
+          this.formKaprodiD4.items = this.dosen.map((dsn) => ({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` }));
+          this.formKaprodiD3.items = this.dosen.map((dsn) => ({ value: dsn.id_user, text: `${dsn.NIP} - ${dsn.nama}` }));
         } catch (error) {
           console.error(error.message);
         }

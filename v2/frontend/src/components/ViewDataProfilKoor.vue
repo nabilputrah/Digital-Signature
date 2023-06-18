@@ -62,6 +62,27 @@
                 </v-col>
               </v-row>
               <!-- End Form Nama Koordinator -->
+              <!-- Start Form Email -->
+              <v-row>
+                <v-col cols="4">
+                  <div class="justify-center">
+                    <span 
+                    style="font-size:1rem;"
+                    >Email</span>
+                    <v-text-field__details></v-text-field__details>
+                  </div>
+                </v-col>
+                <v-col>
+                  <v-text-field 
+                  v-model="koordinator.email"
+                  placeholder="Email"
+                  :rules="rules.email"
+                  dense
+                  outlined
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <!-- End Form Email -->
               <!-- Start Form Tahun Ajaran -->
               <v-row>
                 <v-col cols="4">
@@ -120,7 +141,7 @@
                     v-model="currentPassword" 
                     @click:append="showPassword = !showPassword"
                     placeholder="Current Password"
-                    :rules = rules
+                    :rules = "rules.password"
                     dense
                     outlined
                     :type="showPassword ? 'text' : 'password'" 
@@ -132,7 +153,7 @@
                     v-model="newPassword" 
                     @click:append="showPassword = !showPassword"
                     placeholder="New Password"
-                    :rules = rules
+                    :rules = "rules.password"
                     dense
                     outlined
                     :type="showPassword ? 'text' : 'password'" 
@@ -210,6 +231,18 @@ export default {
       dataFromToken: '',
       koordinator:'',
 
+      rules: {
+        email: [
+          v => !!v || "Email wajib diisi",
+          v =>
+            /.+@.+\..+/.test(v) ||
+            "Format email tidak valid"
+        ],
+        password:[
+        v => !!v || "Required",
+        ]
+      },
+
       formKoordinator: {
         selectedItem: '',
         items: ['Dosen 1', 'Dosen 2'],
@@ -217,12 +250,6 @@ export default {
       },
 
       // Data Form Nama
-      // name : "Djoko Cahyo Utomo Lieharyani",
-      rules: [
-        value => !!value || 'Required.',
-        // value => (value && value.length >= 3) || 'Min 3 characters',
-      ],
-
       tahunAjaran: '2023/2024',
       listTahunAjaran: [],
 
@@ -294,7 +321,8 @@ export default {
           data: {
             id_koor: this.koordinator.id_koor,
             id_user: this.koordinator.id_user,
-            id_prodi: this.koordinator.id_prodi,
+            email: this.koordinator.email,
+            Prodi_id_prodi: this.koordinator.id_prodi,
             nama_koordinator: this.formKoordinator.selectedItem,
             tahun_ajaran: this.koordinator.tahun_ajaran,
           }

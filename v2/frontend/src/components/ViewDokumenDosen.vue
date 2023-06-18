@@ -435,7 +435,8 @@ export default {
     
     async initialize () {
       try {
-        this.id_KoTA = this.$route.params.id
+        const responseKoTA = await axios.get(this.$root.BASE_URL + '/api/KoTA/' +this.$route.params.id)
+        this.id_KoTA = responseKoTA.data.data.id_user
 
         const responseListLaporan = await axios.get(this.$root.BASE_URL + '/api/laporankota/' +this.id_KoTA)
         this.laporan = responseListLaporan.data.data
@@ -443,21 +444,40 @@ export default {
          const responseRelasi = await axios.get(this.$root.BASE_URL + '/api/relasi/KoTA/' +  this.id_KoTA)
         this.Pengampu = responseRelasi.data.data
 
-        this.convertDateDisetujui()
-        this.convertDateDisidangkan()
-        
-        const responseListDokumen = await axios.get(this.$root.BASE_URL + '/api/dokumenlaporan/'+this.laporan.id_laporan)
-        const list = responseListDokumen.data.data
-
-        this.Laporan = list.map((item) =>({
-          ID_laporan: item.id_dokumen,
-          tanggal_dibuat:this.convertDateDibuat(item.tgl_unggah),
-          dokumen: item.id_dokumen
-        }))
-
         const tempElement = document.createElement('div');
         tempElement.innerHTML = this.laporan.judul_TA;
         this.Judul_Tugas_Akhir = tempElement.innerText;
+
+
+        if (this.laporan.tgl_disidangkan){
+            this.convertDateDisidangkan()
+        }
+        else {
+          this.laporan.tgl_disidangkan = ''
+        }
+        if (this.laporan.tgl_disetujui){
+            this.convertDateDisetujui()
+        }
+        else {
+          this.laporan.tgl_disetujui = ''
+        }
+        
+        if (this.laporan.dokumen_laporan){
+          this.Laporan.push({
+            ID_laporan: "Laporan Pertama",
+            tanggal_dibuat: this.convertDateDibuat(this.laporan.tgl_unggah),
+            dokumen: this.laporan.id_laporan + '_Awal'
+          });
+        }
+
+        if (this.laporan.dokumen_laporan_final){
+          this.Laporan.push({
+            ID_laporan: "Laporan Final",
+            tanggal_dibuat: this.convertDateDibuat(this.laporan.tgl_finalisasi),
+            dokumen: this.laporan.id_laporan + '_Final'
+        });
+        }
+
         console.log(this.Laporan)           
 
 

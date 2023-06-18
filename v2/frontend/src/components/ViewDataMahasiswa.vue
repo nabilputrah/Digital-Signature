@@ -378,13 +378,12 @@ import axios from 'axios'
       }
       // this.$validate()
       this.initializeNavbarLoggedIn()
-      this.initialize()
     },
 
   
    
     methods: {
-      async add_Dokumen_succes(){
+    async add_Dokumen_succes(){
       if (!this.file) {
         this.validationError = "Mohon pilih file yang akan divalidasi.";
         return;
@@ -440,7 +439,7 @@ import axios from 'axios'
       }
 
 
-        this.initialize()
+      this.initialize()
     },
 
     close_Popup_AddDokumen(){
@@ -460,7 +459,7 @@ import axios from 'axios'
           const response = await axios.get(this.$root.BASE_URL + `/api/getkoordata/${this.navbar.id_user}`, { headers });
           this.loggedIn = response.data.data[0]
           console.log(this.loggedIn.nama_prodi)
-         
+          this.initialize()
         } catch (error) {
           console.error(error.message);
         }
@@ -469,45 +468,17 @@ import axios from 'axios'
       
       async initialize () {
         try {
-          const response = await axios.get(this.$root.BASE_URL + `/api/mahasiswa`);
+          const response = await axios.get(this.$root.BASE_URL + `/api/mahasiswa/${this.loggedIn.id_prodi}`);
           const list = response.data.data
           const regex = /^(\d{4})(\d{3})(\d{4})$/;
           const mappedMahasiswa = list.map((item) => ({
             NIM: item.NIM,
             nama: item.nama,
             email: item.email,
-            id_prodi: item.id_prodi,
+            id_prodi: this.loggedIn.nama_prodi,
             id_KoTA : item.id_KoTA ? item.id_KoTA.replace(regex, "$2-$1/$3") : null
           }));
           this.mahasiswa = mappedMahasiswa
-          
-          if (this.loggedIn.nama_prodi === 'D4') {
-             this.mahasiswa = this.mahasiswa.filter((item) => item.id_prodi === "PRD001");
-
-             const mappedData = this.mahasiswa.map((item) => {
-                // if (item.id_prodi === "PRD001") {
-                //   item.id_prodi = "D4";
-                // }
-                item.id_prodi = "D4";
-                return item;
-              })
-
-            this.mahasiswa = mappedData
-          } else if (this.loggedIn.nama_prodi === 'D3'){
-            this.mahasiswa = this.mahasiswa.filter((item) => item.id_prodi === "PRD002");
-
-              const mappedData = this.mahasiswa.map((item) => {
-                // if (item.id_prodi === "PRD002") {
-                //   item.id_prodi = "D3";
-                // }
-                item.id_prodi = "D3";
-                return item;
-              })
-
-            this.mahasiswa = mappedData
-          }
-
-         
          
         } catch (error) {
           console.error(error.message);
@@ -604,7 +575,7 @@ import axios from 'axios'
               NIM : this.editedItem.NIM,
               nama : this.editedItem.nama,
               email : this.editedItem.email,
-              id_prodi:this.ProdiAktif,
+              Prodi_id_prodi:this.ProdiAktif,
               isKetua: false
             } 
           })

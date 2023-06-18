@@ -122,14 +122,16 @@ import axios from 'axios'
          try {
             const response = await axios.get(this.$root.BASE_URL + `/api/getdosendata/${this.dataFromToken.id_user}`)
             this.dosen = response.data.data[0]
+            console.log(this.dosen)
           } catch (error) {
             console.error(error.message);
           }
 
           try {
-            const responseRelasiDosen = await axios.get(this.$root.BASE_URL + '/api/relasibynip/'+ this.dosen.NIP)
+            const responseRelasiDosen = await axios.get(this.$root.BASE_URL + '/api/relasibynip/'+ this.dosen.id_user)
             const regex = /^(\d{4})(\d{3})(\d{4})$/;
             const list = responseRelasiDosen.data.data
+            console.log(list)
 
             // const div = document.createElement('div');
 
@@ -140,6 +142,7 @@ import axios from 'axios'
 
             return {
               id_KoTA: item.id_KoTA ? item.id_KoTA.replace(regex, "$2-$1/$3") : null,
+              id_user: item.KoTA_id_user,
               id_detailLaporan : item.id_KoTA,
               judul_TA: judulTAText,
               role: item.role,
@@ -155,7 +158,7 @@ import axios from 'axios'
 
           this.KoTA.forEach(async (item) => {
             try {
-              const response = await axios.get(this.$root.BASE_URL + `/api/relasi/accessttd/${item.role}/${item.id_detailLaporan}`)
+              const response = await axios.get(this.$root.BASE_URL + `/api/relasi/accessttd/${item.role}/${item.id_user}`)
               const akses = response.data.data
               console.log(akses)
               if (akses > 0 && (item.role==='Kaprodi')){

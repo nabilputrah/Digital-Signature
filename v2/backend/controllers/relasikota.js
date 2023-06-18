@@ -11,12 +11,11 @@ module.exports = {
   async getAllRelasiKoTAByPemKoTA(req, res) {
     const { id } = req.params
     try {
-       const updateQuery = `SELECT r."id_KoTA", r."NIP", r."role", r."role", r."urutan", d."nama"
+       const updateQuery = `SELECT r."KoTA_id_user", r."Dosen_id_user", r."role", r."urutan", d."nama"
                             FROM "Relasi_KoTA" as r
-                            JOIN "Dosen" as d ON d."NIP" = r."NIP"
-                            WHERE r."id_KoTA" = $1 AND r."role" = 'Pembimbing' 
-                            ORDER BY r."urutan" ASC `
-
+                            JOIN "Dosen" as d ON d."id_user" = r."Dosen_id_user"
+                            WHERE r."KoTA_id_user" = $1 AND r."role" = 'Pembimbing' 
+                            ORDER BY r."urutan" ASC`
       const paramsQuery = [ id]
 
       const result = await db.query(updateQuery, paramsQuery)
@@ -39,11 +38,11 @@ module.exports = {
     const { id } = req.params
 
     try {
-      const selectQuery = `SELECT r."NIP",r."tgl_ttd",r."role", r."status", r."urutan", d."nama" FROM "Relasi_KoTA" as r
-                              JOIN "Dosen" as d ON d."NIP" = r."NIP" 
-                              WHERE r."id_KoTA" = $1 
+      const selectQuery = `SELECT r."Dosen_id_user",r."tgl_ttd",r."role", r."status", r."urutan", d."nama" FROM "Relasi_KoTA" as r
+                              JOIN "Dosen" as d ON d."id_user" = r."Dosen_id_user" 
+                              WHERE r."KoTA_id_user" = $1
                               ORDER BY r."role" ASC
-                          `
+                              `
       const paramsQuery = [id]
 
       const result = await db.query(selectQuery,paramsQuery)
@@ -62,11 +61,11 @@ module.exports = {
   async getAllRelasiKoTAByPenKoTA(req, res) {
     const { id } = req.params
     try {
-       const updateQuery = `SELECT r."id_KoTA", r."NIP", r."role", r."role", r."urutan", d."nama"
-                            FROM "Relasi_KoTA" as r
-                            JOIN "Dosen" as d ON d."NIP" = r."NIP"
-                            WHERE r."id_KoTA" = $1 AND r."role" = 'Penguji' 
-                            ORDER BY r."urutan" ASC `
+       const updateQuery = `SELECT r."KoTA_id_user", r."Dosen_id_user", r."role", r."urutan", d."nama"
+                                FROM "Relasi_KoTA" as r
+                                JOIN "Dosen" as d ON d."id_user" = r."Dosen_id_user"
+                                WHERE r."KoTA_id_user" = $1 AND r."role" = 'Penguji' 
+                                ORDER BY r."urutan" ASC`
 
       const paramsQuery = [ id]
 
@@ -119,10 +118,12 @@ module.exports = {
     const { id } = req.params
 
     try {
-      const selectQuery = `SELECT r.role, r.urutan, r.status, l."judul_TA", l."id_KoTA",r."NIP" FROM "Relasi_KoTA" as r
+      const selectQuery = `SELECT r.role, r.urutan, r.status, l."judul_TA", l."KoTA_id_user",r."Dosen_id_user", kt."id_KoTA" FROM "Relasi_KoTA" as r
                           JOIN "Laporan" as l
-                          ON r."id_KoTA" = l."id_KoTA"
-                          WHERE r."NIP" = $1`
+                          ON r."KoTA_id_user" = l."KoTA_id_user"
+                          JOIN "KoTA" as kt
+                          ON r."KoTA_id_user" = kt."id_user"
+                          WHERE r."Dosen_id_user" = $1`
       const paramsQuery = [id]
 
       const result = await db.query(selectQuery,paramsQuery)
@@ -177,7 +178,7 @@ module.exports = {
   async addRelasiKoTA(req, res) {
     const data = req.body
     const options = {
-        fields: ['id_KoTA','NIP','role','urutan'],
+        fields: ['KoTA_id_user','Dosen_id_user','role','urutan'],
         returning:true
     }
     try {
@@ -387,7 +388,7 @@ module.exports = {
     try {
       if (role==='Kaprodi') {
          const selectQuery = ` SELECT R."status" FROM "Relasi_KoTA" as R
-                               WHERE R."id_KoTA" = $1 AND 
+                               WHERE R."KoTA_id_user" = $1 AND 
                                (R."role" = 'Pembimbing' OR R."role"= 'Penguji' ) AND
                                R."status" = false 
                               `
@@ -413,7 +414,7 @@ module.exports = {
         //                       `
 
         const selectQuery = ` SELECT R."status" FROM "Relasi_KoTA" as R
-                               WHERE R."id_KoTA" = $1 AND 
+                               WHERE R."KoTA_id_user" = $1 AND 
                                (R."role" = 'Pembimbing' OR R."role"= 'Penguji' OR R."role" = 'Kaprodi') AND
                                R."status" = false 
                               `
@@ -471,14 +472,14 @@ module.exports = {
   },
 
   async getGambarTTDRelasi(req, res) {
-    const { NIP, role, id_KoTA } = req.params;
+    const { Dosen_id_user, role, KoTA_id_user } = req.params;
   
     try {
       const relasi = await Relasi_KoTA.findOne({
         where: {
-          NIP: NIP,
+          Dosen_id_user: Dosen_id_user,
           role: role,
-          id_KoTA: id_KoTA
+          KoTA_id_user: KoTA_id_user
         },
         attributes: {
           exclude: ['createdAt', 'updatedAt', 'id']

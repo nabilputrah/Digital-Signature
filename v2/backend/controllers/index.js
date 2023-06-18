@@ -1,6 +1,7 @@
 const user = require('./user');
 const dosen = require('./dosen');
 const jurusan = require('./jurusan');
+const jabatan = require('./jabatan');
 const prodi = require('./prodi');
 const koordinator = require('./koordinator');
 const kota = require('./kota');
@@ -14,6 +15,7 @@ module.exports = {
   user,
   dosen,
   jurusan,
+  jabatan,
   prodi,
   koordinator,
   kota,
