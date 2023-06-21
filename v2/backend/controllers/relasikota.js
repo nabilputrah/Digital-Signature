@@ -11,7 +11,7 @@ module.exports = {
   async getAllRelasiKoTAByPemKoTA(req, res) {
     const { id } = req.params
     try {
-       const updateQuery = `SELECT r."KoTA_id_user", r."Dosen_id_user", r."role", r."urutan", d."nama"
+       const updateQuery = `SELECT d."NIP",r."KoTA_id_user", r."Dosen_id_user", r."role", r."urutan", d."nama"
                             FROM "Relasi_KoTA" as r
                             JOIN "Dosen" as d ON d."id_user" = r."Dosen_id_user"
                             WHERE r."KoTA_id_user" = $1 AND r."role" = 'Pembimbing' 
@@ -61,7 +61,7 @@ module.exports = {
   async getAllRelasiKoTAByPenKoTA(req, res) {
     const { id } = req.params
     try {
-       const updateQuery = `SELECT r."KoTA_id_user", r."Dosen_id_user", r."role", r."urutan", d."nama"
+       const updateQuery = `SELECT d."NIP",r."KoTA_id_user", r."Dosen_id_user", r."role", r."urutan", d."nama"
                                 FROM "Relasi_KoTA" as r
                                 JOIN "Dosen" as d ON d."id_user" = r."Dosen_id_user"
                                 WHERE r."KoTA_id_user" = $1 AND r."role" = 'Penguji' 
@@ -306,9 +306,9 @@ module.exports = {
     try {
       const relasi  = await Relasi_KoTA.findOne({
         where: {
-          NIP: NIP,
+          Dosen_id_user: NIP,
           role: role,
-          id_KoTA: id_KoTA
+          KoTA_id_user: id_KoTA
         },
         attributes:{
           exclude:['createdAt','updatedAt','id']
@@ -365,7 +365,7 @@ module.exports = {
           img_ttd: null
         }, {
           where: {
-            id_KoTA: id
+            KoTA_id_user: id
           }
         })
 
@@ -444,9 +444,9 @@ module.exports = {
     try {
       const relasi = await Relasi_KoTA.findOne({
         where: {
-          NIP: NIP,
+          Dosen_id_user: NIP,
           role: role,
-          id_KoTA: id_KoTA
+          KoTA_id_user: id_KoTA
         },
         attributes: {
           exclude: ['createdAt', 'updatedAt', 'id']
@@ -472,14 +472,14 @@ module.exports = {
   },
 
   async getGambarTTDRelasi(req, res) {
-    const { Dosen_id_user, role, KoTA_id_user } = req.params;
+    const { NIP, role, id_KoTA } = req.params;
   
     try {
       const relasi = await Relasi_KoTA.findOne({
         where: {
-          Dosen_id_user: Dosen_id_user,
+          Dosen_id_user: NIP,
           role: role,
-          KoTA_id_user: KoTA_id_user
+          KoTA_id_user: id_KoTA
         },
         attributes: {
           exclude: ['createdAt', 'updatedAt', 'id']

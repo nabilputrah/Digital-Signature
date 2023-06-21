@@ -1,8 +1,12 @@
+const sss = require('shamirs-secret-sharing')
+const { degrees, PDFDocument, rgb, StandardFonts } = require('pdf-lib')
+const cheerio = require('cheerio');
 const db = require('../db/index')
 // const moment = require('moment-timezone');
 const path = require('path');
 const Laporan = require('../models').Laporan;
 const crypto = require('crypto');
+const dokumen = require('./dokumen');
 // moment.tz.setDefault('Asia/Jakarta');
 
 
@@ -17,6 +21,244 @@ const crypto = require('crypto');
 //  const fullDatetime = formattedDate + " " + formattedTimeFull
 
 module.exports = {
+  async validateDocument(req, res) {
+    const documentUploaded = await PDFDocument.load(req.files.cover.data)
+
+    try {
+
+      // const fileBuffer = fs.readFileSync('./pdf/Laporan_20224022023_Final (12).pdf');
+      const fileBuffer1 = req.files.cover.data
+      const hashSum2 = crypto.createHash('sha256');
+      hashSum2.update(fileBuffer1);
+  
+      const hex = hashSum2.digest('hex');
+
+      if (!documentUploaded.getAuthor()){
+        return res.status(200).send({
+          message : 'tidak ada id_kota',
+          valid : false
+        })
+      }
+
+      if (!documentUploaded.getTitle()){
+        return res.status(200).send({
+          message : 'tidak ada judul',
+          valid : false
+        })
+      }
+
+      if (!documentUploaded.getSubject()){
+        return res.status(200).send({
+          message : 'tidak ada public_key',
+          valid : false
+        })
+      }
+
+      console.log("Hasil Hashing: " + hex)
+
+      const selectUser = `SELECT K."id_user"  FROM "KoTA" as K
+                          Where K."id_KoTA" = $1
+                          `
+      const paramsUser = [documentUploaded.getAuthor()]
+
+      const resultUser = await db.query(selectUser,paramsUser)
+
+      const id_user = resultUser.rows[0].id_user
+
+      const selectQuery = ` SELECT L."digital_signature" FROM "Laporan" as L
+                            WHERE L."KoTA_id_user" = $1
+                          `
+      const paramsQuery = [id_user]
+
+      const result = await db.query(selectQuery,paramsQuery)
+
+      const digital_signature = result.rows[0].digital_signature
+      console.log("Digital Signature: " + digital_signature)
+
+      const decrypted = crypto.publicDecrypt(documentUploaded.getSubject(),digital_signature)
+      if (hex == decrypted){
+        return res.status(200).send({
+          message : 'dokumen valid',
+          id_KoTA : documentUploaded.getAuthor(),
+          id_user : id_user,
+          judul : documentUploaded.getTitle(),
+          valid : true
+        })
+      } else if ((documentUploaded.getAuthor() && documentUploaded.getSubject() && documentUploaded.getTitle()) && (hex != decrypted)){
+        return res.status(200).send({
+          message : 'dokumen tidak valid',
+          valid : false
+        })
+      }
+
+    } catch (error) {
+      return res.status(200).send({
+        message : 'dokumen tidak valid',
+        valid : false
+      })
+    }
+  }, 
+  
+  
+  async mergePDF(req, res) {
+    const moment = require('moment-timezone');
+    moment.tz.setDefault('Asia/Jakarta');
+    const now = moment();
+    const formattedDate = now.format('YYYY-MM-DD');
+    const formattedTimeFull = now.format('HH:mm:ss');
+    const fullDatetime = formattedDate + " " + formattedTimeFull
+
+    const  { id_laporan } = req.body
+
+    try {
+          // const cover = await PDFDocument.load(fs.readFileSync('./pdf/KoTA108LaporanTA.pdf'));
+        // const content = await PDFDocument.load(fs.readFileSync('./pdf/contoh3.pdf'));
+        const cover = await PDFDocument.load(req.files.cover.data);
+        const content = await PDFDocument.load(req.files.content.data);
+
+        const doc = await PDFDocument.create();
+
+        const coverPages = await doc.copyPages(cover, [0]); // Menyalin halaman pertama dari dokumen pertama
+        for (const page of coverPages) {
+          doc.addPage(page);
+        }
+
+        const contentPages = await doc.copyPages(content, [0, 1]); // Mengambil halaman ke-2 dan ke-3 dari dokumen kedua
+        for (const page of contentPages) {
+          doc.addPage(page);
+        }
+
+        const contentPages1 = await doc.copyPages(cover, cover.getPageIndices())
+        for (const page of contentPages1) {
+        
+          doc.addPage(page)
+
+        }
+
+        doc.removePage(3)
+        doc.removePage(3)
+        doc.removePage(3)
+
+
+      // Query get sharekey dan combine menjadi private key
+      const selectQuery = ` SELECT S."secret_key" FROM "Secret_Key" as S
+                            WHERE S."Laporan_id_laporan" = $1
+                          `
+      const paramsQuery = [id_laporan]
+
+      const result = await db.query(selectQuery,paramsQuery)
+
+      const allShareKey = result.rows
+
+      const newArray = allShareKey.map((item) => {
+        return item.secret_key.toString('hex');
+      });
+
+      const recoveredPrivateKey = sss.combine(newArray.map(share => Buffer.from(share, 'hex')))
+
+      const constructPrivateKey = recoveredPrivateKey.toString()
+
+      // Quesy Get Public Key
+      const selectQueryPublicKey = ` SELECT L."public_key", L."private_key" FROM "Laporan" as L 
+                                    WHERE L."id_laporan" = $1 
+                                    `
+      const paramsQueryPublicKey = [id_laporan]
+
+      const resultPublicKey = await db.query(selectQueryPublicKey,paramsQueryPublicKey)
+
+      const PublicKey = resultPublicKey.rows[0].public_key
+      const PrivateKeyBaru = resultPublicKey.rows[0].private_key
+
+      // Get id KoTA
+      const id_KoTA = id_laporan.substring(8);;
+
+      const selectQueryJudul = `SELECT L."judul_TA" FROM "Laporan" as L 
+                                  WHERE L."id_laporan" = $1`
+
+      const paramsQueryJudul = [id_laporan]
+
+      const resultJudul = await db.query(selectQueryJudul, paramsQueryJudul)
+
+      const judul_TA = resultJudul.rows[0].judul_TA
+
+      const $ = cheerio.load(judul_TA);
+      const JudulTA = $.root().text();
+
+      // Proses Simpan Atribut ke pdf
+      // Set Judul TA
+      doc.setTitle(JudulTA);
+      // Set Author
+      doc.setAuthor(id_KoTA);
+      // Set Subject
+      doc.setSubject(PublicKey);
+
+
+      const mergedBytes = await doc.save();
+      const dokumenKu = Buffer.from(mergedBytes)
+
+      // const options = {
+      //   fields: ['id_dokumen','id_laporan','dokumen_laporan', 'version', 'tgl_unggah'],
+      //   returning:true   
+      // }
+
+      // const dokumen = await Dokumen.create({
+      //   id_dokumen:id_dokumen,
+      //   id_laporan:id_laporan,
+      //   dokumen_laporan: dokumenKu,
+      //   version: version,
+      //   tgl_unggah:fullDatetime
+      // }, options)
+
+      const laporan = await Laporan.update({
+        dokumen_laporan_final:dokumenKu,
+        tgl_finalisasi:fullDatetime
+      },{
+        where:{
+          id_laporan:id_laporan
+        }
+      })
+
+
+
+      if (!laporan) {
+        return res.status(400).send({
+          message: 'gagal input'
+        })
+      }
+
+      // Proses Encrypted Menggunakan PrivateKey
+      // Hashing dokumen
+      const hashSum2 = crypto.createHash('sha256');
+      hashSum2.update(dokumenKu);
+  
+      const hex = hashSum2.digest('hex');
+
+      const digitalSignature = crypto.privateEncrypt(recoveredPrivateKey,hex)
+
+      await Laporan.update({
+        digital_signature : digitalSignature
+        },{
+          where:{
+            id_laporan: id_laporan
+          }
+        }
+      )
+
+
+      return res.status(200).send({
+        message:'add dokumen sukses',
+        file:mergedBytes,
+        hash : hex,
+        digitalSignature :digitalSignature
+      })
+      
+    } catch (error) {
+      return res.status(400).send({
+        message: error.message
+      })
+    }
+    
+  },
   async deleteDokumen(req, res) {
     try {
       const laporan = await Laporan.update({
@@ -264,16 +506,16 @@ module.exports = {
     try {   
         // Get Status Laporan Final
         const id_laporan = "Laporan_"+id
-        const selectQueryDocFinal = ` SELECT D."id_dokumen" FROM "Dokumen" as D
-                              WHERE D."id_laporan" = $1 
-                              AND D."id_dokumen" LIKE '%Final%'
+        const selectQueryDocFinal = ` SELECT L."dokumen_laporan_final" FROM "Laporan" as L
+                                WHERE L."id_laporan" = $1 
+                                AND L."dokumen_laporan_final" IS  NULL
                               `
         const paramsQueryDocFinal = [id_laporan]
    
         const resultQueryDocFinal = await db.query(selectQueryDocFinal, paramsQueryDocFinal)
 
         let statusLaporan = true
-        if (resultQueryDocFinal.rows.length == 0){
+        if (resultQueryDocFinal.rows.length == 1){
           statusLaporan = false
         }
 
@@ -293,7 +535,7 @@ module.exports = {
 
     try {
         const selectQuery = ` SELECT R."status" FROM "Relasi_KoTA" as R
-                              WHERE R."id_KoTA" = $1 AND 
+                              WHERE R."KoTA_id_user" = $1 AND 
                               R."role" = 'Kajur'
                               `
         const paramsQuery = [id]
@@ -303,17 +545,16 @@ module.exports = {
         const statusTTDKajur = resultQuery.rows[0].status
    
         // Get Status Laporan Final
-        const id_laporan = "Laporan_"+id
-        const selectQueryDocFinal = ` SELECT D."id_dokumen" FROM "Dokumen" as D
-                              WHERE D."id_laporan" = $1 
-                              AND D."id_dokumen" LIKE '%Final%'
-                              `
-        const paramsQueryDocFinal = [id_laporan]
+        const selectQueryDocFinal = ` SELECT L."dokumen_laporan_final" FROM "Laporan" as L
+                                WHERE L."KoTA_id_user" = $1 
+                                AND L."dokumen_laporan_final" IS  NULL
+                                `
+        const paramsQueryDocFinal = [id]
    
         const resultQueryDocFinal = await db.query(selectQueryDocFinal, paramsQueryDocFinal)
 
         let statusLaporan = true
-        if (resultQueryDocFinal.rows.length == 0){
+        if (resultQueryDocFinal.rows.length == 1){
           statusLaporan = false
         }
 
@@ -556,8 +797,21 @@ module.exports = {
         message: error.message
       })
     }
-  }
+  },
 
+  async getDokumenFinalByID(req,res) {
+    const laporan = await Laporan.findByPk(req.params.id);
 
+    if (!laporan) {
+      return res.status(404).json({ message: 'Dokumen not found' });
+    }
+
+    res.set({
+      'Content-Type': 'application/pdf'
+    });
+
+    res.send(laporan.dokumen_laporan_final)
+
+  },
 
 };

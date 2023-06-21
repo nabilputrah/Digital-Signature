@@ -55,7 +55,7 @@
                 <v-col cols="8" >
                   <v-text-field 
                   v-model="dosen.nama"
-                  :rules="rules"
+                  :rules="rules.nama"
                   placeholder="Nama Dosen"
                   dense
                   outlined
@@ -76,7 +76,7 @@
                 <v-col cols="8" >
                   <v-text-field 
                   v-model="dosen.email"
-                  :rules="rules"
+                  :rules="rules.email"
                   placeholder="Email"
                   dense
                   outlined
@@ -118,7 +118,7 @@
                   v-model="currentPassword" 
                   @click:append="showPassword = !showPassword"
                   placeholder="Current Password"
-                  :rules = rules
+                  :rules = "rules.password"
                   dense
                   outlined
                   :type="showPassword ? 'text' : 'password'" 
@@ -130,7 +130,7 @@
                   v-model="newPassword" 
                   @click:append="showPassword = !showPassword"
                   placeholder="New Password"
-                  :rules = rules
+                  :rules = "rules.password"
                   dense
                   outlined
                   :type="showPassword ? 'text' : 'password'" 
@@ -142,6 +142,7 @@
                   v-model="confirmNewPassword" 
                   @click:append="showPassword = !showPassword"
                   placeholder="Confirm New Password"
+                  :rules = "rules.password"
                   dense
                   outlined
                   :type="showPassword ? 'text' : 'password'" 
@@ -210,10 +211,20 @@ export default {
       // NIP : "199304262019032028",
       // name : "Aprianti Nanda Sari, S.T., M.Kom.",
       // email : "aprianti.nanda@polban.ac.id",
-      rules: [
-        value => !!value || 'Required.',
-        // value => (value && value.length >= 3) || 'Min 3 characters',
-      ],
+      rules: {
+        nama: [
+          v => !!v || "Nama wajib diisi",
+        ],
+        email: [
+          v => !!v || "Email wajib diisi",
+          v =>
+            /.+@.+\..+/.test(v) ||
+            "Format email tidak valid"
+        ],
+        password:[
+          v => !!v || "Password wajib diisi",
+        ]
+      },
 
       // Data Form password
       password: 'PasswordDosen',

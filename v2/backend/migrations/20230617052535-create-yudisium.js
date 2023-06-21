@@ -6,9 +6,16 @@ module.exports = {
      
       id_yudisium: {
         primaryKey: true,
-        autoIncrement: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: false,
+      },
+      Koordinator_id_user: {
+        type: Sequelize.INTEGER,
+        allowNull:false,
+        references: {
+          model:'Koordinator',
+          key:'id_user'
+        }
       },
       nama_yudisium: {
         type: Sequelize.STRING,
