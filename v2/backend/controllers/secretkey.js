@@ -83,17 +83,16 @@ module.exports = {
     }
   },
   async getOneShareKey(req, res) {
-    const { id_laporan, NIP, role} = req.body
+    const { KoTA_id_user,id_laporan, NIP, role} = req.body
 
     try {
       // Get Id Relasi by NIP and role
-      const id_KoTA = id_laporan.substr(8);
       const selectQuery = `SELECT R."id_relasi" FROM "Relasi_KoTA" as R 
-                          WHERE R."NIP" = $1
+                          WHERE R."Dosen_id_user" = $1
                           AND R."role" = $2
-                          AND R."id_KoTA" = $3
+                          AND R."KoTA_id_user" = $3
                           `
-      const paramsQuery =[NIP,role, id_KoTA]
+      const paramsQuery =[NIP,role, KoTA_id_user]
 
       const resultRelasi = await db.query(selectQuery,paramsQuery)
 

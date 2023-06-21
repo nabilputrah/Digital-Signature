@@ -21,7 +21,89 @@
     </v-breadcrumbs>
     <!-- End Breadcrumbs -->
 
-    <v-card class="custom-card">
+    <!-- Start Form Detail Laporan -->
+    <v-card
+    class="custom-card"
+    >
+      <div style="width: 97%;margin-left: auto;margin-right: auto;">
+        <v-card-title>Data Yudisium</v-card-title>
+        <v-card-text >
+          <v-form
+            v-model="YudisiumValid"
+            >
+            <!-- Start Form Tanggal Yudisium 1 -->
+            <v-row v-for="(item, index) in yudisium" :key="index">
+              <v-col cols="4">
+                <div class="justify-center">
+                  <span 
+                  style="font-size:1rem;"
+                  >{{ item.nama_yudisium }}</span>
+                </div>
+              </v-col>
+              <v-col cols="8" >
+                  <v-dialog
+                    ref="dialog"
+                    v-model="item.menu_yudisium"
+                    persistent
+                    width="290px"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="item.tgl_yudisium"
+                        :placeholder="'Tanggal ' + (item.nama_yudisium)"
+                        dense
+                        outlined
+                        :rules = "rules"
+                        clearable
+                        readonly
+                        append-icon="mdi-calendar"
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="item.tgl_yudisium"
+                      scrollable
+                    >
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="item.menu_yudisium = false"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="item.menu_yudisium = false"
+                      >
+                        OK
+                      </v-btn>
+                    </v-date-picker>
+                  </v-dialog>
+              </v-col>
+            </v-row>
+            <!-- End Form Tanggal Yudisium 1 -->
+            <!-- Start Button Simpan Perubahan -->
+            <v-row >
+              <v-col class="text-right" >
+                <v-btn 
+                  color="primary" 
+                  @click="saveDataYudisium"
+                  :disabled="!YudisiumValid"
+                  >Simpan Perubahan</v-btn>
+              </v-col>
+            </v-row>
+            <!-- End Button Simpan Perubahan -->
+          </v-form>
+        </v-card-text>
+    </div>
+    </v-card>
+    <!-- End Form Detail Laporan -->
+
+    <!-- Start Data KoTA -->
+    <v-card class="custom-card" style="margin-top: 2%;margin-bottom: 2%;">
       <v-data-table
         :headers="headers"
         :search="search"
@@ -193,6 +275,7 @@
         <!-- End Kolom Dokumen -->
       </v-data-table>
     </v-card>
+    <!-- End Data KoTA -->
     <!-- End Datatables -->
 
     <!-- Start animasi loading section -->
@@ -252,6 +335,22 @@ import axios from 'axios'
         nama: '',
         email: '',
       },
+
+      // Tanggal Yudisium
+      YudisiumValid:false,
+
+      // yudisium: [
+      //   { nama_yudisium: 'Yudisium 1',menu_yudisium:false, tgl_yudisium: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10) },
+      //   { nama_yudisium: 'Yudisium 2',menu_yudisium:false, tgl_yudisium: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10) },
+      //   { nama_yudisium: 'Yudisium 3',menu_yudisium:false, tgl_yudisium: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10) },
+      // ],
+
+      yudisium:[],
+
+      rules: [
+        value => !!value || 'Required.',
+        // value => (value && value.length >= 3) || 'Min 3 characters',
+      ],
 
       // Notifikasi Berhasil
       snackbar: {
@@ -328,6 +427,21 @@ import axios from 'axios'
           this.KoTA = mappedKoTA
           console.log(this.KoTA[0].id_KoTA)
 
+          console.log(this.loggedIn.id_user)
+          const responseYudisium = await axios.get(this.$root.BASE_URL + `/api/yudisium/byKoor/`+this.loggedIn.id_user);
+          const dataYudisium = responseYudisium.data.data
+
+          const mappedYudisium = dataYudisium.map((item) => ({
+            nama_yudisium : item.nama_yudisium,
+            tgl_yudisium : this.convertDateYudisium(item.tgl_yudisium),
+            id_yudisium : item.id_yudisium,
+            menu_yudisium : false
+          }));
+
+          this.yudisium = mappedYudisium
+
+          console.log(dataYudisium)
+
         } catch (error) {
           console.error(error.message);
         }
@@ -364,6 +478,51 @@ import axios from 'axios'
         });        
       },
 
+      convertDateYudisium(tgl_yudisium) {
+        if (tgl_yudisium){
+          const date = new Date(tgl_yudisium);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          const formattedDate = `${year}-${month}-${day}`;
+          return formattedDate
+        } else{
+          return (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10);
+        } 
+
+      },
+    
+      async saveDataYudisium () {
+        
+        this.yudisium.forEach(async (item) => {
+          await axios({
+            method:'put',
+            url: this.$root.BASE_URL + '/api/yudisium/'+ item.id_yudisium,
+            data: {
+              id_yudisium : item.id_yudisium,
+              nama_yudisium: item.nama_yudisium,
+              tgl_yudisium: item.tgl_yudisium,
+              Koordinator_id_user : this.loggedIn.id_user
+            }
+          })
+          .then(response => {
+            console.log(response.data)
+          })
+          .catch(error => {
+              console.log(error.request.response)
+          })
+        });
+        
+        this.snackbar.show = true;
+        this.snackbar.color = "primary";
+        this.snackbar.message = "Data Tanggal Yudisium Berhasil Disimpan!";
+        
+        setTimeout(() => {
+          this.initialize()
+        }, 1000);
+
+      },
+      
       async redirectToAddKoTA () {
         const response = await axios.get(this.$root.BASE_URL + `/api/checkkajurkaprodi`);
         const CanADD = response.data

@@ -22,6 +22,7 @@ const relasiController = require('../controllers').relasi_kota;
 const laporanController = require('../controllers').laporan;
 const secretController = require('../controllers').secret_key;
 const dokumenController = require('../controllers').dokumen;
+const yudisiumController = require('../controllers').yudisium;
 
 const { verifyTokenAndRoleKoordinator } = require('../controllers/user');
 
@@ -195,9 +196,12 @@ router.put('/api/lembarpengesahan/:id',laporanController.updateLembarPengesahan)
 router.delete('/api/laporan/:id', laporanController.deleteLaporan)
 router.get('/api/getstatuskajur/:id', laporanController.getStatusKajur)
 router.get('/api/getstatuscanTTD/:id', laporanController.getStatusCanTTD)
+router.put('/api/merge/laporan/', laporanController.mergePDF)
+router.post('/api/validate/laporan/', laporanController.validateDocument)
+router.get('/api/getLaporanFinal/:id', laporanController.getDokumenFinalByID)
 // router.put('/api/laporan/doSignature/:id', laporanController.doSignature)
 
-/* Endpoint Prodi Controller*/
+/* Endpoint Secret Controller*/
 router.get('/api/secret', secretController.getAllSecretKey)
 router.get('/api/secret/:id', secretController.getSecretKeyById)
 router.post('/api/secret', secretController.addSecretKey)
@@ -217,4 +221,12 @@ router.get('/api/dokumenlaporan/:id/', dokumenController.getAllDokumenByIdLapora
 router.get('/api/dokumenversion/:id/', dokumenController.getDokumenVersionByKoTA)
 router.post('/api/dokumen/merge/', dokumenController.mergePDF)
 router.post('/api/dokumen/validate/', dokumenController.validateDocument)
+
+/* Endpoint Jabatan Controller*/
+router.get('/api/yudisium', yudisiumController.getAllYudisium)
+router.get('/api/yudisium/:id', yudisiumController.getYudisiumById)
+router.get('/api/yudisium/byKoor/:id', yudisiumController.getYudisiumByIdKoor)
+router.post('/api/yudisium', yudisiumController.addYudisium)
+router.put('/api/yudisium/:id',yudisiumController.updateYudisium)
+router.delete('/api/yudisium/:id', yudisiumController.deleteYudisium)
 module.exports = router;

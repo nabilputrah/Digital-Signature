@@ -103,7 +103,7 @@
               <v-col class="text-start align-self-center" cols="3">
                 <span 
                 style="font-size:1rem;"
-                >ID Dokumen</span>
+                >ID Laporan</span>
               </v-col>
               <v-col >
                 <v-text-field
@@ -421,7 +421,7 @@ export default {
       const formData = new FormData();
       formData.append('cover', this.file);
 
-      await axios.post(this.$root.BASE_URL + '/api/dokumen/validate/', formData, {
+      await axios.post(this.$root.BASE_URL + '/api/validate/laporan/', formData, {
         headers : {
           'Content-Type' : 'multipart/form-data'
         }
@@ -433,7 +433,7 @@ export default {
             this.DokumenValidCard = !this.DokumenValidCard
             this.Judul_Laporan = response.data.judul
             this.id_dokumen = "Laporan_"+response.data.id_KoTA
-            this.geRelasi(response.data.id_KoTA)
+            this.geRelasi(response.data.id_user)
 
           } 
           else {

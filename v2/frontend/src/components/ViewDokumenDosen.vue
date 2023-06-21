@@ -156,7 +156,7 @@
           </v-btn>
           <v-icon 
             v-if="shouldShowDownloadIcon(item)" 
-            @click="unduhItem(item.dokumen)"
+            @click="unduhItem()"
           >
             mdi-tray-arrow-down
           </v-icon>
@@ -411,7 +411,9 @@ export default {
         const responseFinal = await axios.get(this.$root.BASE_URL + `/api/getstatuscanTTD/${this.$route.params.id}`)
         const messageFinal = responseFinal.data.statusLaporan
 
-        console.log(messageFinal)
+        const responseKoTA = await axios.get(this.$root.BASE_URL + '/api/KoTA/' +this.$route.params.id)
+        this.id_KoTA = responseKoTA.data.data.id_user
+
         if (messageFinal){
           this.AksesTTD = true
         }
@@ -421,7 +423,7 @@ export default {
 
         if (this.$route.params.role === "Kaprodi" || this.$route.params.role === "Kajur"){
           try {
-            const response = await axios.get(this.$root.BASE_URL + `/api/relasi/accessttd/${this.$route.params.role}/${this.$route.params.id}`)
+            const response = await axios.get(this.$root.BASE_URL + `/api/relasi/accessttd/${this.$route.params.role}/${this.id_KoTA}`)
             const akses = response.data.data
             console.log(akses)
             if (akses > 0){
@@ -485,50 +487,14 @@ export default {
         console.error(error.message);
       }
 
-        // this.Laporan = [
-        //   {
-        //     ID_laporan: 'Laporan_402_v1',
-        //     tanggal_dibuat: '2022-03-02T00:00:00.000Z',
-        //   },
-        //   {
-        //     ID_laporan: 'Laporan_402_Final',
-        //     tanggal_dibuat: '2022-03-03T00:00:00.000Z',
-        //   },
-        //   {
-        //     ID_laporan: 'Laporan_402_v2',
-        //     tanggal_dibuat: '2022-03-02T15:00:00.000Z',
-        //   },
-        // ],
-
-
-        // this.Pengampu = [
-        //   {
-        //     dosen: 'Aprianti Nanda Sari, S.T., M.Kom.',
-        //     peran: 'Pembimbing',
-        //     urutan : 1,
-        //     status : true
-        //   },
-        //   {
-        //     dosen: 'Ghifari Munawar, S.Kom., M.T',
-        //     peran: 'Pembimbing',
-        //     urutan : 2,
-        //     status : true
-        //   },
-        //   {
-        //     dosen: 'Yadhi Adhitia P., S.T.',
-        //     peran: 'Ketua Jurusan',
-        //     urutan : '',
-        //     status : false
-        //   },
-        // ]
     },
 
     async Open_Dokumen(ID_laporan) {
       this.Dokumen_Dialog = !this.Dokumen_Dialog
       // console.log(ID_laporan)
-      const response = await axios.get(this.$root.BASE_URL + '/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      const response = await axios.get(this.$root.BASE_URL + '/api/laporan/openDokumen/'+ ID_laporan,{responseType:'blob'})
       this.previewUrl = URL.createObjectURL(response.data);
-      // console.log(this.previewUrl)
+      // console.log(response.data)
       this.showPdf();
     },
 
@@ -550,12 +516,12 @@ export default {
       pdfContainer.innerHTML = '';
     },
 
-    async unduhItem(ID_laporan) {
+    async unduhItem() {
       const link = document.createElement('a');
-      const response = await axios.get(this.$root.BASE_URL + '/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      const response = await axios.get(this.$root.BASE_URL + '/api/getLaporanFinal/'+ this.laporan.id_laporan,{responseType:'blob'})
       this.previewUrl = URL.createObjectURL(response.data);
       link.href = this.previewUrl; // Ganti dengan URL dokumen PDF yang ingin diunduh
-      link.download = ID_laporan; // Nama file yang akan diunduh
+      link.download = this.laporan.id_laporan; // Nama file yang akan diunduh
       link.target = '_blank';
       link.click();
       this.snackbar.show = true;

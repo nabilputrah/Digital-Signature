@@ -198,7 +198,7 @@
           <v-icon
             v-if="item.ID_laporan.includes('Final')"
             color="primary" 
-            @click="unduhItem(item.dokumen)"
+            @click="unduhItem()"
           >
             mdi-tray-arrow-down
           </v-icon>
@@ -487,33 +487,34 @@ export default {
     async GenerateDigitalSignature(){
       this.isLoading = true
       // Get Lembar Pengesahan
+      console.log(this.laporan.id_laporan)
       const responsePDF = await axios.get(this.$root.BASE_URL + '/api/lembarpengesahan/'+ this.laporan.id_laporan,{responseType:'blob'})
       const lembarPengesahan = responsePDF;
       console.log(lembarPengesahan)
 
-      const allCreatedDates = this.Laporan
-        .filter((laporan) => !laporan.ID_laporan.includes('Final'))
-        .map((laporan) => ({
-          tanggal_dibuat : new Date(laporan.tanggal_dibuat),
-          id_laporan : laporan.ID_laporan
-        }));
+      // const allCreatedDates = this.Laporan
+      //   .filter((laporan) => !laporan.ID_laporan.includes('Final'))
+      //   .map((laporan) => ({
+      //     tanggal_dibuat : new Date(laporan.tanggal_dibuat),
+      //     id_laporan : laporan.ID_laporan
+      //   }));
 
-      const Total_dokumen = allCreatedDates.length - 1
-      const Laporan_Final = allCreatedDates[Total_dokumen].id_laporan
+      // const Total_dokumen = allCreatedDates.length - 1
+      // const Laporan_Final = allCreatedDates[Total_dokumen].id_laporan
 
-      const responseLaporan = await axios.get(this.$root.BASE_URL + '/api/dokumen/'+ Laporan_Final,{responseType:'blob'})
+      // const responseLaporan = await axios.get(this.$root.BASE_URL + '/api/dokumen/'+ Laporan_Final,{responseType:'blob'})
+      // const laporanFinal = responseLaporan;
+
+      const responseLaporan = await axios.get(this.$root.BASE_URL + '/api/laporan/openDokumen/'+ this.laporan.id_laporan + '_Awal',{responseType:'blob'})
       const laporanFinal = responseLaporan;
-      
+
       console.log(laporanFinal)
       
       const formData = new FormData();
       formData.append('cover', laporanFinal.data);
       formData.append('content', lembarPengesahan.data)
       formData.append('id_laporan', this.laporan.id_laporan)
-      formData.append('id_dokumen', this.laporan.id_laporan + '_Final')
-      formData.append('version', 'Final')
-
-      await axios.post(this.$root.BASE_URL + '/api/dokumen/merge/', formData, {
+      await axios.put(this.$root.BASE_URL + '/api/merge/laporan/', formData, {
         headers : {
           'Content-Type' : 'multipart/form-data'
         }
@@ -535,7 +536,7 @@ export default {
 
         await axios({
             method:'delete',
-            url: this.$root.BASE_URL + '/api/relasi/deletettd/'+ this.kota.id_KoTA
+            url: this.$root.BASE_URL + '/api/relasi/deletettd/'+ this.laporan.KoTA_id_user
           })
           .then(response => {
             console.log(response.data)
@@ -642,12 +643,12 @@ export default {
       pdfContainer.innerHTML = '';
     },
 
-    async unduhItem(ID_laporan) {
+    async unduhItem() {
       const link = document.createElement('a');
-      const response = await axios.get(this.$root.BASE_URL + '/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      const response = await axios.get(this.$root.BASE_URL + '/api/getLaporanFinal/'+ this.laporan.id_laporan,{responseType:'blob'})
       this.previewUrl = URL.createObjectURL(response.data);
       link.href = this.previewUrl; // Ganti dengan URL dokumen PDF yang ingin diunduh
-      link.download = ID_laporan; // Nama file yang akan diunduh
+      link.download = this.laporan.id_laporan; // Nama file yang akan diunduh
       link.target = '_blank';
       link.click();
       this.snackbar.show = true;
@@ -665,6 +666,9 @@ export default {
     async initialize () {
 
     try {
+        if(this.Laporan){
+          this.Laporan.splice(0, 1);
+        }
         const response = await axios.get(this.$root.BASE_URL + `/api/getkotadata/${this.dataFromToken.id_user}`)
         this.kota = response.data.data[0]
         const id_kota = response.data.data[0].id_user
@@ -712,11 +716,11 @@ export default {
           this.laporan.tgl_disetujui = ''
         }
 
-        // // Get Status TTD Kajur
-        // const ResultStatusGenerate = await axios.get(this.$root.BASE_URL + '/api/getstatuskajur/' + id_kota)
-        // const StatusKajur = ResultStatusGenerate.data.data;
-        // this.StatusKajur = StatusKajur
-        // console.log(ResultStatusGenerate.data)
+        // Get Status TTD Kajur
+        const ResultStatusGenerate = await axios.get(this.$root.BASE_URL + '/api/getstatuskajur/' + id_kota)
+        const StatusKajur = ResultStatusGenerate.data.data;
+        this.StatusKajur = StatusKajur
+        console.log(ResultStatusGenerate.data)
 
         // this.StatusKajur = false
 

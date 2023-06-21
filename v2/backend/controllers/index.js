@@ -10,6 +10,7 @@ const relasi_kota = require('./relasikota');
 const laporan = require('./laporan');
 const secret_key = require('./secretkey');
 const dokumen = require('./dokumen');
+const yudisium = require('./yudisium');
 
 module.exports = {
   user,
@@ -23,5 +24,6 @@ module.exports = {
   relasi_kota,
   laporan,
   secret_key,
-  dokumen
+  dokumen,
+  yudisium
 };

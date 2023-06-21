@@ -155,7 +155,7 @@
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon 
             v-if="shouldShowDownloadIcon(item)" 
-            @click="unduhItem(item.dokumen)"
+            @click="unduhItem()"
           >
             mdi-tray-arrow-down
           </v-icon>
@@ -454,12 +454,12 @@ export default {
       pdfContainer.innerHTML = '';
     },
 
-    async unduhItem(ID_laporan) {
+    async unduhItem() {
       const link = document.createElement('a');
-      const response = await axios.get(this.$root.BASE_URL + '/api/dokumen/'+ ID_laporan,{responseType:'blob'})
+      const response = await axios.get(this.$root.BASE_URL + '/api/getLaporanFinal/'+ this.laporan.id_laporan,{responseType:'blob'})
       this.previewUrl = URL.createObjectURL(response.data);
       link.href = this.previewUrl; // Ganti dengan URL dokumen PDF yang ingin diunduh
-      link.download = ID_laporan; // Nama file yang akan diunduh
+      link.download = this.laporan.id_laporan; // Nama file yang akan diunduh
       link.target = '_blank';
       link.click();
       this.snackbar.show = true;

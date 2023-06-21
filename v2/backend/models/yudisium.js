@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Yudisium.init({
-    id_yudisium: DataTypes.INTEGER,
+    id_yudisium: DataTypes.STRING,
+    Koordinator_id_user: DataTypes.INTEGER,
     nama_yudisium: DataTypes.STRING,
     tgl_yudisium: DataTypes.DATE
   }, {
