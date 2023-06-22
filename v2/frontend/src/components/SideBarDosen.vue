@@ -6,6 +6,7 @@
       v-model="drawer"
       :mini-variant.sync="mini"
       permanent
+      style="border-radius: 5px; border-right: 1px solid #ccc;box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);"
     >
       <v-list-item class="px-2" style="padding-top: 5px;width: 100%;margin-left: auto;margin-right: auto;">
 

@@ -33,6 +33,23 @@
               inset
               vertical
             ></v-divider>
+            <v-spacer></v-spacer>
+            <!-- <v-toolbar-title class="text_main--text text-end" style="line-height:1.2rem;">
+              <v-row no-gutters style="justify-content: end; ">
+                <span>Batas Tanggal Yudisium 1 : 22-06-2023</span>
+              </v-row>
+              <v-row no-gutters style="justify-content: end; ">
+                <span>Batas Tanggal Yudisium 1 : 22-06-2023</span>
+              </v-row>
+              <v-row no-gutters style="justify-content: end; ">
+                <span>Batas Tanggal Yudisium 1 : 22-06-2023</span>
+              </v-row>
+            </v-toolbar-title> -->
+            <div v-for="(item, index) in yudisium" :key="index" style="margin-left: 0.5%;">
+              <v-row  no-gutters style="justify-content: end; ">
+                <span style="border: 1px solid #ccc; padding: 5px;border-radius: 5px;">Batas Tanggal {{item.nama_yudisium}} : {{item.tgl_yudisium}}</span>
+              </v-row>
+            </div>
           </v-toolbar>
 
           <!-- Start Input Search -->
@@ -88,6 +105,7 @@ import axios from 'axios'
     data: () => ({
       dataFromToken: '',
       dosen:'',
+      yudisium:[],
       search : '',
       headers: [
         {
@@ -118,7 +136,20 @@ import axios from 'axios'
     methods: {
       async initialize () {
         
+        try{
+          const responseYudisium = await axios.get(this.$root.BASE_URL + `/api/yudisium/byKoor/6`);
+          const dataYudisium = responseYudisium.data.data
 
+          const mappedYudisium = dataYudisium.map((item) => ({
+            nama_yudisium : item.nama_yudisium,
+            tgl_yudisium : this.convertDateYudisium(item.tgl_yudisium),
+          }));
+          this.yudisium = mappedYudisium
+
+        } catch(error){
+          console.log(error.message.request)
+        }
+        
          try {
             const response = await axios.get(this.$root.BASE_URL + `/api/getdosendata/${this.dataFromToken.id_user}`)
             this.dosen = response.data.data[0]
@@ -176,6 +207,18 @@ import axios from 'axios'
         
       },
 
+      convertDateYudisium(tgl_yudisium) {
+        if (tgl_yudisium){
+          const date = new Date(tgl_yudisium);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          const formattedDate = `${day}-${month}-${year}`;
+          return formattedDate
+        } else{
+          return (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10);
+        }
+      },
       getButtonStyle(item) {
         if (!item.status) {
           return {

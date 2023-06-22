@@ -5,15 +5,6 @@
       <h4 style="color: #1a5f7a;">Data KoTA</h4>
       <h4 style="margin-left: 1%;margin-right: 1%; color: #1a5f7a;">|</h4>
       <v-breadcrumbs-item 
-      :disabled="false" 
-      to="/koordinator/dashboard">
-        <v-icon >mdi-home-outline</v-icon>
-      </v-breadcrumbs-item>
-      <v-breadcrumbs-item 
-      :disabled="true">
-        /
-      </v-breadcrumbs-item>
-      <v-breadcrumbs-item 
       :disabled="true"
       to="/koordinator/KoTA">
         <span>Data KoTA</span>
@@ -26,7 +17,7 @@
     class="custom-card"
     >
       <div style="width: 97%;margin-left: auto;margin-right: auto;">
-        <v-card-title>Data Yudisium</v-card-title>
+        <v-card-title>Batas Tanggal Yudisium</v-card-title>
         <v-card-text >
           <v-form
             v-model="YudisiumValid"
@@ -37,7 +28,7 @@
                 <div class="justify-center">
                   <span 
                   style="font-size:1rem;"
-                  >{{ item.nama_yudisium }}</span>
+                  >Tanggal {{ item.nama_yudisium }}</span>
                 </div>
               </v-col>
               <v-col cols="8" >
