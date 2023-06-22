@@ -100,7 +100,8 @@
         :search="search"
         :items="KoTA"
         item-key="dokumen"
-        sort-by="id_KoTA"
+        :sort-by="['tahun_ajaran', 'id_KoTA']"
+        :sort-desc="[true, false]"
         show-expand
         class="elevation-1"
         :expanded.sync="expandedItems"
