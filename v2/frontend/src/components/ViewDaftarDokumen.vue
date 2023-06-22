@@ -18,7 +18,8 @@
         :search="search"
         :headers="headers"
         :items="KoTA"
-        sort-by="id_KoTA"
+        :sort-by="['tahun_ajaran', 'id_KoTA']"
+        :sort-desc="[true, false]"
         class="elevation-1"
         style="padding-top: 0.5%;"
       >
@@ -113,6 +114,7 @@ import axios from 'axios'
           align: 'start',
           value: 'id_KoTA',
         },
+        { text: 'Tahun Ajaran', value: 'tahun_ajaran'},
         { text: 'Judul Laporan', value: 'judul_TA' ,width:'40%'},
         { text: 'Peran', value: 'role'},
         { text: 'Urutan', value: 'urutan'},
@@ -171,10 +173,13 @@ import axios from 'axios'
             div.innerHTML = item.judul_TA;
             const judulTAText = div.innerText;
 
+            console.log(this.KoTA)
+
             return {
               id_KoTA: item.id_KoTA ? item.id_KoTA.replace(regex, "$2-$1/$3") : null,
               id_user: item.KoTA_id_user,
               id_detailLaporan : item.id_KoTA,
+              tahun_ajaran: item.tahun_ajaran,
               judul_TA: judulTAText,
               role: item.role,
               status: item.status,

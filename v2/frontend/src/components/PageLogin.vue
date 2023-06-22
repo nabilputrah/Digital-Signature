@@ -196,6 +196,10 @@ export default {
             this.snackbar.show = true;
             this.snackbar.color = "error";
             this.snackbar.message = "Username atau email KoTA tidak terdaftar"; 
+          } else if (error.response.data.message === 'username dan email Koor tidak sinkron'){
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Username atau email Koordinator tidak terdaftar"; 
           }
         });
     },

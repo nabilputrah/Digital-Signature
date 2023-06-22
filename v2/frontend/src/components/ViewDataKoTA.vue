@@ -100,7 +100,8 @@
         :search="search"
         :items="KoTA"
         item-key="dokumen"
-        sort-by="id_KoTA"
+        :sort-by="['tahun_ajaran', 'id_KoTA']"
+        :sort-desc="[true, false]"
         show-expand
         class="elevation-1"
         :expanded.sync="expandedItems"
@@ -418,7 +419,11 @@ import axios from 'axios'
           this.KoTA = mappedKoTA
           console.log(this.KoTA[0].id_KoTA)
 
-          console.log(this.loggedIn.id_user)
+        } catch (error) {
+          console.error(error.message);
+        }
+
+        try{
           const responseYudisium = await axios.get(this.$root.BASE_URL + `/api/yudisium/byKoor/`+this.loggedIn.id_user);
           const dataYudisium = responseYudisium.data.data
 
@@ -430,10 +435,7 @@ import axios from 'axios'
           }));
 
           this.yudisium = mappedYudisium
-
-          console.log(dataYudisium)
-
-        } catch (error) {
+        } catch(error){
           console.error(error.message);
         }
 

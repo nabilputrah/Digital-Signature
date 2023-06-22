@@ -754,12 +754,23 @@ module.exports = {
       // kalo role nya KoTA
 
       else if (role ==='KoTA'){
+        
+        const selectUser = `Select k."id_user" from "KoTA" as k
+                              WHERE k."id_KoTA" = $1
+                            `
+        const paramsUser = [username]
 
-        const selectQuery = `SELECT m."email",m."id_KoTA", k."jumlah_pembimbing", k."jumlah_penguji" FROM "Mahasiswa" as m
-                              JOIN "KoTA" as k ON m."id_KoTA" = k."id_KoTA"
-                              WHERE m."id_KoTA" = $1 AND m."isKetua" = true
-                              AND m."email" = $2` 
-        const paramsQuery = [username, email ]
+        const resultUser =  await db.query(selectUser,paramsUser)
+
+        const id_user = resultUser.rows[0].id_user
+
+        const selectQuery = `SELECT m."email",m."KoTA_id_user",k."id_KoTA", k."jumlah_pembimbing", k."jumlah_penguji" FROM "Mahasiswa" as m
+                              JOIN "KoTA" as k ON m."KoTA_id_user" = k."id_user"
+                              WHERE m."KoTA_id_user" = $1 AND m."isKetua" = true
+                              AND m."email" = $2
+                            `
+
+        const paramsQuery = [id_user, email ]
 
         const result =  await db.query(selectQuery,paramsQuery)
 
@@ -811,19 +822,33 @@ module.exports = {
       }
 
       else if (role ==='Koordinator') {
-        const selectQuery = `SELECT U."username",D."nama",D."email", K."tahun_ajaran" FROM "User" as U
-                            JOIN "Koordinator" as K 
-                            ON K."id_koor" = U."username"
-                            JOIN "Dosen" as D
-                            ON D."nama" = K."nama_koordinator"
-                            WHERE U."username" = $1 AND D."email" = $2` 
+
+        const userKoor = await Koordinator.findOne({
+          where: {
+            id_koor: username,
+            email: email
+          },
+          attributes:{
+            exclude:['id','createdAt','updatedAt']
+          }
+        })
+
+        if (!userKoor) {
+          return res.status(404).send({
+            message: 'username dan email Koor tidak sinkron'
+          })
+        }
+
+        const selectQuery = `SELECT K."tahun_ajaran",K."id_koor", K."nama_koordinator", K."email" FROM "Koordinator" as K
+                                WHERE K."id_koor" = $1 AND K."email" = $2
+                            `
         const paramsQuery = [username, email ]
 
         const result =  await db.query(selectQuery,paramsQuery)
 
           if(result.rows.length === 0) {
             return res.status(404).send({
-              message:'email dan username KoTA yang diinputkan tidak sinkron'
+              message:'email dan username Koordinator yang diinputkan tidak sinkron'
             })
           }
         
@@ -842,7 +867,7 @@ module.exports = {
           }
         )
 
-        res.render('forgotPasswordKoordinator', { nama: dataKoordinator.nama, username: username, newPass: passwordKoordinator }, function (err, renderedHtml) {
+        res.render('forgotPasswordKoordinator', { nama: dataKoordinator.nama_koordinator, username: username, newPass: passwordKoordinator }, function (err, renderedHtml) {
           if (err) {
             console.log(err);
           } else {
