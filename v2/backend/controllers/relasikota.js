@@ -294,6 +294,12 @@ module.exports = {
       return res.status(400).json({ message: "Tidak ada file yang diunggah" });
     }
 
+    // Validate file type
+    const fileExtension = path.extname(img_ttd.name).toLowerCase();
+    if (fileExtension !== '.png') {
+      return res.send({ message: 'File harus berformat PNG' });
+    }
+
     const now = moment()
     const formattedDate = now.format('YYYY-MM-DD')
     const formattedTimeFull = now.format('HH:mm:ss')
