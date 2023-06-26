@@ -139,7 +139,7 @@ module.exports = {
       const paramsQueryRelasi = [KoTA_id_user]                          
       const resultGetDosen = await db.query(selectQueryRelasi,paramsQueryRelasi)
 
-      const jumlahRelasi = resultGetDosen.rows.length
+      const jumlahRelasi = resultGetDosen.rows.length + 1
       const dataDosen = resultGetDosen.rows
 
       const secret = Buffer.from(privateKey)
@@ -161,6 +161,23 @@ module.exports = {
         },options)
 
       });
+
+      const options_anom = {
+        fields: ['id_secret','Laporan_id_laporan','Dosen_id_user','secret_key'],
+        returning:true
+      }
+      const secret_key_anom = await SecretKey.create({
+        id_secret: id_laporan + "_secretkey_anonimus",
+        Laporan_id_laporan: id_laporan,
+        Dosen_id_user: null,
+        secret_key: shares[jumlahRelasi-1].toString('hex')
+      },options_anom)
+
+      if (!secret_key_anom){
+        return res.status(200).send({
+          message: 'gagal add anom'
+        })
+      }
 
       return res.status(200).send({
         message: 'sukses'
