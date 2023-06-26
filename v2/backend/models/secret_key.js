@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     Dosen_id_user: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     },
     secret_key: {
       type: DataTypes.TEXT,
