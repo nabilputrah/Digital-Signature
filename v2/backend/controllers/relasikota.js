@@ -334,23 +334,32 @@ module.exports = {
       }
 
       img_ttd.mv(path.resolve('./uploads/img_ttd/' + id_KoTA +'/', role + '_' + NIP + path.extname(img_ttd.name)))
-    
-
+      await db.query("BEGIN");
       const updateQuery = `UPDATE "Relasi_KoTA" SET "status" = true, "img_ttd" = $1, "tgl_ttd"=$2
-                           WHERE "id_relasi"= $3 RETURNING *
+                           WHERE "id_relasi"= $3 RETURNING * FOR UPDATE
                           `
       const paramsQuery = [urlImage, fullDatetime, relasi.id_relasi]
-
+      // Mulai transaksi
+  
+      // Melakukan update dengan lock
       const resultQuery = await db.query(updateQuery, paramsQuery)
 
       if (Object.keys(resultQuery).length > 0) {
+               await db.query('COMMIT')
                return res.status(200).send({
-            message: `Do signature berhasil`,
-            data: resultQuery.rows
+                message: `Do signature berhasil`,
+                data: resultQuery.rows
           })
-        } 
+        }
+
+        await db.query("ROLLBACK");
+        return res.status(400).send({
+          message: "Tidak ada data yang diupdate",
+        });
+      
 
     } catch (error) {
+      await db.query('ROLLBACK')
       return res.status(400).send({
         message: error.message
       })
