@@ -855,8 +855,16 @@
               console.log(this.user_KoTA)
               return;
           }
+          
+          if(this.file.type !=='image/png'){
+              this.validationError = "Format gambar harus berformat PNG.";
+                return;
+          }
+
+       
           this.isLoading = true
-          // console.log(this.file)
+          console.log(this.file.size)
+          console.log(this.file.type)
           const formData = new FormData();
           formData.append('img_ttd', this.file);
           formData.append('NIP', this.dosen.id_user)
@@ -870,6 +878,15 @@
           })
           .then(response => {
             console.log(response.data);
+            this.MessageError = response.data.message
+          if (this.MessageError.includes('File harus berformat PNG')){
+            this.snackbar.show = true;
+            this.snackbar.color = "error";
+            this.snackbar.message = "Gagal menambahkan tanda tangan, File harus berupa PNG!!!";
+            this.isLoading = false
+            throw "Gambar bukan png!";
+           
+          }
           })
           .catch(error => {
             console.log(error.message);
