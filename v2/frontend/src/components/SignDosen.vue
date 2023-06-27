@@ -274,14 +274,25 @@
                     <v-card-text>
                       <v-form ref="form" @submit.prevent="validateFile">
                         <template v-if="item.text === 'Browse'">
+                          <img v-if="file" width="200px" height="120px" :src="previewImage" alt="Preview" />
+                          <v-row>
+                            <span v-if="file">Size : {{(file.size / 1024).toFixed(2)}}Kb</span>
+                          </v-row>
+                          <br>
                           <v-file-input
                             v-model="file"
                             label="Pilih File"
                             accept=".png"
                             prepend-icon="mdi-paperclip"
+                            @change="onFileChange"
                           ></v-file-input>
                         </template>
                         <template v-if="item.text === 'Drop'">
+                          <img v-if="file" width="200px" height="120px" :src="previewImage" alt="Preview" />
+                          <v-row>
+                            <span v-if="file">Size : {{(file.size / 1024).toFixed(2)}}Kb</span>
+                          </v-row>
+                          <br>
                           <div 
                             class="drop-area" 
                             @dragenter="dragEnter" 
@@ -526,6 +537,7 @@
             { text: "Gambar" },
         ],
         file: null,
+        previewImage: null,
         dragging: false,
         validationError: null,
         dialogOpen: false,
@@ -899,17 +911,24 @@
             this.file = null
         },
 
+        onFileChange() {
+          // this.file = event[0];
+          this.validateFile();
+        },
+
         validateFile() {
             if (!this.file) {
                 this.validationError = "Mohon pilih file yang akan divalidasi.";
                 return;
             }
-            if (this.file && this.file.name === 'LaporanTA.pdf'){
-                this.validasiDokumen = !this.validasiDokumen
-            } 
-            else {
-                this.validasiDokumen = !this.validasiDokumen
-            }
+            // if (this.file) {
+              const reader = new FileReader();
+              reader.onload = () => {
+                this.previewImage = reader.result;
+              };
+              reader.readAsDataURL(this.file);
+              console.log(this.previewImage)
+            // }
         },
 
         Do_Sign(){
@@ -1048,6 +1067,7 @@
         handleFiles(files) {
             if (files.length > 0) {
                 this.file = files[0];
+                this.validateFile()
                 // console.log(this.file)
             }
         },
